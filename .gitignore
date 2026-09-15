@@ -1,0 +1,18 @@
+# 数据文件不入库（体积大，请从官方渠道获取后放在 data/ 目录）
+data/
+
+# 官方数据集的分片/压缩形态
+*.zip
+*.gz
+part-*
+_SUCCESS
+*.baiduyun.p.downloading
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+
+# macOS
+.DS_Store
