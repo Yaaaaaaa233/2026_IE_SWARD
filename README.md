@@ -11,12 +11,16 @@
 
 任务与评分细节见 [赛题资料/赛题说明.pdf](赛题资料/赛题说明.pdf)。
 
+**整体打法与阶段规划见 [docs/roadmap.md](docs/roadmap.md)。**
+
 ## 目录结构
 
 ```
 .
 ├── README.md          # 本文件
 ├── .gitignore         # 屏蔽数据文件，防止大数据误传
+├── docs/
+│   └── roadmap.md                     # 整体路线图（评估 harness → 特征 → 模型 → 任务二）
 └── 赛题资料/           # 赛题官方文档
     ├── README.md                       # 赛题任务摘要与数据集说明
     ├── 赛题说明.pdf
