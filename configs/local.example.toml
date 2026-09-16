@@ -1,0 +1,9 @@
+# Copy to configs/local.toml; never commit real machine paths.
+# Relative paths are resolved against the repository root by future loaders.
+[paths]
+data_root = "data"
+artifact_root = "artifacts"
+report_root = "reports/local"
+
+[runtime]
+device_label = "replace-with-local-alias"

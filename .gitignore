@@ -16,3 +16,44 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# 本机 agent、编辑器和会话痕迹
+.mimosa/
+.Rhistory
+.RData
+.idea/
+.vscode/
+.pytest_cache/
+.coverage
+
+# 机器配置与凭据（模板不含真实值）
+.env
+.env.*
+!.env.example
+configs/local.toml
+configs/*.local.*
+*.pem
+*.key
+
+# 比赛派生产物：默认仅在受控本地目录保存
+artifacts/
+outputs/
+reports/local/
+*.parquet
+*.arrow
+*.feather
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.joblib
+*.pt
+*.pth
+*.log
+
+# 已有详细讨论稿含本地数据统计，公开发布资格未确认
+docs/roadmap_validation_driven.md
