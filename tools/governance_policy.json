@@ -1,0 +1,84 @@
+{
+  "required_paths": [
+    "README.md",
+    "AGENTS.md",
+    "AGENT.md",
+    "docs/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/COLLABORATION.md",
+    "docs/DATA_POLICY.md",
+    "docs/ACCEPTANCE.md",
+    "docs/plans/README.md",
+    "docs/interfaces/README.md",
+    "docs/tasks/README.md",
+    "docs/decisions/README.md",
+    "docs/evidence/README.md",
+    "docs/worklog/README.md",
+    "docs/templates/task.json",
+    "docs/templates/acceptance.md",
+    "docs/templates/experiment.md",
+    "docs/templates/handoff.md",
+    "configs/local.example.toml",
+    "tools/check_governance.py",
+    "tools/governance_policy.json",
+    "tests/test_governance.py",
+    ".github/workflows/governance.yml"
+  ],
+  "private_prefixes": [
+    "data/",
+    "artifacts/",
+    "outputs/",
+    "reports/local/"
+  ],
+  "private_files": [
+    "configs/local.toml",
+    "docs/roadmap_validation_driven.md"
+  ],
+  "forbidden_extensions": [
+    ".csv",
+    ".tsv",
+    ".parquet",
+    ".arrow",
+    ".feather",
+    ".xlsx",
+    ".xls",
+    ".npy",
+    ".npz",
+    ".pkl",
+    ".pickle",
+    ".joblib",
+    ".pt",
+    ".pth",
+    ".zip",
+    ".gz",
+    ".7z",
+    ".sqlite",
+    ".db",
+    ".log",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".html",
+    ".pdf",
+    ".pem",
+    ".key",
+    ".ipynb"
+  ],
+  "existing_assets": {
+    "赛题资料/2026清华Agent大赛《驾驶安全》数据集说明.pdf": {
+      "sha256": "25053ef9d263f1cd56aa9bae61eedb05ad92c8def8baff29fa682f0c07d047fc",
+      "reason": "Pre-existing official document; no new publication authorization inferred."
+    },
+    "赛题资料/IMU数据风险分析参考资料.pdf": {
+      "sha256": "49635c2695c7940798120582c51587612c417bd4247a488eb367d59be9f468c1",
+      "reason": "Pre-existing official document; no new publication authorization inferred."
+    },
+    "赛题资料/赛题说明.pdf": {
+      "sha256": "ff65dbc178169502ed9ab002d23b2a9aa6b4225c1f18468dbcccad5a731dc394",
+      "reason": "Pre-existing official document; no new publication authorization inferred."
+    }
+  },
+  "max_file_bytes": 8000000
+}

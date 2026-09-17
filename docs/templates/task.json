@@ -1,0 +1,17 @@
+{
+  "id": "TASK-000",
+  "title": "填写一个可独立验收的任务",
+  "status": "proposed",
+  "owner": null,
+  "actor": null,
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": null,
+  "base_commit": null,
+  "write_scope": [],
+  "dependencies": [],
+  "acceptance": ["填写验收问题、必交证据和停止条件"],
+  "evidence": [],
+  "handoff": null,
+  "notes": "认领前填写范围、执行者和分支；模型任务另附固定实验协议。"
+}

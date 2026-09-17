@@ -1,0 +1,17 @@
+{
+  "id": "GOV-001",
+  "title": "建立跨成员、设备与 agent 的治理框架",
+  "status": "accepted",
+  "owner": "Yaaaaaaa233（GitHub 账号，用户本人）",
+  "actor": "Codex（本次用户请求的执行工具）",
+  "reviewer": "Yaaaaaaa233（GitHub 账号，用户本人复核）",
+  "reviewed_at": "2026-09-17",
+  "branch": "chore/agent-governance",
+  "base_commit": "0ca7910",
+  "write_scope": ["AGENTS.md", "AGENT.md", "README.md", ".gitignore", ".github/", "docs/", "configs/", "tools/", "tests/"],
+  "dependencies": [],
+  "acceptance": ["统一规则入口与文档职责清晰", "不冻结算法路线或虚构成员分工", "提供跨平台检查与反例自测", "提供可视化验收和交接模板", "不发布本地数据统计与敏感产物"],
+  "evidence": ["docs/evidence/governance-bootstrap.md"],
+  "handoff": "docs/worklog/2026-09-16-governance-bootstrap.md",
+  "notes": "2026-09-17 用户本人复核 PR 通过并授权合并；owner 仍待确认。仅治理框架被接受，不视为已接受算法路线。"
+}

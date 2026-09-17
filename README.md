@@ -11,19 +11,42 @@
 
 任务与评分细节见 [赛题资料/赛题说明.pdf](赛题资料/赛题说明.pdf)。
 
-## 目录结构
+**当前阶段：协作治理初始化，算法路线待确定。** 任务详情暂按 40 天理解，官方概述的 30 天差异仍需确认。路线草案不等于已冻结的实验协议。
+
+## 新成员和新 agent 从这里开始
+
+1. 阅读 [AGENTS.md](AGENTS.md) 和 [当前状态](docs/DEVELOPMENT_STATUS.md)。
+2. 按 [跨设备协作规范](docs/COLLABORATION.md) 建立独立分支、认领任务和准备本地配置。
+3. 阅读 [数据边界](docs/DATA_POLICY.md)。本仓库公开，数据、真实实验报告及模型产物默认留在受控本地目录。
+4. 运行不需要比赛数据的治理检查（Python 3.10+，仅标准库）：
+
+```sh
+python tools/check_governance.py
+python -m unittest discover -s tests -v
+```
+
+Windows 可使用 `py -3`，macOS/Linux 可使用 `python3` 替代 `python`。通过只表示治理结构与检查器自测通过，不表示已经实现模型或通过比赛验收。
+
+## 目录结构与权威入口
 
 ```
 .
-├── README.md          # 本文件
-├── .gitignore         # 屏蔽数据文件，防止大数据误传
-└── 赛题资料/           # 赛题官方文档
-    ├── README.md                       # 赛题任务摘要与数据集说明
-    ├── 赛题说明.pdf
-    ├── 2026清华Agent大赛《驾驶安全》数据集说明.pdf
-    └── IMU数据风险分析参考资料.pdf
+├── AGENTS.md / AGENT.md   # 统一入口与兼容指引
+├── docs/README.md        # 文档职责、阅读顺序和更新规则
+├── docs/tasks/           # 每个任务的认领、状态、写入范围和验收
+├── docs/decisions/       # 决策记录；提议与已接受分开
+├── docs/evidence/        # 可公开的证据索引；不默认接收比赛结果
+├── docs/worklog/         # 会话结束时追加的交接简报
+├── docs/templates/      # 实验、验收及交接模板
+├── configs/             # 可共享配置模板；本地配置被忽略
+├── tools/               # 跨平台治理检查
+├── tests/               # 无真实比赛数据的治理自测
+├── .github/             # CI 与 PR 模板
+└── 赛题资料/             # 已有官方说明文件
 ```
 
 ## 关于数据
 
-四类原始数据体积较大，**不入库**（已通过 `.gitignore` 屏蔽数据文件），请从官方渠道获取后放置于本地 `data/` 目录（该目录同样被忽略）。数据集的文件构成与字段说明见 [赛题资料/README.md](赛题资料/README.md)。
+四类数据从官方授权渠道获取，通过本地配置定位，禁止提交原始数据或密钥。`.gitignore` 不能阻止强制添加或清除已有历史；提交前还须检查实际暂存内容。详细规则见 [数据边界](docs/DATA_POLICY.md)。
+
+路线讨论见 [路线入口](docs/plans/README.md)，包括现有 [原路线草案](docs/roadmap.md)；其中未经验证的假设不作为验收结论。各阶段应该交付哪些人能看懂的图表，见 [可视化验收规范](docs/ACCEPTANCE.md)。
