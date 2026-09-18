@@ -1,0 +1,33 @@
+{
+  "id": "DATACON-001",
+  "title": "任务一数据契约草案与合成接口模板",
+  "status": "review",
+  "owner": null,
+  "actor": "ZCode agent（数据线执行）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/DATACON-001-data-contract",
+  "base_commit": "79e3fad6496607d2eb90520a0a96297e40203f56",
+  "write_scope": [
+    "docs/interfaces/data_contract.md",
+    "docs/interfaces/templates.md",
+    "docs/interfaces/README.md",
+    "docs/tasks/DATACON-001.json",
+    "docs/worklog/2026-09-18-data-interface-draft.md"
+  ],
+  "dependencies": [
+    "GOV-001"
+  ],
+  "acceptance": [
+    "契约只含字段、类型、单位与规则层方法，不含真实车辆标识、真实统计或数据指纹",
+    "templates.md 全部示例为明确标注的合成数据",
+    "docs/interfaces/README.md 仅新增索引行，不改既有约定",
+    "python tools/check_governance.py 与 python -m unittest discover -s tests -v 通过",
+    "真实统计版分析报告与真实值模板保存在受控本地目录，不进入本仓库"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-18-data-interface-draft.md"
+  ],
+  "handoff": "docs/worklog/2026-09-18-data-interface-draft.md",
+  "notes": "任务前缀 DATACON 为数据线新起编号，需协调者确认沿用。契约状态为草案，冻结需按决策流程记录 ADR。"
+}
