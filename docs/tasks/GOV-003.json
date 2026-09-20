@@ -1,0 +1,40 @@
+{
+  "id": "GOV-003",
+  "title": "协作模式切换：取消强制 PR，改为协调者定期监督（ADR-0003）",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "ZCode agent（治理线执行，组长授权）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（直推，ADR-0003 模式）",
+  "base_commit": "7365594",
+  "write_scope": [
+    "docs/decisions/ADR-0003-no-pr-collaboration-mode.md",
+    "docs/decisions/README.md",
+    "docs/COLLABORATION.md",
+    "AGENTS.md",
+    "docs/plans/roadmap_overall.md",
+    "docs/plans/roadmap_requirements.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "tools/supervise.sh",
+    "docs/tasks/GOV-003.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-21-collaboration-mode.md"
+  ],
+  "dependencies": [
+    "GOV-001",
+    "GOV-002"
+  ],
+  "acceptance": [
+    "ADR-0003 记录真实决策人（叶安）、日期与风险接受；保留任务登记/worklog/检查三件轻量纪律",
+    "COLLABORATION §4 与 AGENTS 可审查条目改为无 PR 直推模式；DATA_POLICY、结果诚实、accepted 复核要求不放宽",
+    "tools/supervise.sh 一键输出近期提交、治理检查、单测、任务索引与 worklog 清单并可执行",
+    "挂起 PR #5/##3 内容已合入 main（冲突已解）；路线图内 PR 表述与 ADR 编号同步更新（主口径让位为 ADR-0004）",
+    "治理检查与单元测试通过"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-collaboration-mode.md"
+  ],
+  "handoff": "docs/worklog/2026-09-21-collaboration-mode.md",
+  "notes": "组长 2026-09-21 决策：比赛进度优先，取消 PR 流程；分工互不重叠，数据硬盘传递；评审改为组长定期监督。"
+}
