@@ -10,6 +10,8 @@
 
 现有草案：[数据契约草案 v0.1](data_contract.md) 与 [合成接口模板](templates.md)（任务 [DATACON-001](../tasks/DATACON-001.json)，评审中；示例均为合成数据）。
 
+评价提议：[评价指标与基线比较方案 v0.1](evaluation_metrics.md)（任务 [EVAL-001](../tasks/EVAL-001.json)，[ADR-0002](../decisions/ADR-0002-evaluation-metrics.md)，Proposed，未冻结），集中说明 MOE/MOP、指标公式、拟合边界和判优规则。
+
 公共语义变化需新增或修订 [决策](../decisions/README.md)，记录版本、受影响消费者、失效实验和迁移方式。任务分支可以提出草案，不得以本地临时实现覆盖共享合同。
 
 版本化配置进 Git；机器路径和敏感数据指纹留本地。契约的合成测试可在 CI 执行，真实数据测试在授权本机执行。

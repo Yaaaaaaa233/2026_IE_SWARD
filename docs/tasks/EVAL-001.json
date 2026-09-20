@@ -1,0 +1,33 @@
+{
+  "id": "EVAL-001",
+  "title": "整理 MOE 与 MOP 评价指标及基线判优规则",
+  "status": "review",
+  "owner": null,
+  "actor": "Codex（本次用户请求的执行工具）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/EVAL-001-evaluation-metrics",
+  "base_commit": "454f20b45b3c7412fd6024b1e2e4f1b19a4c439d",
+  "write_scope": [
+    "docs/interfaces/evaluation_metrics.md",
+    "docs/interfaces/README.md",
+    "docs/ACCEPTANCE.md",
+    "docs/decisions/ADR-0002-evaluation-metrics.md",
+    "docs/decisions/README.md",
+    "docs/tasks/EVAL-001.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-20-evaluation-metrics.md"
+  ],
+  "dependencies": ["GOV-001"],
+  "acceptance": [
+    "明确 MOE 与 MOP 的目标对应、任务一主辅指标、计算口径、方向与异常处理",
+    "明确任务二官方评审维度、内部验收证据与实际事故减少之间的结论边界",
+    "给出同折分比较、拟合与校准边界、配对不确定性、阈值及判优规则",
+    "保留 Proposed 状态，不冻结官方 30/40 天歧义、数据契约或算法路线",
+    "只提交规则层文档及明确标注的合成示例，不公开真实数据统计或模型结果",
+    "治理检查、现有单元测试与暂存区检查通过，交接明确尚未运行模型实验"
+  ],
+  "evidence": ["docs/worklog/2026-09-20-evaluation-metrics.md"],
+  "handoff": "docs/worklog/2026-09-20-evaluation-metrics.md",
+  "notes": "用户直接授权整理并上传评价指标；认领时远端无开放 PR，独立分支执行。文档完成并经实现者自查，治理检查与 17 项现有单元测试通过；不代表模型验证或协议已接受。人类责任人与复核人待确认。"
+}
