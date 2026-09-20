@@ -1,0 +1,41 @@
+{
+  "id": "MODEL-002",
+  "title": "模型路线提案、模型契约与项目执行路线图 v2",
+  "status": "review",
+  "owner": null,
+  "actor": "ZCode agent（模型线执行，组长授权）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/MODEL-002-route-and-governance",
+  "base_commit": "a4211d9",
+  "write_scope": [
+    "docs/roadmap.md",
+    "docs/modules/README.md",
+    "docs/interfaces/model_contract.md",
+    "docs/interfaces/README.md",
+    "docs/plans/model-route-proposal.md",
+    "docs/plans/README.md",
+    "docs/tasks/MODEL-002.json",
+    "docs/tasks/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "README.md",
+    "docs/worklog/2026-09-20-model-route-and-governance.md",
+    "tools/governance_policy.json"
+  ],
+  "dependencies": [
+    "GOV-001",
+    "DATACON-001"
+  ],
+  "acceptance": [
+    "路线提案与模型契约只含方法层内容，不含真实车辆标识、真实统计或数据指纹；数值结论引用边界指向状态页",
+    "roadmap v2 与模块登记表不含实验数字，接口拓扑与既有契约一致，未替团队冻结任何算法路线",
+    "索引更新（tasks/plans/interfaces/README、根 README 目录树）仅新增行与最小措辞修正，不改他人约定",
+    "python tools/check_governance.py 与 python -m unittest discover -s tests -v 通过",
+    "模型线详细调研报告（含实验数字）保存于受控本地目录，不进入本仓库"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-20-model-route-and-governance.md"
+  ],
+  "handoff": "docs/worklog/2026-09-20-model-route-and-governance.md",
+  "notes": "任务前缀 MODEL 为模型线新起编号，需协调者确认。TASK-005 提交（数据清洗总说明）未在 tasks/ 登记，且文档含全量实测统计；本次将其 sha256 登记进 governance_policy.json 的 existing_assets（理由注明公开复核仍待协调者确认），仅为恢复检查可通过，不构成对其公开授权的追认。另在索引中补登 DATACON-001 缺失行。"
+}
