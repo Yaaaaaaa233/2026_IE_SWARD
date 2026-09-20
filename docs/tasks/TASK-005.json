@@ -1,0 +1,28 @@
+{
+  "id": "TASK-005",
+  "title": "数据清洗版本与规则总说明（v0–v4）入库：docx 转 Markdown 并移除二进制",
+  "status": "review",
+  "owner": "娄澜",
+  "actor": "ZCode",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/TASK-005-cleaning-rules-doc",
+  "base_commit": "a0d4883037cdd994b5e2fb2191357567cb9d33ce",
+  "write_scope": [
+    "docs/cleaning/数据清洗版本与规则总说明.md",
+    "docs/cleaning/数据清洗版本与规则总说明.docx",
+    "docs/tasks/TASK-005.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-21-cleaning-rules-doc.md",
+    "docs/interfaces/README.md"
+  ],
+  "dependencies": ["GOV-001", "DATACON-001"],
+  "acceptance": [
+    "docs/cleaning 下仅保留 Markdown 版本，治理检查对 HEAD 恢复通过（不存在未登记二进制）",
+    "md 内容与本地 Word 版一致，差异仅限脱敏（车辆标识替换为代号、坐标截断）与本机路径去除，均在交接中列明",
+    "任务登记、交接简报、接口入口链接齐备；治理检查与单元测试通过"
+  ],
+  "evidence": ["docs/worklog/2026-09-21-cleaning-rules-doc.md"],
+  "handoff": "docs/worklog/2026-09-21-cleaning-rules-doc.md",
+  "notes": "补登记 commit a4211d9（经责任人授权直接推送 main 的清洗规则总说明 docx）。该提交使治理检查在 main 上失败（未登记二进制），本任务将同一文档转为 Markdown 并移除 docx，恢复检查通过。清洗脚本与五版数据产物留在受控本地。"
+}

@@ -4,6 +4,7 @@
 
 - [EVAL-001：MOE 与 MOP 评价指标及基线判优规则](EVAL-001.json)
 - [GOV-001：治理框架初始化](GOV-001.json)
+- [TASK-005：数据清洗版本与规则总说明（v0–v4）入库，docx 转 Markdown](TASK-005.json)
 
 使用 [任务模板](../templates/task.json)，文件名等于唯一 `id`。未来任务采用团队协调的前缀与编号，不在不同分支同时创建同名记录。
 
