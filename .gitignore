@@ -57,3 +57,6 @@ reports/local/
 
 # 已有详细讨论稿含本地数据统计，公开发布资格未确认
 docs/roadmap_validation_driven.md
+
+# 总路线图受控数值对照页（真实统计不入公开仓库）
+docs/plans/roadmap_overall_numbers.md
