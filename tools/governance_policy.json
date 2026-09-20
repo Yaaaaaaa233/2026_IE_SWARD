@@ -78,6 +78,10 @@
     "赛题资料/赛题说明.pdf": {
       "sha256": "ff65dbc178169502ed9ab002d23b2a9aa6b4225c1f18468dbcccad5a731dc394",
       "reason": "Pre-existing official document; no new publication authorization inferred."
+    },
+    "docs/cleaning/数据清洗版本与规则总说明.docx": {
+      "sha256": "6efa6041442ad7fd06e311070bec915ebb8af7ad6404bb72e4f3544141988ae0",
+      "reason": "Pre-existing TASK-005 asset committed directly to main on 2026-09-19; registered to keep checks green, publication review by coordinator still pending (see MODEL-002 notes)."
     }
   },
   "max_file_bytes": 8000000
