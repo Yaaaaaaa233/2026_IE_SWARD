@@ -14,4 +14,4 @@
 
 版本化配置进 Git；机器路径和敏感数据指纹留本地。契约的合成测试可在 CI 执行，真实数据测试在授权本机执行。
 
-评价提议：[评价指标与基线比较方案 v0.1](evaluation_metrics.md)（任务 [EVAL-001](../tasks/EVAL-001.json)，[ADR-0002](../decisions/ADR-0002-evaluation-metrics.md)，Proposed，未冻结），集中说明 MOE/MOP、指标公式、拟合边界和判优规则。
+评价提议：[评价指标与基线比较方案 v0.1](../../评价指标与基线对照方案（MOE与MOP）.md)（任务 [EVAL-001](../tasks/EVAL-001.json)，[ADR-0002](../decisions/ADR-0002-evaluation-metrics.md)，Proposed，未冻结），集中说明 MOE/MOP、指标公式、拟合边界和判优规则。

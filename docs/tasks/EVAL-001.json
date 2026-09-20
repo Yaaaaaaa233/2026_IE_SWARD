@@ -16,9 +16,14 @@
     "docs/decisions/README.md",
     "docs/tasks/EVAL-001.json",
     "docs/tasks/README.md",
-    "docs/worklog/2026-09-20-evaluation-metrics.md"
+    "docs/worklog/2026-09-20-evaluation-metrics.md",
+    "评价指标与基线对照方案（MOE与MOP）.md",
+    "README.md",
+    "docs/worklog/2026-09-20-evaluation-metrics-navigation.md"
   ],
-  "dependencies": ["GOV-001"],
+  "dependencies": [
+    "GOV-001"
+  ],
   "acceptance": [
     "明确 MOE 与 MOP 的目标对应、任务一主辅指标、计算口径、方向与异常处理",
     "明确任务二官方评审维度、内部验收证据与实际事故减少之间的结论边界",
@@ -27,7 +32,10 @@
     "只提交规则层文档及明确标注的合成示例，不公开真实数据统计或模型结果",
     "治理检查、现有单元测试与暂存区检查通过，交接明确尚未运行模型实验"
   ],
-  "evidence": ["docs/worklog/2026-09-20-evaluation-metrics.md"],
-  "handoff": "docs/worklog/2026-09-20-evaluation-metrics.md",
+  "evidence": [
+    "docs/worklog/2026-09-20-evaluation-metrics.md",
+    "docs/worklog/2026-09-20-evaluation-metrics-navigation.md"
+  ],
+  "handoff": "docs/worklog/2026-09-20-evaluation-metrics-navigation.md",
   "notes": "用户直接授权整理并上传评价指标；认领时远端无开放 PR，独立分支执行。文档完成并经实现者自查，治理检查与 17 项现有单元测试通过；不代表模型验证或协议已接受。人类责任人与复核人待确认。"
 }
