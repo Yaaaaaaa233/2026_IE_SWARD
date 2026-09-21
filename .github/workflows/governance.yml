@@ -20,7 +20,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+      - name: Install declared test dependencies
+        run: pip install -r requirements.txt
       - name: Check committed governance
         run: python tools/check_governance.py --scope head
-      - name: Test checks with synthetic repositories
+      - name: Run unit tests
         run: python -m unittest discover -s tests -v

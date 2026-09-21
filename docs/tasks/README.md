@@ -10,6 +10,7 @@
 - [GOV-003：协作模式切换——取消强制 PR，改为协调者定期监督（ADR-0003）](GOV-003.json)
 - [GOV-004：数据交付规范（硬盘接口）与脚本归属（DATA_DELIVERY）](GOV-004.json)
 - [GOV-005：目录归位——评估方案与 roadmap v2 迁入 docs/plans](GOV-005.json)
+- [GOV-006：CI 单测依赖声明与治理工作流修复（requirements.txt + pip 安装步骤）](GOV-006.json)
 - [MODEL-002：模型路线提案、模型契约与执行路线图 v2](MODEL-002.json)
 - [MODEL-003：方案B集成学习 v1——全局骨架+分群校准+收缩残差实现与自验证](MODEL-003.json)
 - [MODEL-004：方案B误差归因诊断与模型侧迭代实验（负结果记录）及F1特征需求输出](MODEL-004.json)

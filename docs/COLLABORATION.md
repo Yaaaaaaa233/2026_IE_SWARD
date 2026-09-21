@@ -5,11 +5,12 @@
 ```sh
 git clone git@github.com:Yaaaaaaa233/2026_IE_SWARD.git
 cd 2026_IE_SWARD
+pip install -r requirements.txt
 python tools/check_governance.py
 python -m unittest discover -s tests -v
 ```
 
-SSH 使用个人已有配置，不复制私钥进仓库。上述命令需治理分支合入后才能从默认分支取得；合入前从对应 PR 分支检出。检查器仅用 Python 3.10+ 标准库，不要求先安装机器学习环境。
+SSH 使用个人已有配置，不复制私钥进仓库。上述命令需治理分支合入后才能从默认分支取得；合入前从对应 PR 分支检出。检查器仅用 Python 3.10+ 标准库；`tests/` 单测允许使用 [requirements.txt](../requirements.txt) 登记的第三方依赖，CI 安装同一清单后运行（GOV-006）。新增依赖先登记再提交，未登记依赖的测试会在 CI 失败。
 
 复制 [本地配置模板](../configs/local.example.toml) 为 `configs/local.toml`，填写本机数据与输出目录。模板目前用于约定位置；尚无数据管线自动读取，后续实现必须遵守该契约。算法环境和锁文件由相应实现任务选择，不在治理初始化时预设。
 
@@ -43,7 +44,7 @@ git worktree add -b work/TASK-ID-topic ../ie-TASK-ID origin/main
 - 暂存后运行 `python tools/check_governance.py --scope index`，它读取暂存版本，避免工作目录修好了但提交仍是旧内容。
 - **不再要求 PR**：任务登记后直接提交并推送 `main`；一次任务一个分支仍推荐（便于回溯与放弃），合并由执行者自行完成。不重写他人历史、不强推他人分支、不改变仓库可见性。
 - 公共文件（状态页、各索引、公共契约）改动前在群里知会，尽量由协调者归并；冲突由协调者裁定归属。
-- 治理检查与单元测试通过才推送；模型或公共契约变化需要对应验收，文档检查通过不能替代算法验收。
+- 治理检查与单元测试通过才推送；单测第三方依赖统一登记在 requirements.txt（CI 与本地同口径安装），检查器本身保持仅标准库。模型或公共契约变化需要对应验收，文档检查通过不能替代算法验收。
 - 实现者将任务置为 `review`；`accepted` 需要实际复核者、日期和证据。没有复核人时保留待复核，不能虚构签名。
 - 评审由协调者定期执行：`bash tools/supervise.sh` 一键输出近期提交、治理检查、单测结果与任务索引核对；越界写入、检查失败或无登记提交登记回溯。
 - 自己修复后的测试与另一会话／成员的复核分开记录。发现新问题注明影响范围，不把环境、报告或模型问题混成一个结论。

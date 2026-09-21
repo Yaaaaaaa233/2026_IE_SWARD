@@ -1,0 +1,6 @@
+# tests/ 单元测试与 CI 的最小第三方依赖（GOV-006）。
+# 治理检查器 tools/check_governance.py 仍仅用 Python 标准库；
+# 模型／特征线的完整算法环境与锁文件由各自实现任务选定，不在此预设。
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.3
