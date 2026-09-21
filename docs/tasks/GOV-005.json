@@ -1,0 +1,46 @@
+{
+  "id": "GOV-005",
+  "title": "目录归位：评估方案与 roadmap v2 迁入 docs/plans，消除根目录裸文件",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "ZCode agent（治理线执行，组长授权）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（直推，ADR-0003 模式）",
+  "base_commit": "cd3da2d",
+  "write_scope": [
+    "docs/plans/评价指标与基线对照方案（MOE与MOP）.md",
+    "docs/plans/roadmap.md",
+    "README.md",
+    "docs/ACCEPTANCE.md",
+    "docs/tasks/EVAL-001.json",
+    "docs/tasks/MODEL-002.json",
+    "docs/plans/roadmap_overall.md",
+    "docs/plans/README.md",
+    "docs/interfaces/README.md",
+    "docs/decisions/ADR-0002-evaluation-metrics.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/worklog/2026-09-20-evaluation-metrics.md",
+    "docs/worklog/2026-09-20-evaluation-metrics-navigation.md",
+    "docs/worklog/2026-09-20-model-route-and-governance.md",
+    "docs/tasks/GOV-005.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-21-directory-normalization.md"
+  ],
+  "dependencies": [
+    "GOV-001",
+    "GOV-002"
+  ],
+  "acceptance": [
+    "git mv 保留历史：根目录不再有裸落的方法文档；评价指标方案与 roadmap v2 均在 docs/plans/ 与既有权威位置表一致",
+    "两个搬移文件的全部出站相对链接改写为新位置口径（13+1 组替换，逐组断言命中数）",
+    "全部入站引用（README/ACCEPTANCE/roadmap_overall/interfaces/ADR-0002/两个任务 JSON/三份历史 worklog）同步修正，治理检查链接校验通过",
+    "评估方案补入 docs/plans/README.md 索引（原 plans 索引缺该条目）",
+    "治理检查与单元测试通过"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-directory-normalization.md"
+  ],
+  "handoff": "docs/worklog/2026-09-21-directory-normalization.md",
+  "notes": "组长 2026-09-21 指出根目录裸文件问题。评估方案根目录放置系 EVAL-001 时期的临时首页引流安排（见 2026-09-20 navigation worklog），首页入口保留、只改路径。不预建空目录（治理原则：按需创建）。"
+}

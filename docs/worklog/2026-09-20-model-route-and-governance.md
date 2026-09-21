@@ -7,7 +7,7 @@
 
 ## 做了什么
 
-- 重写 [执行路线图 v2](../roadmap.md)：顶层设计（端到端管线 Mermaid 图、五条工作线、阶段门槛 S0–S4、接口总览、新 AI 十分钟上手路径、维护规则）。v1（M0–M4 工程视角）并入结构，原文在 Git 历史。
+- 重写 [执行路线图 v2](../plans/roadmap.md)：顶层设计（端到端管线 Mermaid 图、五条工作线、阶段门槛 S0–S4、接口总览、新 AI 十分钟上手路径、维护规则）。v1（M0–M4 工程视角）并入结构，原文在 Git 历史。
 - 新增 [模块登记表](../modules/README.md)：五条工作线 × 模块 × 入口 × 依赖 × 生命周期的单一登记源；未实现模块标 planned，不虚构入口。
 - 新增 [模型与评估契约草案 v0.1](../interfaces/model_contract.md)：输入（引用数据契约）、评估协议参数化（lookback/horizon/split 显式配置）、oof 命名规范（A/* 与 B/群/模型）、group_assignments 合成示例、ensemble_config 字段、输出（model_score 与官方三列模板）、守恒断言。
 - 新增 [模型路线提案 v0.1](../plans/model-route-proposal.md)：方案 A 八组合 C1–C8、方案 B 分群集成要点、E-B 实验矩阵与择优规则、五个待决策问题。方法层表述，不含本地实验数值。

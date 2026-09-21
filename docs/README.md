@@ -18,6 +18,7 @@
 | 任务认领、分支、写入范围、验收 | [tasks/](tasks/README.md) 中每个任务 JSON | 交接日志记录过程，不另立任务状态 |
 | 协作流程与交接 | [COLLABORATION.md](COLLABORATION.md) | 客户端专属提示只做适配，不另定规则 |
 | 数据存储和公开边界 | [DATA_POLICY.md](DATA_POLICY.md) | 忽略规则与检查器是辅助，不替代人工判断 |
+| 硬盘与受控渠道交付规范 | [DATA_DELIVERY.md](DATA_DELIVERY.md) | 各线交付结构示例只作参考，权威以本表为准 |
 | 路线与方案提议 | [plans/](plans/README.md) | 未接受的方案不能作为冻结合同 |
 | 重大决策及变更理由 | [decisions/](decisions/README.md) | 接受时写明真实决策人和日期 |
 | 数据、评估、评分公共契约 | [interfaces/](interfaces/README.md) | 实现代码引用版本，不私自改语义 |

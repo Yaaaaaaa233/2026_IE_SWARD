@@ -9,7 +9,7 @@
   "branch": "work/MODEL-002-route-and-governance",
   "base_commit": "a4211d9",
   "write_scope": [
-    "docs/roadmap.md",
+    "docs/plans/roadmap.md",
     "docs/modules/README.md",
     "docs/interfaces/model_contract.md",
     "docs/interfaces/README.md",
