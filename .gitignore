@@ -60,3 +60,7 @@ docs/roadmap_validation_driven.md
 
 # 总路线图受控数值对照页（真实统计不入公开仓库）
 docs/plans/roadmap_overall_numbers.md
+
+# 方案B本机路径配置与数据派生产物（模板入库，真实配置与产物不入）
+models/solution_b/config_local.json
+models/solution_b/report/
