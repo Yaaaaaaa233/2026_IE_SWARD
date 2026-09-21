@@ -1,0 +1,36 @@
+{
+  "id": "MODEL-004",
+  "title": "方案B误差归因诊断与模型侧迭代实验（负结果记录）及F1特征需求输出",
+  "status": "review",
+  "owner": "王健祺",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/MODEL-004-error-analysis-iterations",
+  "base_commit": "32639a5",
+  "write_scope": [
+    "models/solution_b/analyze_errors.py",
+    "models/solution_b/improve_b.py",
+    "models/solution_b/README.md",
+    "docs/tasks/MODEL-004.json",
+    "docs/tasks/README.md",
+    "docs/plans/model-route-proposal.md",
+    "docs/worklog/2026-09-21-model-004-error-analysis.md"
+  ],
+  "dependencies": [
+    "MODEL-003"
+  ],
+  "acceptance": [
+    "诊断与实验脚本可从仓库目录复跑（config_local 路径制），不写死机器路径",
+    "判优仍按 MODEL-003 预登记规则执行；负结果如实记录不粉饰",
+    "公开文档只写定性结论与方向，真实数字仅存受控本地",
+    "治理检查与单元测试通过后推送"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-model-004-error-analysis.md",
+    "models/solution_b/analyze_errors.py",
+    "models/solution_b/improve_b.py"
+  ],
+  "handoff": "docs/worklog/2026-09-21-model-004-error-analysis.md",
+  "notes": "受控本地材料（不入库）：诊断与实验的真实数字见 方案B实现/outputs/improve_b_log.txt 与 error_analysis_vehicles.csv；F1 特征需求文档（docx/PDF，含真实统计）经群发特征线评审后按需脱敏入库；可视化 demo（含逐车真实数据）为团队内部评审工具。v1 交付文件与层级维持 B1 不变。"
+}

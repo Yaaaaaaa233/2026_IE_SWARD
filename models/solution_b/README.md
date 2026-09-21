@@ -14,6 +14,8 @@
 | `b1_b2_layers.py` | B1 分群校准（low 独立 / high 收缩 w=n/(n+80) / insufficient 全局）+ B2 收缩残差（λ 网格折内选择，λ=0 恒等回退 B1） |
 | `final_outputs.py` | 输出合同：`forecast_result.csv`（官方三列）与 `model_score.csv`（评分线溯源版）+ 断言 |
 | `validate.py` | 验证套件 V1 正确性 / V2 统计 / V3 种子抖动 / V4 负向测试 + 预登记判优裁决 + 图表 |
+| `analyze_errors.py` | 误差归因诊断（H0–H6：漏报/误报画像、损失分解、oracle 上限、历史出险信号）｜MODEL-004 |
+| `improve_b.py` | 模型侧迭代实验（多种子包/单调LGBM/n0 网格；负结果，按预登记规则不采纳）｜MODEL-004 |
 
 ## 运行
 
