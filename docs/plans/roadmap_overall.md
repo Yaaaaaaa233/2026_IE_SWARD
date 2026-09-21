@@ -10,7 +10,7 @@
 
 **数据边界**：本文件为公开版，**不含真实数据派生统计**（口径对齐与决策所用的数值全部移至受控本地对照页 `docs/plans/roadmap_overall_numbers.md`，该文件按 [DATA_POLICY](../DATA_POLICY.md) 加入 git 忽略，不入库）。文中出现的车辆数、天数、事件编码、提交格式等均来自官方赛题文件。
 
-文档关系：赛题与提交要求以官方文件为准；公共字段语义以[数据契约 v0.1](../interfaces/data_contract.md)（DATACON-001）为准；评估语义以[评价指标方案](../../评价指标与基线对照方案（MOE与MOP）.md)（EVAL-001，Proposed）为准；模型输入输出以[模型契约草案](../interfaces/model_contract.md)（MODEL-002，已合入 main，评审中）为准。本文件只管理**执行阶段、汇合点、验收与放行**。顶层管线拓扑另见 [roadmap v2](../roadmap.md)（已合入，评审中），两文件合流方式见 §7 第 8 项。协作模式：2026-09-21 起按 [ADR-0003](../decisions/ADR-0003-no-pr-collaboration-mode.md) 取消强制 PR，直接推 main + 协调者定期监督（`tools/supervise.sh`）。
+文档关系：赛题与提交要求以官方文件为准；公共字段语义以[数据契约 v0.1](../interfaces/data_contract.md)（DATACON-001）为准；评估语义以[评价指标方案](评价指标与基线对照方案（MOE与MOP）.md)（EVAL-001，Proposed）为准；模型输入输出以[模型契约草案](../interfaces/model_contract.md)（MODEL-002，已合入 main，评审中）为准。本文件只管理**执行阶段、汇合点、验收与放行**。顶层管线拓扑另见 [roadmap v2](roadmap.md)（已合入，评审中），两文件合流方式见 §7 第 8 项。协作模式：2026-09-21 起按 [ADR-0003](../decisions/ADR-0003-no-pr-collaboration-mode.md) 取消强制 PR，直接推 main + 协调者定期监督（`tools/supervise.sh`）。
 
 ---
 

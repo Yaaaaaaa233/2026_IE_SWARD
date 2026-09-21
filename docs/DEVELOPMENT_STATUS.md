@@ -11,7 +11,7 @@
 | 协作治理 | 检查器与 CI 运行中（GOV-001 accepted）；ADR-0003 无 PR 模式生效，协调者以 `tools/supervise.sh` 定期监督；数据交付规范 [DATA_DELIVERY](DATA_DELIVERY.md) 已生效（GOV-004）；TASK-005 已登记 | R0 会议按待拍板清单拍板；纪律条目并入治理文件 |
 | 赛题与数据口径 | 官方数据 2.0 已落地：契约五表 + 五版清洗 v0–v4 + 冻结折分（TASK-005，见 [cleaning/](cleaning/)） | 新旧对照复核与特征线消费对接 |
 | 算法路线 | 模型路线提案 v0.1 已形成（[MODEL-002](tasks/MODEL-002.json)，评审中） | 团队评审后走 ADR 冻结或修订 |
-| 执行路线图 | [总体执行路线图](plans/roadmap_overall.md)（GOV-002，执行基线）与 [roadmap v2](roadmap.md)（顶层拓扑）均已落地 | 各线按 R0–R6 推进并回填状态 |
+| 执行路线图 | [总体执行路线图](plans/roadmap_overall.md)（GOV-002，执行基线）与 [roadmap v2](plans/roadmap.md)（顶层拓扑）均已落地 | 各线按 R0–R6 推进并回填状态 |
 | M1—M3 | 评估 harness 与特征线消费契约待实施 | F00 冻结后启动组合复测（C1→C3） |
 | 任务二评分 | 有设计讨论，尚无实现和验收 | 按 R5 冻结接口与草稿，owner 认领后深化 |
 
