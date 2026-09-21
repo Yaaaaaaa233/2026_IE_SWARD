@@ -1,0 +1,41 @@
+{
+  "id": "GOV-004",
+  "title": "数据交付规范（硬盘接口）：命名、各线目录结构与脚本归属（DATA_DELIVERY）",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "ZCode agent（治理线执行，组长授权）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（直推，ADR-0003 模式）",
+  "base_commit": "0ebad4d",
+  "write_scope": [
+    "docs/DATA_DELIVERY.md",
+    "docs/DATA_POLICY.md",
+    "docs/cleaning/数据清洗版本与规则总说明.md",
+    "docs/plans/roadmap_requirements.md",
+    "docs/plans/roadmap_overall.md",
+    "AGENTS.md",
+    "docs/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/tasks/GOV-004.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-21-delivery-standards.md"
+  ],
+  "dependencies": [
+    "GOV-002",
+    "GOV-003"
+  ],
+  "acceptance": [
+    "docs/DATA_DELIVERY.md 落地：交付包命名规则（禁止裸主题名）、顶层五件套、L1–L5 目录结构模板、接收联合对数与回执、上游数据不随下游重复拷贝",
+    "DATA_POLICY 明确处理数据的脚本属代码可入 Git，消除与清洗总说明'脚本本地维护'的矛盾；清洗总说明对应表述同步更新",
+    "roadmap_requirements 新增机器验收最小断言库（N1–N6），其中 N1 计数一致断言直接针对 2026-09-20 交付的聚合计数 bug",
+    "roadmap_overall §9 新增'交付即接口'纪律；AGENTS、docs 索引、状态页同步挂接 DATA_DELIVERY",
+    "受控对照页（本地不入库）新增数据资产台账，登记 2026-09-20 两次硬盘交付的指纹与遗留问题",
+    "治理检查与单元测试通过"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-delivery-standards.md"
+  ],
+  "handoff": "docs/worklog/2026-09-21-delivery-standards.md",
+  "notes": "组长 2026-09-21 决策：硬盘交付的命名与结构定为接口规范（'特征工程'式裸名不合理）；脚本按'属代码'完善归属。下次各线交付即按新规执行。"
+}
