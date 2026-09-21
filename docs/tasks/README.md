@@ -11,6 +11,7 @@
 - [GOV-004：数据交付规范（硬盘接口）与脚本归属（DATA_DELIVERY）](GOV-004.json)
 - [GOV-005：目录归位——评估方案与 roadmap v2 迁入 docs/plans](GOV-005.json)
 - [MODEL-002：模型路线提案、模型契约与执行路线图 v2](MODEL-002.json)
+- [FEAT-001：整理特征工程当前工作、接口状态与执行路线图](FEAT-001.json)
 
 使用 [任务模板](../templates/task.json)，文件名等于唯一 `id`。未来任务采用团队协调的前缀与编号，不在不同分支同时创建同名记录。
 
