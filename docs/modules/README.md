@@ -34,8 +34,8 @@
 | 评估 harness | 固定协议（20+40 主回测、冻结五折、AUC+Recall）统一比较入口 | [interfaces/model_contract.md](../interfaces/model_contract.md)（评估契约节） | splits 冻结 | planned | 0918 会议 350/150 单次划分保留为快速对照参数 |
 | 组合方案库 C1–C8 | 八种可执行组合（极简基线→双主力→稳健三角→…→概率结构） | [plans/model-route-proposal.md](../plans/model-route-proposal.md) | harness + F00 | planned | 默认推荐 C3 稳健三角（提案中，待评审） |
 | 方案 A 全局组合 | 全局模型 + 折外秩平均融合 | 模型线受控目录（run_ab_test.py A 臂，待建仓） | harness | planned | |
-| 方案 B 分群集成 | 群组规则（显式规则 v1）→ 子模型 → 校准 → 路由 → 兜底 | [plans/model-route-proposal.md](../plans/model-route-proposal.md)（E-B 系列） | 方案 A 对照 | planned | 群组表与配置见模型契约 |
-| 提交导出 | 官方模板 forecast_result.csv 三列 + 内部溯源版 | 模型契约输出节 | 终局模型冻结 | planned | accident 阈值按 Recall 目标冻结 |
+| 方案 B 分群集成 | 三层递进：B0 全局骨架（RF+EBM）→ B1 分群校准 → B2 收缩残差（E-B v2，硬路由弃用） | [models/solution_b/](../../models/solution_b/README.md)（validate.py 一键全流程） | 方案 A 对照 | runnable（v1，开发期自验证） | 群组=特征线聚类 v0；数字见受控报告；MODEL-003 |
+| 提交导出 | 官方模板 forecast_result.csv 三列 + 内部溯源版 | models/solution_b/final_outputs.py | 终局模型冻结 | building（v1 已产开发期版本，终局冻结待 R6） | accident=固定名额前 20%（预登记政策） |
 
 ## 评分线（任务二）
 

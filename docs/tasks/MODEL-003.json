@@ -1,0 +1,42 @@
+{
+  "id": "MODEL-003",
+  "title": "方案B集成学习v1：全局骨架+分群校准+收缩残差的实现、自验证与代码入库",
+  "status": "review",
+  "owner": "王健祺",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/MODEL-003-solution-b-v1",
+  "base_commit": "0ebad4d",
+  "write_scope": [
+    "models/solution_b/",
+    "models/solution_b/config_local.template.json",
+    "tests/test_solution_b_metrics.py",
+    "docs/tasks/MODEL-003.json",
+    "docs/tasks/README.md",
+    "docs/plans/model-route-proposal.md",
+    "docs/modules/README.md",
+    "docs/worklog/2026-09-21-solution-b-v1.md",
+    ".gitignore"
+  ],
+  "dependencies": [
+    "DATACON-001",
+    "TASK-005",
+    "EVAL-001",
+    "MODEL-002"
+  ],
+  "acceptance": [
+    "输出合同断言：forecast_result.csv 三列 500 行、概率∈[0,1]、无重复、gpsno 与 target_vehicles 一致",
+    "防泄漏：嵌套折外结构断言（inner 材料仅覆盖训练部分、验证折 NaN）；插补/校准/λ 全部折内拟合",
+    "V1 正确性 / V2 统计 / V3 种子抖动 / V4 负向测试 四维分开报告；检查器对六类坏输入全部拒绝",
+    "判优按预登记规则执行并留痕；真实数字只存受控本地报告，公开仓库仅方法与规则",
+    "治理检查与单元测试通过后推送"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-solution-b-v1.md",
+    "models/solution_b/README.md",
+    "tests/test_solution_b_metrics.py"
+  ],
+  "handoff": "docs/worklog/2026-09-21-solution-b-v1.md",
+  "notes": "另依赖特征线 F0 交付（model_input v1.0 + 聚类分群，受控交付未建任务）。v1 结论：预登记判优采纳 B1（分群校准）；B2 残差层 λ 全折选 0 自动回退。AUC 提升为迹象级（区间跨零），概率质量改善稳健。受控本地证据（数字与图表）：方案B实现/docs/方案B_验证与效果报告.pdf、方案B实现/report/validation_results.json 与验证方案.md——不入公开仓库。E-B1 硬路由改收缩残差的路线修订见提案 §4.1，待 R0/R4 评审。F0→F1 特征升级须复测；方案A/B 终局对照（E-B4）前不构成择优结论。"
+}
