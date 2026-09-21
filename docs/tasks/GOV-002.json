@@ -3,7 +3,7 @@
   "title": "总体执行路线图 v0.2 与执行纪律落地",
   "status": "review",
   "owner": "叶安",
-  "actor": "ZCode agent（治理线执行，组长授权）",
+  "actor": "ZCode agent（治理线执行，纪律管理授权）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "work/GOV-002-overall-roadmap",
@@ -31,5 +31,5 @@
     "docs/worklog/2026-09-21-overall-roadmap.md"
   ],
   "handoff": "docs/worklog/2026-09-21-overall-roadmap.md",
-  "notes": "组长 2026-09-21 授权落地并推送。requirements §6 提案的治理文件条目（AGENTS/COLLABORATION/ACCEPTANCE）不在本任务改动，待 R0 团队评审后另开小 PR 并入。状态页更新让位于 PR #3 的同名改动以避免冲突。"
+  "notes": "叶安（纪律管理）2026-09-21 授权落地并推送。requirements §6 提案的治理文件条目（AGENTS/COLLABORATION/ACCEPTANCE）不在本任务改动，待 R0 团队评审后另开小 PR 并入。状态页更新让位于 PR #3 的同名改动以避免冲突。"
 }

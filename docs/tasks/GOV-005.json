@@ -3,7 +3,7 @@
   "title": "目录归位：评估方案与 roadmap v2 迁入 docs/plans，消除根目录裸文件",
   "status": "review",
   "owner": "叶安",
-  "actor": "ZCode agent（治理线执行，组长授权）",
+  "actor": "ZCode agent（治理线执行，纪律管理授权）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "main（直推，ADR-0003 模式）",
@@ -42,5 +42,5 @@
     "docs/worklog/2026-09-21-directory-normalization.md"
   ],
   "handoff": "docs/worklog/2026-09-21-directory-normalization.md",
-  "notes": "组长 2026-09-21 指出根目录裸文件问题。评估方案根目录放置系 EVAL-001 时期的临时首页引流安排（见 2026-09-20 navigation worklog），首页入口保留、只改路径。不预建空目录（治理原则：按需创建）。"
+  "notes": "叶安 2026-09-21 指出根目录裸文件问题。评估方案根目录放置系 EVAL-001 时期的临时首页引流安排（见 2026-09-20 navigation worklog），首页入口保留、只改路径。不预建空目录（治理原则：按需创建）。"
 }

@@ -3,7 +3,7 @@
   "title": "CI 单测依赖声明与治理工作流修复（requirements.txt + pip 安装步骤）",
   "status": "review",
   "owner": "叶安",
-  "actor": "ZCode agent（治理线执行，组长授权）",
+  "actor": "ZCode agent（治理线执行，纪律管理授权）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "main（直推，ADR-0003 模式）",
@@ -29,5 +29,5 @@
     "docs/worklog/2026-09-21-ci-test-deps.md"
   ],
   "handoff": "docs/worklog/2026-09-21-ci-test-deps.md",
-  "notes": "MODEL-003（4342561 起）单测引入 numpy/pandas/sklearn，CI 裸机无第三方库导致 main 每次 push 变红（触发邮件 Run failed: Governance - main (32639a5)）。治理检查本身在各失败提交均 PASS，红的只是单测步骤的导入错误。本任务只修 CI 基础设施与文档口径，不改模型代码。2026-09-21 受阻：提交被 Mimosa 钩子以 models/solution_b 4 处 high 级路径穿越（评估为误报，存量代码）强制拦截，本机无法通过合规工具修复（Edit 前置扫描死循环、Write 污点分析不识别净化校验），已回退尝试性改动，六文件暂存待解堵后推送。解堵执行：组长选择宿主侧调整（MIMOSA_GIT_GATE_MODE=warn，提交门降为警告、写入门禁不变），本次提交由组长终端执行。王健祺加固补丁落地后应恢复 graded。详见 worklog 受阻记录。"
+  "notes": "MODEL-003（4342561 起）单测引入 numpy/pandas/sklearn，CI 裸机无第三方库导致 main 每次 push 变红（触发邮件 Run failed: Governance - main (32639a5)）。治理检查本身在各失败提交均 PASS，红的只是单测步骤的导入错误。本任务只修 CI 基础设施与文档口径，不改模型代码。2026-09-21 受阻：提交被 Mimosa 钩子以 models/solution_b 4 处 high 级路径穿越（评估为误报，存量代码）强制拦截，本机无法通过合规工具修复（Edit 前置扫描死循环、Write 污点分析不识别净化校验），已回退尝试性改动，六文件暂存待解堵后推送。解堵执行：叶安（纪律管理）选择宿主侧调整（MIMOSA_GIT_GATE_MODE=warn，提交门降为警告、写入门禁不变），本次提交由叶安终端执行。王健祺加固补丁落地后应恢复 graded。详见 worklog 受阻记录。"
 }

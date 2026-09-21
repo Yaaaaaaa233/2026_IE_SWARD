@@ -1,0 +1,37 @@
+{
+  "id": "EVAL-002",
+  "title": "任务一基线冻结与采纳判据落地（EVAL-001 v1.0 + ADR-0004）",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "ZCode agent（按纪律管理授权执行）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "ef8c7b4840c3fd6ec6d21e896de102ea6ea82a16",
+  "dependencies": [
+    "EVAL-001",
+    "GOV-006"
+  ],
+  "write_scope": [
+    "docs/decisions/ADR-0004-baseline-freeze.md",
+    "docs/decisions/README.md",
+    "docs/plans/评价指标与基线对照方案（MOE与MOP）.md",
+    "docs/tasks/EVAL-002.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-21-baseline-freeze.md",
+    "docs/COLLABORATION.md"
+  ],
+  "acceptance": [
+    "冻结基线身份（单参照：随机森林；L2 LR 降为起草期对照，不参与判优）与升版规则写入 ADR-0004 与 EVAL-001 §6.3",
+    "采纳判据改为车辆级配对 bootstrap 区间下界口径，登记阈值（≥0.01）与辅助容差（Recall@100≤0.02、Brier≤0.005）",
+    "冻结输入指纹（splits/model_input/feature_schema 的 sha256）在 EVAL-001 §6.3 与本地台账登记",
+    "本机受控运行双基线并登记合并 OOF、逐折与配对区间（仅受控台账与 git 忽略目录，公开仓库无真实数值）",
+    "bf9425f（task1_baselines 入库）补治理登记：来源、账号与代理署名如实记录，实际责任人待认领",
+    "治理检查与单元测试通过后按显式清单暂存提交"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-baseline-freeze.md"
+  ],
+  "handoff": "docs/worklog/2026-09-21-baseline-freeze.md",
+  "notes": "叶安（纪律管理）2026-09-21 授权按推荐方案冻结基线。本机以仓库外 venv（requirements.txt 同口径）复跑双基线；随机森林对起草期 L2 LR 锚点的配对区间下界过 0.01 门槛，叶安随后裁定只用效果最好的一条（随机森林）作冻结基线以免双参照混乱，L2 LR 数字保留台账作起草期对照、不参与判优。bf9425f 补登记：该提交 2026-09-21 17:18 由 GitHub 账号 wzt-ai 推送，git 作者为 Codex 代理（codex-agent@local），含 models/task1_baselines.py 与执行方案/evidence/worklog，原未附任务 JSON；wzt-ai 已于 2026-09-22 确认＝吴钊同（名册更正，见 ADR-0005），责任人登记为吴钊同（待本人下次推送确认），本任务将其纳入 EVAL 血缘登记。遗留同步：models/solution_b/common.py 的 VERSIONS.eval_protocol 与 PREREG 采纳语义需王健祺（组长）下次推送时改为 v1.0 口径（其 write_scope，代码未动）；其路径加固补丁仍未落地。"
+}

@@ -4,6 +4,7 @@
 
 - [DATACON-001：任务一数据契约草案与合成接口模板](DATACON-001.json)
 - [EVAL-001：MOE 与 MOP 评价指标及基线判优规则](EVAL-001.json)
+- [EVAL-002：任务一基线冻结与采纳判据落地（EVAL-001 v1.0 + ADR-0004）](EVAL-002.json)
 - [GOV-001：治理框架初始化](GOV-001.json)
 - [TASK-005：数据清洗版本与规则总说明（v0–v4）入库，docx 转 Markdown](TASK-005.json)
 - [GOV-002：总体执行路线图 v0.2 与执行纪律落地](GOV-002.json)
@@ -11,6 +12,7 @@
 - [GOV-004：数据交付规范（硬盘接口）与脚本归属（DATA_DELIVERY）](GOV-004.json)
 - [GOV-005：目录归位——评估方案与 roadmap v2 迁入 docs/plans](GOV-005.json)
 - [GOV-006：CI 单测依赖声明与治理工作流修复（requirements.txt + pip 安装步骤）](GOV-006.json)
+- [GOV-007：任务一执行重组——双人竞优 + 任务二三线纪律 + 优化方案与验收规程 v1（ADR-0005）](GOV-007.json)
 - [MODEL-002：模型路线提案、模型契约与执行路线图 v2](MODEL-002.json)
 - [MODEL-003：方案B集成学习 v1——全局骨架+分群校准+收缩残差实现与自验证](MODEL-003.json)
 - [MODEL-004：方案B误差归因诊断与模型侧迭代实验（负结果记录）及F1特征需求输出](MODEL-004.json)

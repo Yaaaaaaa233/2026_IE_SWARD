@@ -3,7 +3,7 @@
 - 任务／分支／基准提交：[MODEL-004](../tasks/MODEL-004.json)｜`work/MODEL-004-error-analysis-iterations`｜`32639a5`
 - 人类责任人：王健祺（模型线；授权"改进先做B项＋误差分析＋按规范上传今日全部工作"）
 - 执行者与 AI 协助：ZCode agent 执行
-- 复核状态与真实复核人：`review`——组长口头验收 demo 与结论后授权入库；正式复核随 R4
+- 复核状态与真实复核人：`review`——叶安口头验收 demo 与结论后授权入库；正式复核随 R4
 
 ## 做了什么
 

@@ -3,7 +3,7 @@
   "title": "协作模式切换：取消强制 PR，改为协调者定期监督（ADR-0003）",
   "status": "review",
   "owner": "叶安",
-  "actor": "ZCode agent（治理线执行，组长授权）",
+  "actor": "ZCode agent（治理线执行，纪律管理授权）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "main（直推，ADR-0003 模式）",
@@ -36,5 +36,5 @@
     "docs/worklog/2026-09-21-collaboration-mode.md"
   ],
   "handoff": "docs/worklog/2026-09-21-collaboration-mode.md",
-  "notes": "组长 2026-09-21 决策：比赛进度优先，取消 PR 流程；分工互不重叠，数据硬盘传递；评审改为组长定期监督。"
+  "notes": "叶安（纪律管理）2026-09-21 决策：比赛进度优先，取消 PR 流程；分工互不重叠，数据硬盘传递；评审改为纪律管理定期监督。"
 }

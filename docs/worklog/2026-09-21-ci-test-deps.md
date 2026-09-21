@@ -3,13 +3,13 @@
 - 任务：[GOV-006](../tasks/GOV-006.json)
 - 分支：`main`（直推，ADR-0003 模式）
 - 基准提交：`5fdcbc9`
-- 人类责任人：叶安（组长，授权"做吧"）
+- 人类责任人：叶安（纪律管理，授权"做吧"）
 - 执行者：ZCode agent
-- 复核状态：`review`——组长知情并授权；CI 绿与否由推送后 Actions 结果客观呈现
+- 复核状态：`review`——叶安知情并授权；CI 绿与否由推送后 Actions 结果客观呈现
 
 ## 背景与诊断
 
-组长收到 GitHub 邮件 "Run failed: Governance - main (32639a5)"。排查结论：
+叶安收到 GitHub 邮件 "Run failed: Governance - main (32639a5)"。排查结论：
 
 - 自 MODEL-003（`4342561`，经 `97af80e` 进 main）起，`tests/test_solution_b_metrics.py` 及其被测模块依赖 numpy/pandas/scikit-learn；CI（governance.yml）裸机仅装 Python 3.11，`unittest discover` 在导入阶段即 `ModuleNotFoundError: No module named 'pandas'`，main 上每次 push 三系统矩阵全红。
 - 治理检查本身在 `32639a5`（80 文件）与 `5fdcbc9`（110 文件）均 PASS——链接、任务登记、发布护栏无违规，问题是隐性契约"tests/ 纯标准库"被打破且依赖从未声明（仓库此前无 requirements/pyproject）。
@@ -45,10 +45,10 @@
 - 提交被 Mimosa 钩子强制拦截：4 个 high 级"路径穿越"，全部位于 MODEL-003/004 已入库的 `models/solution_b/`（`common.py:154`、`final_outputs.py:68`、`improve_b.py:255`、`validate.py:305`），均为 `open(os.path.join(OUT_DIR, "字面量.json"))` 形态写入模块内 gitignore 目录。
 - 评估：判定为静态分析误报（路径为 `__file__` 派生的常量目录 + 字面量文件名，无不可信输入、无网络面）。但钩子扫描全项目且强制拦截，**本机所有后续提交均被阻塞**，与本任务改动内容无关。
 - 尝试过并被拦：① Edit 修改告警行——钩子对被改区域做修改前扫描，告警行自身拦截针对它的编辑（死循环）；② Write 整文件重写并在 common.py 增加 `safe_output_path` 校验助手（commonpath 限制在受控目录内）——钩子污点分析不识别该校验为净化，仍按 `OUT_DIR` 污染源拦截。半成品改动已回退（`git checkout --`），代码保持 MODEL-003/004 原样。
-- 解堵执行（2026-09-21，组长拍板）：宿主侧调整——`launchctl setenv MIMOSA_GIT_GATE_MODE warn`（提交前安全门降为"警告不拦截"，写入前门禁 `MIMOSA_HOOK_BLOCK` 保持默认 graded，agent 新写代码的高危拦截不变），对 ZCode 重启后生效；本次 GOV-006 提交由组长在终端执行（ZCode 钩子不作用于用户终端）。**王健祺加固补丁落地后应 `launchctl unsetenv MIMOSA_GIT_GATE_MODE` 并重启 ZCode，恢复 graded 强拦截**。注意 launchctl setenv 不跨重启保留，若重启电脑后钩子恢复强拦截且补丁未落地，需重设一次。
+- 解堵执行（2026-09-21，叶安拍板）：宿主侧调整——`launchctl setenv MIMOSA_GIT_GATE_MODE warn`（提交前安全门降为"警告不拦截"，写入前门禁 `MIMOSA_HOOK_BLOCK` 保持默认 graded，agent 新写代码的高危拦截不变），对 ZCode 重启后生效；本次 GOV-006 提交由叶安在终端执行（ZCode 钩子不作用于用户终端）。**王健祺加固补丁落地后应 `launchctl unsetenv MIMOSA_GIT_GATE_MODE` 并重启 ZCode，恢复 graded 强拦截**。注意 launchctl setenv 不跨重启保留，若重启电脑后钩子恢复强拦截且补丁未落地，需重设一次。
 
 ## 接手者下一步
 
 1. 各线新增重依赖测试时，同步把依赖加进 requirements.txt（一行 + 注释说明用途），否则 CI 红。
 2. 王健祺：后续单测可直接使用已登记三件套；如需 CI 跑 interpret/lightgbm 相关测试，先扩清单。
-3. 组长监督时可看 GitHub Actions 页确认三系统矩阵全绿。
+3. 叶安监督时可看 GitHub Actions 页确认三系统矩阵全绿。

@@ -1,0 +1,59 @@
+{
+  "id": "GOV-007",
+  "title": "任务一执行重组：双人并行竞优 + 任务二三线纪律 + 优化方案与验收规程 v1 + 名册更正（ADR-0005）",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "ZCode agent（按纪律管理授权执行）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "ef8c7b4840c3fd6ec6d21e896de102ea6ea82a16",
+  "dependencies": [
+    "GOV-003",
+    "EVAL-002",
+    "FEAT-002"
+  ],
+  "write_scope": [
+    "docs/decisions/ADR-0005-task1-dual-track-and-task2-split.md",
+    "docs/decisions/README.md",
+    "docs/plans/task1-optimization-plan-v1.md",
+    "docs/plans/task1-optimization-acceptance-v1.md",
+    "docs/tasks/GOV-007.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-22-task1-reorg-plan-acceptance.md",
+    "docs/COLLABORATION.md",
+    "docs/decisions/ADR-0003-no-pr-collaboration-mode.md",
+    "docs/plans/roadmap_overall.md",
+    "docs/plans/model-route-proposal.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/tasks/EVAL-002.json",
+    "docs/tasks/GOV-002.json",
+    "docs/tasks/GOV-003.json",
+    "docs/tasks/GOV-004.json",
+    "docs/tasks/GOV-005.json",
+    "docs/tasks/GOV-006.json",
+    "docs/tasks/MODEL-002.json",
+    "docs/worklog/2026-09-20-model-route-and-governance.md",
+    "docs/worklog/2026-09-21-collaboration-mode.md",
+    "docs/worklog/2026-09-21-ci-test-deps.md",
+    "docs/worklog/2026-09-21-delivery-standards.md",
+    "docs/worklog/2026-09-21-directory-normalization.md",
+    "docs/worklog/2026-09-21-model-004-error-analysis.md",
+    "docs/worklog/2026-09-21-overall-roadmap.md",
+    "docs/worklog/2026-09-21-baseline-freeze.md"
+  ],
+  "acceptance": [
+    "ADR-0005 落地：人员变更（周航正、娄澜任务一冻结，任务一移交叶安+王健祺双人竞优）、裁决规则（复用 ADR-0004 配对判据，双过门取区间下界更高者）、write_scope 隔离、任务二三线纪律、冻结善后（FEAT-002 验收转接手人、娄澜三债处置路径）成文",
+    "优化方案 v1：共同底座与裁决器、双线安排、阶段 0（F1 运行＋双探针）→ 开放迭代期（双线各自多轮'特征+模型改动→对基线配对对比→版本登记三件套'循环，人工推进门＋最迟兜底日控制结束）→ 阶段 3 终评（双线共同人工宣告进入）→ 阶段 4 提交打包，防泄漏红线、风险与时间轴成文，不含真实数据派生统计",
+    "验收规程 v1：L1 机器验收（治理/单测/合成测试/复现一致性含版本登记三件套/契约校验/配对评估）、L2 人工关键数据验收（六类抽样规程，迭代轮次轻量口径＋采纳/推进门前完整口径）、L3 可视化验收（六组图与通过标准）、任务×验收矩阵、验收记录归档规则成文",
+    "名册更正：王健祺＝组长、叶安＝仓库建立与纪律管理、吴钊同＝GitHub wzt-ai（bf9425f 责任人登记为吴钊同，待本人确认）；历史文档中'叶安（组长）'称谓全部修正，仅改称谓不改决策实质",
+    "COLLABORATION §4 与任务/决策索引增补指针",
+    "治理检查与单元测试通过后按显式清单暂存提交",
+    "群公告由纪律管理（叶安）发布（组长王健祺）（组长侧动作，不阻塞本任务 review）"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-22-task1-reorg-plan-acceptance.md"
+  ],
+  "handoff": "docs/worklog/2026-09-22-task1-reorg-plan-acceptance.md",
+  "notes": "叶安（纪律管理）2026-09-22 裁定：周航正、娄澜任务一工作冻结（不再知会其任务一事项），任务一全部移交叶安、王健祺并行竞优（谁好用谁的，按 ADR-0004 配对判据裁决）；另外三人（周航正、娄澜、吴钊同）转任务二。方案按 2026-09-22 路线讨论草案成文（F1 真实运行→IMU 六场景（对齐赛方参考资料）→特征完善，可解释性四原则贯穿）。同日名册更正：组长为王健祺，叶安负责仓库建立与纪律管理，第五名成员吴钊同＝wzt-ai；历史文档（ADR-0003/0004、GOV/MODEL/EVAL 任务、worklog、roadmap_overall、DEVELOPMENT_STATUS 等）中的组长称谓随之修正。本任务与 EVAL-002 同批堆叠在未推送的暂存区之上（base_commit 同为 ef8c7b4），推送时一起入库；任务二三人任务登记建议用 T2- 前缀，由任务二线开工时自行登记。"
+}
