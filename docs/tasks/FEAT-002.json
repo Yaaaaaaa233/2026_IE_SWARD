@@ -1,0 +1,37 @@
+{
+  "id": "FEAT-002",
+  "title": "公开特征工程F0/F1_v1源码、合成测试与配置模板",
+  "status": "review",
+  "owner": null,
+  "actor": "Codex agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（直推，ADR-0003模式）",
+  "base_commit": "bf9425f",
+  "write_scope": [
+    "feature_engineering/",
+    ".gitignore",
+    "docs/plans/feature-engineering-f1-method.md",
+    "docs/tasks/FEAT-002.json",
+    "docs/tasks/README.md",
+    "docs/modules/README.md",
+    "docs/worklog/2026-09-21-feature-engineering-f1-public-code.md"
+  ],
+  "dependencies": [
+    "DATACON-001",
+    "FEAT-001",
+    "MODEL-004"
+  ],
+  "acceptance": [
+    "只提交方法源码、无真实值配置和合成测试，不提交数据、真实统计、特征表、聚类分派或模型产物",
+    "所有特征严格使用预测时点前的左闭右开窗口，标签和折号不进入特征集合",
+    "F1历史险情、暴露归一、多窗口和事件语义细分有逐列契约；低暴露保留缺失和指示列",
+    "IMU校准不足时输出暂缓状态，不使用标签窗口事件调整阈值",
+    "模块合成测试、仓库治理检查和原有单元测试通过"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-feature-engineering-f1-public-code.md"
+  ],
+  "handoff": "docs/worklog/2026-09-21-feature-engineering-f1-public-code.md",
+  "notes": "实现来自受控本地特征工程；公开版已移除真实统计与机器路径。真实运行产物仍按DATA_POLICY保存在受控目录。"
+}

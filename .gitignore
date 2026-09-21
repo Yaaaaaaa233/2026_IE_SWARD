@@ -32,6 +32,7 @@ __pycache__/
 !.env.example
 configs/local.toml
 configs/*.local.*
+feature_engineering/configs/*.local.*
 *.pem
 *.key
 

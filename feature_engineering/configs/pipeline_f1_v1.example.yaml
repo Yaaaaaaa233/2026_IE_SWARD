@@ -1,0 +1,14 @@
+# Public template. Contains no machine path or experiment result.
+base_config: "pipeline.example.yaml"
+feature_version: "F1_v1"
+group_rule_version: "F1_v1_group_v1"
+output_dir: "../../artifacts/feature_f1_v1"
+
+events:
+  chunksize: 300000
+  windows_days: [5, 10, 20]
+  min_gold_accidents_for_imu_calibration: 30
+
+exposure:
+  min_km: 50.0
+  min_hours: 1.0
