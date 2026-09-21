@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-003",
+  "title": "阶段0：F1 真实数据运行与配对评估＋陀螺质量审计/对齐可行性双探针",
+  "status": "ready",
+  "owner": "叶安",
+  "actor": "ZCode agent（计划派 ds-executor 执行、主智能体监工）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "81e1c3b13c7ba033c2e9d4fbb26b0b0f47607404",
+  "dependencies": [
+    "FEAT-002",
+    "EVAL-002",
+    "GOV-007"
+  ],
+  "write_scope": [
+    "docs/plans/feat-003-execution.md",
+    "docs/tasks/FEAT-003.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-22-feat-003-stage0.md",
+    "outputs/feat-003/",
+    "outputs/probe/",
+    "outputs/figures/feat-003/",
+    "outputs/acceptance/FEAT-003.md"
+  ],
+  "acceptance": [
+    "F1_v1 model_input 在真实契约数据上产出，schema 硬检查通过，指纹（sha256）登记受控台账（版本登记三件套齐）",
+    "统一评估器同折配对比较完成：候选（RF@F1_v1）对冻结基线（RF@F0_v1）的配对区间与判据结果（过门/未过门）登记任务 notes 与受控台账；过门则按 ADR-0004 棘轮前进",
+    "特征族消融（F0＋逐族叠加）结果落受控，增益来源定位成文",
+    "双探针完成：陀螺质量审计（含 IMU 行数口径核查，差额登记待对照口径）与对齐可行性（含方向异常车与分能源类型），产物落 outputs/probe/",
+    "L1 机器验收全项通过（含 pytest feature_engineering/tests 与重跑一致性）；L2 抽样核对与 L3 图组按规程矩阵 FEAT-003 行完成并记录 outputs/acceptance/FEAT-003.md",
+    "FEAT-002 的 review 以本任务证据收口；FEAT-004-r1 执行方案依据探针结论成文"
+  ],
+  "evidence": [
+    "docs/plans/feat-003-execution.md"
+  ],
+  "handoff": "docs/worklog/2026-09-22-feat-003-stage0.md",
+  "notes": "上位方案 task1-optimization-plan-v1 §4 阶段 0（09-22~09-24）。预期偏差：特征窗内金标准事故数低于回放校准门槛，IMU 阈值校准输出 deferred，不阻塞。F1 运行产物落特征工程受控目录新增子目录 artifacts/feature_f1_v1（不触碰既有 F0/聚类产物，仓库外路径不入库）；本地配置文件（含本机路径）不入库。配对评估语义：候选=同一冻结 RF 规格跑 F1_v1 特征，对基线=既有受控 OOF（RF@F0_v1），同折车辆级配对 bootstrap。真实数值与区间仅入受控目录与台账（DATA_POLICY）。"
+}
