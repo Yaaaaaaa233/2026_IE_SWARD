@@ -5,6 +5,7 @@
 - [总体执行路线图](roadmap_overall.md)：R0–R6 阶段、汇合门槛、红线、三段交接面接口、执行纪律——项目的**执行基线**；配套受控数值页 `roadmap_overall_numbers.md`（git 忽略，不入库）。
 - [Roadmap 编写与验收要求](roadmap_requirements.md)：每步必备字段（方案/机器验收/可视化验收三文档）、AI 开工协议、状态回填纪律——各线细化 roadmap 的格式标准。
 - [全项目执行路线图 v2](../roadmap.md)：**顶层路线入口**（端到端管线、五条工作线、阶段门槛 S0–S4、接口总览、模块登记链接）；与总体执行路线图的分工见其 §7 待拍板第 8 项。
+- [特征工程当前工作、接口状态与路线图 v0.1](feature-engineering-roadmap.md)（任务 [FEAT-001](../tasks/FEAT-001.json)，待复核）：特征线本地实现盘点、A/B/C 三段接口状态、问题边界及 F-R0～F-R4 执行路线；不含真实数据派生统计和模型产物。
 - [模型路线提案 v0.1](model-route-proposal.md)（任务 [MODEL-002](../tasks/MODEL-002.json)，评审中）：方案 A 八种组合方案库 C1–C8 与方案 B 分群集成设计、E-B 实验矩阵与择优规则、待决策问题清单。不含本地实验数值。
 
 各线细化 roadmap（DATACON 线等）陆续按上述要求补齐后在此登记。历史路线草案（v1，M0–M4 工程视角）已并入路线图 v2 与本入口，原文见 Git 历史。

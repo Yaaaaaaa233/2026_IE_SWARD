@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-001",
+  "title": "整理特征工程当前工作、接口状态与执行路线图",
+  "status": "review",
+  "owner": null,
+  "actor": "Codex agent（根据用户提供的 2026-09-20 工作报告整理）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（直推，ADR-0003 模式）",
+  "base_commit": "0ebad4d",
+  "write_scope": [
+    "docs/plans/feature-engineering-roadmap.md",
+    "docs/plans/README.md",
+    "docs/tasks/FEAT-001.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-21-feature-engineering-status-and-roadmap.md"
+  ],
+  "dependencies": [
+    "DATACON-001",
+    "GOV-002",
+    "GOV-004",
+    "MODEL-002"
+  ],
+  "acceptance": [
+    "明确区分受控本地已实现、实现者自测、待团队复核和待正式冻结四类状态，不把探索性结果写成模型成绩",
+    "按 A 清洗数据输入、B 统一模型输入、C 模型输出梳理当前载体、校验、缺口与下一步",
+    "给出与总体执行路线图 R0-R3 对齐的特征线路线、机器验收、人工验收和放行条件",
+    "不提交原始数据、真实特征表、车辆级明细、折外预测或模型产物；治理检查与单元测试通过"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-21-feature-engineering-status-and-roadmap.md"
+  ],
+  "handoff": "docs/worklog/2026-09-21-feature-engineering-status-and-roadmap.md",
+  "notes": "用户明确要求将所附工作报告梳理后同步至指定 GitHub 仓库。公开版保留方法、接口和路线，真实数据派生统计及产物仍按 DATA_POLICY 留在受控环境。"
+}
