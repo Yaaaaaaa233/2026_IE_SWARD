@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-005",
+  "title": "迭代期 r2（叶安线）：波动/时段交互/设备健康分/方向无关六场景 特征族打包＋配对判定",
+  "status": "ready",
+  "owner": "叶安",
+  "actor": "ZCode agent（ds-executor 不可派发时由主会话执行）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "d791e863e4713f4657fcf1cb589122a716f8f28a",
+  "dependencies": [
+    "FEAT-004"
+  ],
+  "write_scope": [
+    "feature_engineering/src/accident_pipeline_f2/",
+    "feature_engineering/tests/",
+    "feature_engineering/configs/pipeline_f2_v1.example.yaml",
+    "docs/plans/feat-005-r2-execution.md",
+    "docs/tasks/FEAT-005.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-22-feat-005-r2.md",
+    "outputs/feat-005/round-1/",
+    "outputs/figures/feat-005/",
+    "outputs/acceptance/FEAT-005.md"
+  ],
+  "acceptance": [
+    "波动特征族（对齐坐标系＋设备系模长双轨：std/IQR/CV、相对波动、时段分波动、趋势波动）产出并入 model_input，时段与趋势波动设最低样本门槛",
+    "时段×事件交互特征（早高峰/深夜事件计数及 per_1000km 版）产出",
+    "设备健康分族产出（陀螺饱和计数＋全量核查 431.9dps 矛盾并定案、逐字重复率、段首毛刺率），核查结论登记受控台账",
+    "方向无关六场景（合模长+|ω| 分位数阈值）覆盖 125 辆对齐失败车，与 r1 方向版并存以前缀区分",
+    "统一评估器配对判定＋六组消融＋多种子完成；预登记预期随结果对照（判据不放松）；过门棘轮/未过门负结果登记",
+    "L1 机器验收全项＋版本三件套＋合成测试；L2 轻量抽样；L3 图组 B/D；采纳时补全"
+  ],
+  "evidence": [
+    "docs/plans/feat-005-r2-execution.md"
+  ],
+  "handoff": "docs/worklog/2026-09-22-feat-005-r2.md",
+  "notes": "迭代期第 2 轮。设计输入＝FEAT-004 r1 消融（多窗口族唯一持续正信号、对齐救回 +0.062、六场景绝对阈值在可靠车无增益）＋文献综述定性结论（G7 白皮书司机因素约 37% 上限与装备因素约 35%、时段倍率、volatility 方向、代理指标按车相对化优于绝对 g 值）。公开文档只引定性结论与公开行业数字，综述 §6 实测数字不入公开仓库（DATA_POLICY）。r2 产物落仓库外新目录 feature_f2r2_run（冻结目录只读）；时间转换统一 ns 约定（r1 缺陷类）。"
+}
