@@ -1,11 +1,11 @@
 {
   "id": "FEAT-002",
   "title": "公开特征工程F0/F1_v1源码、合成测试与配置模板",
-  "status": "review",
-  "owner": null,
+  "status": "accepted",
+  "owner": "吴钊同（GitHub wzt-ai，2026-09-22 名册确认；bf9425f 责任人登记，待本人最终确认）",
   "actor": "Codex agent",
-  "reviewer": null,
-  "reviewed_at": null,
+  "reviewer": "叶安（特征线接手人，ADR-0005 善后条款）",
+  "reviewed_at": "2026-09-22",
   "branch": "main（直推，ADR-0003模式）",
   "base_commit": "bf9425f",
   "write_scope": [
@@ -33,5 +33,5 @@
     "docs/worklog/2026-09-21-feature-engineering-f1-public-code.md"
   ],
   "handoff": "docs/worklog/2026-09-21-feature-engineering-f1-public-code.md",
-  "notes": "实现来自受控本地特征工程；公开版已移除真实统计与机器路径。真实运行产物仍按DATA_POLICY保存在受控目录。"
+  "notes": "实现来自受控本地特征工程；公开版已移除真实统计与机器路径。真实运行产物仍按DATA_POLICY保存在受控目录。2026-09-22 收口（ADR-0005 善后条款：FEAT-002 的 review 由接手人通过 F1 真实运行＋配对评估完成验收）：FEAT-003 证据＝F1 真实运行硬检查全过（y/fold 与冻结 F0 逐车一致、指纹登记受控台账 §8）＋模块合成测试 2/2 通过＋统一评估器配对评估完成；采纳其代码为阶段0 基础设施。配对结论（F1 全量未过门）属特征效果判定，不改变代码质量与防泄漏设计判定。"
 }

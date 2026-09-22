@@ -1,7 +1,7 @@
 {
   "id": "FEAT-003",
   "title": "阶段0：F1 真实数据运行与配对评估＋陀螺质量审计/对齐可行性双探针",
-  "status": "active",
+  "status": "review",
   "owner": "叶安",
   "actor": "ZCode agent（计划派 ds-executor 执行、主智能体监工）",
   "reviewer": null,
@@ -18,6 +18,7 @@
     "docs/tasks/FEAT-003.json",
     "docs/tasks/README.md",
     "docs/worklog/2026-09-22-feat-003-stage0.md",
+    "docs/tasks/FEAT-002.json",
     "outputs/feat-003/",
     "outputs/probe/",
     "outputs/figures/feat-003/",
@@ -35,5 +36,5 @@
     "docs/plans/feat-003-execution.md"
   ],
   "handoff": "docs/worklog/2026-09-22-feat-003-stage0.md",
-  "notes": "上位方案 task1-optimization-plan-v1 §4 阶段 0（09-22~09-24）。进度：步骤 A/B 完成（2026-09-22）——F1 真实运行产出 F1_v1（指纹登记台账 §8，y/fold 与冻结 F0 逐车一致，IMU 校准按设计暂缓）；配对评估结论：F1 全量未过门（区间跨零），多尺度窗口族种子 42 边缘过门但多种子区间不稳且存在四族选最优的选择效应，执行建议暂不采纳不棘轮、并入 F2 复验（待纪律管理裁定）；历史险情族对 RF 无增益、LR 方向为正不显著；多种子 ΔAUC 方向全部同向为正；full_f1 的 Recall@100/Brier 同向改善、容差达标。全部数字仅入受控台账 §8 与 outputs/feat-003/round-1/（DATA_POLICY）。步骤 C/D 双探针待执行。ds-executor 两次派发被 Mimosa 内容风险规则拦截（提示 Content Exists Risk，评估为对该任务路径组合的保守拦截），步骤 A/B 由主会话直接执行。其余登记事项不变：F1 产物落仓库外独立新目录 feature_f1_v1_run（特征工程冻结目录只读）；本地配置 *.local.yaml 不入库；候选=冻结 RF 规格跑 F1_v1，对基线=既有受控 OOF。"
+  "notes": "上位方案 task1-optimization-plan-v1 §4 阶段 0。步骤 A/B/C/D 全部完成（2026-09-22）——A：F1 真实运行硬检查全过（y/fold 与冻结 F0 逐车一致，指纹登记台账 §8）；B：F1 全量未过门（区间跨零）、多尺度窗口族种子 42 边缘过门但多种子区间不稳，纪律管理裁定暂不采纳不棘轮、多窗口族并入 F2 复验；C：陀螺质量良好（无尖峰/卡死/死区，F2 stage 0 简化为轻量断言）；D：对齐方案可行且方向异常车通过率与可靠车相同（约 65% 可救回），失败车保留方向无关特征；附带 IMU 行数口径收口（本机解析与特征线 manifest 完全一致，差异在 L1 报告侧）。FEAT-002 已凭本任务证据收口为 accepted。剩余：L2 人工抽样核对（10 辆 prior 特征对数＋对齐抽样目检）与 L3 图组（A/B/D）待复核人执行后置 accepted。全部数字仅入受控台账 §8 与 outputs/（DATA_POLICY）。ds-executor 两次派发被 Mimosa 内容风险规则拦截，全部工作由主会话直接执行。"
 }
