@@ -1,0 +1,18 @@
+# Public template. Contains no machine path or experiment result.
+base_config: "pipeline.example.yaml"
+output_dir: "../../artifacts/feature_f2r2_v1"
+r1_output_dir: "../../artifacts/feature_f2_v1"
+f0_model_input: "../../artifacts/model_interface/model_input.csv"
+
+unify_rel_tol: 0.10
+
+events:
+  driving_speed_kmh: 5.0
+  moving_speed_kmh: 10.0
+  collision_g: 0.50
+  tilt_g: 0.35
+  rollover_dps: 45.0
+
+exposure:
+  min_km: 50.0
+  min_hours: 1.0

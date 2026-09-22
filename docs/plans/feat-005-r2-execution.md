@@ -1,6 +1,6 @@
 # FEAT-005 r2 执行方案：波动／时段交互／设备健康分／方向无关六场景 特征族打包
 
-状态：ready（2026-09-22 登记，[ADR-0005](../decisions/ADR-0005-task1-dual-track-and-task2-split.md) 双人竞优·叶安线·迭代期第 2 轮）
+状态：executed（2026-09-22 执行完毕；配对判定全部未过门，负结果登记，基线不棘轮；结果与 r3 选项见受控台账 §8 与 [worklog](../worklog/2026-09-22-feat-005-r2.md)）
 上位方案：[task1-optimization-plan-v1](task1-optimization-plan-v1.md) §4 阶段 1；验收：[task1-optimization-acceptance-v1](task1-optimization-acceptance-v1.md) 迭代轮次行。
 设计输入：FEAT-004 r1 消融结论（受控台账 §8）＋团队文献综述（受控目录《驾驶行为与事故风险预测-文献综述.md》，公开侧只引其定性结论与公开出版物的行业数字，比赛数据派生数字不入公开仓库）。
 
