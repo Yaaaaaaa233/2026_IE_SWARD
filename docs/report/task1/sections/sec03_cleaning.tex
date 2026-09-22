@@ -1,0 +1,344 @@
+% ============================================================
+% 第3章 数据清洗与质量保障
+% 【负责人：数据清洗与基础特征线 —— 本章已完稿（2.0 版全量实测口径）】
+% 数据事实来源：《数据清洗版本与规则总说明》v0–v4、《统一配置_2.0版.json》、
+%               数据产物/数据审计统计.json（2026-09-18/19 实测）
+% ============================================================
+\section{数据清洗与质量保障}
+
+\subsection{清洗目标与设计原则}
+
+原始数据存在坐标占位符、物理越界、重复记录、时间越界、传感器死区与覆盖缺口等
+质量问题。清洗阶段的核心矛盾在于：\textbf{删数据会破坏 500 台车全量输出与标签
+守恒，留脏数据则会污染特征与标签}。为此，全部清洗工作遵循四条铁律：
+
+\begin{enumerate}[label=\textbf{P\arabic*.}]
+  \item \textbf{永不删行、永不删车}：一切异常只做\emph{标记}与\emph{字段级处置}
+        （坏字段置空或修复），行数与车辆数在清洗前后严格守恒；
+        标签行数与正类车数是硬断言，任何处置不得改变。
+  \item \textbf{两阶段体检}：一阶段做\emph{单类型体检}（每类数据自己是否合法），
+        二阶段做\emph{跨类型互证}（事件、轨迹、IMU 按“车辆+时间”对齐，
+        检验它们是否讲述同一个故事）。
+  \item \textbf{版本化输出}：清洗产物按 v0--v4 五个版本组织，行数完全相同，
+        区别只在“值是否修正、带几层标记、可信度如何”，全部版本互不覆盖、
+        可独立复现，建模侧按需取用。
+  \item \textbf{全程可对账}：每步记录输入行数、保留行数、排除原因与规则版本；
+        所有产出文件经写入后绕过系统缓存回读 MD5 校验。
+\end{enumerate}
+
+\subsection{数据契约 v0.1：清洗与建模的统一接口}
+
+为避免“清洗一套口径、建模另一套口径”，团队先以 Git 协作方式冻结了数据契约
+v0.1，规定清洗产物的表结构、主键与命名，全部清洗脚本按契约输出：
+
+\begin{table}[H]
+\centering
+\caption{数据契约 v0.1 的五表与传感流接口}
+\label{tab:contract}
+\small
+\begin{tabularx}{\textwidth}{lLL}
+\toprule
+表 & 一行是什么 & 主键 / 关键约定 \\
+\midrule
+\texttt{target\_vehicles} & 一台待预测车辆（500 台，不因缺源减少） & \texttt{gpsno}（字符串）唯一 \\
+\texttt{events\_clean} & 一条清洗后的事件记录 & \texttt{row\_id}（\texttt{evt\_} 序号）；\texttt{start\_time}/\texttt{speed} 等更名后口径 \\
+\texttt{vehicle\_day} & 一车一天的观测与计数 & \texttt{gpsno+date} 唯一；三种事件计数口径并存 + 质量标记 \\
+\texttt{features} & 一车一个历史特征窗口 & \texttt{sample\_id}=\texttt{gpsno\_asof\_lookback} \\
+\texttt{labels} & 一车一个未来标签窗口 & 与 \texttt{features} 的 \texttt{sample\_id} 一一对应 \\
+\texttt{splits} & 车辆折分 & \texttt{gpsno+fold+split\_version} \\
+传感流 & 轨迹 / IMU 清洗后记录与清单 & 每表独立 \texttt{row\_id}；窗级/日级标记清单 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+契约在 6 台真实车辆（含正类事故样本，代号车辆A）上做过端到端小样本验证：schema 一致、
+主键唯一、\texttt{features} 与 \texttt{labels} 的 \texttt{sample\_id} 一一对应、
+标签记录与正类车数在 v0/v1/v2 三版间完全相等后，才启动全量清洗。
+
+\subsection{一阶段清洗：单类型体检（产出 v0/v1/v2）}
+
+一阶段只判断每类数据\emph{自身}是否合法，不跨类型比对。规则按数据源分为事件表
+（A 系列）、轨迹流（T 系列）、IMU 流（I 系列），命中后统一执行“值置空 + 附加
+标记列”或“保留原值 + 标记”，不删除任何行。
+
+\begin{table}[H]
+\centering
+\caption{事件表清洗规则（A 系列，2.风险事件明细 $\to$ \texttt{events\_clean}）}
+\label{tab:rule-a}
+\small
+\begin{tabularx}{\textwidth}{cLLL}
+\toprule
+规则 & 判定条件 & v1 处置 & v2 处置 \\
+\midrule
+A1 & 时间不在 $[\text{2026-06-01},\ \text{2026-07-31})$ & 移出主表进隔离文件 & 同 v1 \\
+A2 & 整行完全相同的精确重复 & 每组仅保留首条，其余隔离 & 同 v1 \\
+A3 & 经纬度缺失 & 置空 + \texttt{coord\_flag=missing} & 保持置空（无填充依据） \\
+A4 & 坐标 $(0,0)$ 占位符 & 置空 + \texttt{zero\_placeholder} & 填该车有效坐标中位数 \\
+A5 & 坐标物理越界（纬度超出 $[-90,90]$，或经度超出 $[-180,180]$） & 置空 + \texttt{out\_of\_range} & 填该车有效坐标中位数 \\
+A6 & 速度缺失 & 置空 + \texttt{speed\_flag=missing} & 保持置空 \\
+A7 & 速度为负 & 置空 + \texttt{negative\_invalid} & 保持置空 \\
+A8 & 速度 $>200$ km/h & 置空 + \texttt{impossible\_gt200} & 保持置空 \\
+A9 & 速度 $160\sim200$ km/h & 保留原值 + \texttt{suspicious\_gt160} & 同 v1 \\
+A10 & 主键与字段名规范化 & 生成 \texttt{row\_id}；\texttt{event\_time}$\to$\texttt{start\_time}、\texttt{speed\_kmh}$\to$\texttt{speed} & 同 v0/v1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{轨迹流（T 系列）与 IMU 流（I 系列）清洗规则}
+\label{tab:rule-ti}
+\small
+\begin{tabularx}{\textwidth}{cLL}
+\toprule
+规则 & 判定条件 & v1 处置 \\
+\midrule
+T1 & 速度缺失/为负/$>$200/$>$160 km/h（同 A6--A9） & 值处置 + \texttt{speed\_flag} \\
+T2 & 航向缺失或不在 $[0,360)$ & 置空 + \texttt{course\_flag} \\
+T3 & 坐标缺失/$(0,0)$/越界（同 A3--A5） & 置空 + \texttt{coord\_flag}（\textbf{不填充}，坐标修正属事件侧） \\
+T4 & \texttt{speed}$>5$ 且 \texttt{run\_time}$=0$ 的运行时长矛盾 & \texttt{runtime\_flag=\allowbreak runtime\_inconsistent\_moving} \\
+T5 & 日期不在窗口内 & \texttt{window\_flag=0}（行保留） \\
+\midrule
+I1 & EMS 速度缺失 & 置空 + \texttt{ems\_flag=missing} \\
+I2 & GPS 速度缺失 & 置空 + \texttt{gps\_flag=missing} \\
+I3 & 加速度合模长 $<0.1$ 或 $>5.0\,g$ & \texttt{accel\_flag=accel\_extreme}（值保留） \\
+I4 & \texttt{data\_time} 日期 $\neq$ \texttt{data\_date} & \texttt{date\_flag=date\_mismatch}（值保留） \\
+I5 & \texttt{data\_date} 不在窗口内 & \texttt{window\_flag=0} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{关键规则的设计依据}（完整论证见内部《数据清洗版本与规则总说明》）：
+\begin{itemize}
+  \item \textbf{A1 对 7/31 整日隔离而非删除}：赛题口径截止 7/30，但当天仍在产出
+        数据；整日隔离另存、待官方答复后可逆处理，避免擅自取舍。
+  \item \textbf{A4 将 $(0,0)$ 视为占位符}：$(0,0)$ 位于几内亚湾，是定位失败时
+        芯片输出的行业常见占位值，直接保留会污染一切空间统计。
+  \item \textbf{A9 只标记不修改}：$160\sim200$ km/h 无法排除超速记录、传感器毛刺
+        或真实飙车，保留原值加标记是信息量最大的选择。
+  \item \textbf{I1/I2 双通道分别标记而不互填}：EMS 与 GPS 速度是同一设备的两条
+        独立链路，互填会把“一路坏了”伪装成“两路都好”，掩盖设备故障。
+  \item \textbf{T3 轨迹坐标不填充}：轨迹本身是位置先验的来源，用其中位数自填充
+        属于循环污染；且实测坏坐标仅约十万分之一，填充收益极低。
+\end{itemize}
+
+\noindent\textbf{派生表规则}\mbox{}
+\begin{itemize}
+  \item \textbf{三种事件计数口径并存}：\texttt{evt\_raw\_count}（原始报警条数）、
+        \texttt{evt\_segments30}（同类型 30 秒内并段后的段数，抑制报警风暴的
+        重复计数）、\texttt{evt\_days\_flag}（发生天数）——不同建模口径需要不同
+        粒度，提前并存避免下游重算。
+  \item \textbf{标签生成}：标签窗内出现 11803（事故）或 11804（未遂事故）且
+        \texttt{start\_time} $\ge$ 2026-06-21 记为正类，得主口径正类车 126 台 /
+        标签记录 222 条。
+  \item \textbf{车辆级分层 5 折}：正类稀缺（126/500），按标签分层并以哈希确定
+        折号，保证每折 25--26 台正类且完全可复现。
+\end{itemize}
+
+\noindent\textbf{一阶段全量实测（2.0 版）}\mbox{}
+\begin{hlbox}
+事件输入 \textbf{3{,}152{,}654} 行 / 500 台车 $\to$ 隔离 7/31 越界
+\textbf{59{,}357} 条 + 精确重复 \textbf{1} 条 $\to$ \texttt{events\_clean}
+\textbf{3{,}093{,}296} 行，\texttt{row\_id} 唯一。规则命中：A3/A4/A5 =
+4{,}933/745/3 条；A7/A8/A9 = 0/3/2 条。v2 实际填充坐标 \textbf{738} 条
+（其余坏坐标车辆无有效坐标可填，维持置空），填充点落在本车轨迹包围盒外
+\textbf{0} 条。
+\end{hlbox}
+
+\subsection{二阶段清洗：跨类型互证（产出 v3/v4）}
+
+\textbf{为什么需要二阶段}：一阶段查不出“合法但说谎”的数据。例如样例中某事件
+经度 15.41 处于 $[-180,180]$ 合法区间（A5 放行），但该车 60 天轨迹全部位于
+东经 114--115——只有把事件与轨迹对齐才能发现这是“丢失首位”的坏值。
+二阶段将事件、轨迹、IMU 按“车辆+时间”对齐互证，在 6 台样例车（1{,}390 万
+IMU 行、600 万轨迹行、6.2 万事件）上完成验证；原则仍是\textbf{只产标记与
+可信度，不产删除}。
+
+\begin{table}[H]
+\centering
+\caption{二阶段跨类型互证规则（C 系列）}
+\label{tab:rule-c}
+\small
+\begin{tabularx}{\textwidth}{cLL}
+\toprule
+规则 & 判定条件 & 标注位置 \\
+\midrule
+C1$'$ & IMU 速度 $>20$ km/h 且前后 $\pm60$ s 轨迹全程 $<5$ km/h 的
+\textbf{持续矛盾}（逐点矛盾系采样时差，不标注） & \texttt{imu\_traj\_persistent\_conflicts.csv}（人工复核短名单） \\
+C2 & IMU EMS 速度与轨迹速度 $|$差$|>30$ km/h 且持续 $\ge$30 s & 并入 C1$'$ 清单 \\
+C3 & 轨迹 $\ge$20 km/h 行驶的 60 s 窗内，加速度合矢量与陀螺方差同时近零
+（传感器死区） & \texttt{imu\_dead\_windows.csv}（窗级） \\
+C4 & 事件坐标落在本车 60 天轨迹包围盒外，或 $\pm5$ min 无轨迹点 & 事件表列 \texttt{xtype\_coord\_flag} \\
+C5 & 行车类事件（30xxx/11401）时刻轨迹 \texttt{speed}$<5$ 且 \texttt{distance}$=0$ & 事件表列 \texttt{xtype\_motion\_flag} \\
+C6 & 停车类事件（60292）时刻轨迹速度 $>10$ & 事件表列 \texttt{xtype\_motion\_flag} \\
+C7 & 有轨迹行驶记录的日期 IMU 全天无记录（覆盖缺口，属覆盖事实而非错误） & \texttt{coverage\_calendar\_marked.csv}（日级） \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{关键设计依据}：
+\begin{itemize}
+  \item \textbf{C1$'$ 只抓“持续矛盾”}：停车-起步瞬间，3 秒采样的轨迹点会取到
+        速度 0 的点，而 2 秒采样的 IMU 记录到减速尾流——逐点比对会把正常驾驶
+        误判为异常。加持续判据后，样例中 8.3 万条逐点矛盾收敛为 61 条真矛盾。
+  \item \textbf{C3 以“轨迹确认在行驶”为前提}：IMU 读数静止可能是车真停了
+        （正常）或传感器装死（异常），用轨迹速度 $\ge$20 km/h 排除前者，
+        才能分离死区与正常停车。
+  \item \textbf{C4 用每车轨迹包围盒而非固定半径}：固定半径会误伤跨城/长干线
+        车辆；60 天轨迹分位包围盒刻画该车自身活动范围（另留 $\pm0.5^\circ$
+        容差防误伤）。C4 命中后在 v3 置 null 而不自动改值——合法区间内的错值
+        比缺失更危险，缺失可被模型容忍，错值会把事件钉到错误的地理位置。
+\end{itemize}
+
+\begin{hlbox}
+\textbf{二阶段的核心纪律}：事故样本车辆A 在样例中同时踩中三条规则
+（$(0,0)$ 坐标的事故记录、33 天 IMU 缺口、4 个死区窗），但它是\textbf{真实
+正类样本}——任何“数据难看就剔除”的操作都会删掉真实事故。因此二阶段一切输出
+都是标记与可信度，处置权留给建模阶段；这也再次印证 P1“永不删行、永不删车”
+的必要性。
+\end{hlbox}
+
+\subsection{缺失值（null）填充可行性分析（v2/v4 的核心步骤）}
+
+版本语义：v1/v3 = 标注并用 null 填充坏字段；v2/v4 = 在其基础上\emph{逐字段}
+分析每个 null 能否用有效值填充——有合理方案则填充，无合理方案保留 null；
+两种情况均保留 v1/v3 的标记列。逐字段结论如下：
+
+\begin{table}[H]
+\centering
+\caption{置空字段的填充可行性分析}
+\label{tab:fill}
+\small
+\begin{tabularx}{\textwidth}{llLL}
+\toprule
+置空字段 & 阶段 & 填充方案与依据 & 处置 \\
+\midrule
+事件坐标（A4/A5） & 一阶段 & 该车有效事件坐标中位数，且必须落在本车轨迹包围盒内，否则弃填 & v2 填充（738 条） \\
+事件坐标（C4） & 二阶段 & 同上；中位数仍出包围盒则弃填 & v4 填充或保留 null \\
+事件速度 & 二阶段 & 事件时刻匹配的轨迹点实测速度（独立传感器，$\pm5$ min 内） & v4 填充并标记 \texttt{speed\_filled\_from\_traj} \\
+事件速度 & 一阶段 & 无同源先验 & 保留 null \\
+轨迹坐标/速度/航向 & --- & 轨迹是位置先验来源，自填充属循环污染 & 保留 null \\
+IMU 速度（双通道） & --- & 无真值先验；同秒另一通道冗余值以“填充补丁汇总”交付供参考 & 保留 null + 补丁汇总 \\
+IMU 加速度/陀螺 & --- & 无真值先验 & 保留 null \\
+C3 死区窗内读数 & 二阶段 & 传感器行驶中未记录（非字段缺失），无法外推恢复 & 保留原值 + 窗级标记 \\
+C7 缺口日 & 二阶段 & 数据不存在 & 该日特征置缺失 + 日级标记 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{清洗产物：v0--v4 五个版本}
+
+五个版本行数完全相同（标签行数与正类车数守恒是硬断言），区别仅在值修正、
+标记层数与可信度：
+
+\begin{table}[H]
+\centering
+\caption{v0--v4 五版本定义}
+\label{tab:versions}
+\small
+\begin{tabularx}{\textwidth}{llL}
+\toprule
+版本 & 名称 & 内容定义 \\
+\midrule
+v0 & 接口版 & 仅字段名/主键/类型转换（符合契约接口），原值保留（含坏值），无任何标记列 \\
+v1 & 一阶段标注版 & A/T/I 系列命中的字段置空 + 全部标记列，行不删 \\
+v2 & 一阶段填充版 & v1 + 坏坐标中位数填充（仅事件表 738 行实质变化，过包围盒校验），标记全保留 \\
+v3 & 二阶段标注版 & v2 + 跨类型标记（表加 2 列 + C1$'$/C3/C7 窗级、日级标记清单） \\
+v4 & 二阶段填充+可信度版 & v3 + null 填充分析 + 每条标记附 \texttt{disposition}（处置）、\texttt{confidence}（0--100）、\texttt{grade}（三级），可直接供建模使用 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent 建模侧取用约定：特征与标签统计一律基于 \textbf{v2 及以上}版本；
+涉及传感器派生特征时使用 v4 的窗级标记（死区窗不提取急刹/急加速特征、
+缺口日行为特征置缺失），避免把“没记录”当成“开得稳”。
+
+\subsection{典型样例走查}
+
+以下为真实数据在五个版本中的形态（样例车以代号车辆A/B 表示，车辆A 即正类
+事故样本；坐标截断至两位小数），
+直观展示标记、填充与可信度如何协同工作。
+
+\noindent\textbf{实例 1：(0,0) 占位坐标的真实事故（A4 + C4 双命中，标签必须保住）}
+\begin{databox}
+源数据 : 车辆A | lat=0, lng=0 | 11803 疑似事故 | 2026-07-11 06:32:33  <- 真实事故，坐标是占位符
+v1     : lat="", lng="", coord\_flag=zero\_placeholder           （值置空，行保留）
+v2     : lat=30.52…, lng=114.85…（该车有效坐标中位数），标记保留
+v3     : 同 v2 + xtype\_coord\_flag=ok（填充点落回本车轨迹包围盒）
+v4     : disposition=coord\_filled\_median, confidence=95, grade=十分异常(坐标)
+         → 坐标值原本十分异常，但事件本身按时间+类型可信，标签保留
+\end{databox}
+
+\noindent\textbf{实例 2：经度疑似丢首位（只有跨类型互证能发现）}
+\begin{databox}
+源数据 : 车辆B | lat=30.57…, lng=15.41… | 30017 | 2026-07-…
+一阶段 : 经度 15.41 在合法区间 → A1–A9 全部放行
+二阶段 : C4——该车 60 天轨迹经度全在 114–115，事件坐标在包围盒外
+v3     : xtype\_coord\_flag=out\_of\_vehicle\_bbox
+v4     : disposition=keep\_and\_flag, confidence=75, grade=比较异常
+         → 不自动改成 115.41（存在其他可能），交建模/人工判断
+\end{databox}
+
+\noindent\textbf{实例 3：传感器死区窗（C3）}——轨迹以 $\ge$20 km/h 行驶的 60 s 窗内 IMU 加速度/陀螺方差同时近零
+（样例 9 窗，事故车占 4 窗）：v3 记入 \texttt{imu\_dead\_windows.csv}；
+v4 追加 \texttt{disposition=\allowbreak feature\_excluded}（该窗内不提取急刹/急加速特征，
+IMU 行本身不删），\texttt{confidence=92}。
+
+\noindent\textbf{实例 4：IMU 全天缺口（C7，覆盖事实而非错误）}——车辆A 有 33 天“有轨迹行驶但 IMU 零记录”：日历中该日记为
+\texttt{coverage\_flag=\allowbreak imu\_gap\_day}，v4 将缺口日行为特征置缺失
+（\texttt{feature\_nullified}，\texttt{confidence=100}）——不得视为该车当天
+安全驾驶的证据，也不得因此剔除该车。
+
+\subsection{校验与守恒断言（全量实测）}
+
+清洗流程内置以下硬断言，全部通过：
+
+\begin{table}[H]
+\centering
+\caption{清洗守恒校验结果（source\_version = 2.0）}
+\label{tab:conservation}
+\small
+\begin{tabularx}{\textwidth}{LL}
+\toprule
+校验项 & 实测结果 \\
+\midrule
+行数对账 & $3{,}152{,}654 \xrightarrow{\text{隔离}59{,}357} \xrightarrow{\text{去重}1} 3{,}093{,}296$，互斥分支完全对账 \\
+主键唯一 & \texttt{events\_clean} 三版各 3{,}093{,}296 行，\texttt{row\_id} 唯一，schema 与契约 v0.1 一致 \\
+标签守恒 & 126 台正类车 / 222 条标签记录，清洗前后三版完全相等 \\
+折分守恒 & 车辆级分层 5 折，每折正类 25--26 台，哈希可复现 \\
+填充安全 & v2 填充 738 条，填充点轨迹包围盒违规 0 条 \\
+无泄漏 & v0 接口版无任何清洗痕迹（标记列泄漏 0） \\
+文件完整性 & 全部产出写入后绕过系统缓存回读 MD5 校验，清单见 \texttt{完整性清单.json} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{清洗产物清单与下游接口}
+
+清洗线向全组交付的数据产物（均在 2.0 版数据上生成、可由代码目录脚本复现）：
+
+\begin{table}[H]
+\centering
+\caption{清洗线数据产物一览（2.0 版）}
+\label{tab:products}
+\small
+\begin{tabularx}{\textwidth}{lLL}
+\toprule
+产物 & 内容 & 关键数字 \\
+\midrule
+车辆日事件特征.csv & 一车一天一编码：原始条数、30 秒段数、速度统计 & 输入 3{,}093{,}296 行可对账，主键唯一 \\
+事件基础特征\_train20.csv & 前 20 天特征 + 未来 40 天标签 & 500 行，正类 126，未知标签 0 \\
+事件基础特征\_inference20.csv & 正式推理窗（7/11--7/31）特征 & 500 行，不含任何预测 \\
+事件类型全量统计 / 逐日行数 & 24 类编码条数与每日行数 & 右偏移 938{,}621、左偏移 894{,}649 等 \\
+设备号对账 / 车辆画像标准化 & 画像-事件名单核对、画像标准化 & 交集 500，双侧余量 0 \\
+数据审计统计.json & 全部审计数字（含硬断言记录） & 见第 3.8 节 \\
+已生成特征字典.csv & 每个特征列的定义、窗口、缺失规则 & 24 类 $\times$ 3 形态 + 元数据列 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent 下游使用约束（对建模线的承诺）：
+(1) 建模输入一律取自契约表，特征来源时间必须早于窗口截点；
+(2) 坐标无效只影响空间特征，\textbf{不影响事件计数与标签}；
+(3) 全部统计在折内拟合（平滑、标准化、填充参数不得使用全量标签），
+详见第 5 章验证纪律。

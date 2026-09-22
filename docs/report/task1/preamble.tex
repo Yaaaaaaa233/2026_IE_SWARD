@@ -1,0 +1,85 @@
+% ============================================================
+% preamble.tex —— 宏包与全局样式定义
+% 团队成员一般不需要修改本文件；如需新增宏包请在此处添加，
+% 并在 README.md 的“依赖说明”中登记，保证全组编译环境一致。
+% ============================================================
+
+% ---------- 页面与版式 ----------
+\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.6cm,right=2.6cm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 2026 Agent大赛《驾驶安全》算法赛道}
+\fancyhead[R]{\small 任务一：事故预测算法说明文档}
+\fancyfoot[C]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- 数学与符号 ----------
+\usepackage{amsmath,amssymb}
+
+% ---------- 表格 ----------
+\usepackage{booktabs}      % 三线表
+\usepackage{longtable}     % 跨页长表
+\usepackage{tabularx}      % 自动换行列
+\usepackage{multirow}
+\usepackage{array}
+
+% ---------- 图形 ----------
+\usepackage{graphicx}
+\graphicspath{{figures/}}  % 图片统一放 figures/ 目录，引用时直接写文件名
+\usepackage{float}
+
+% ---------- 颜色与提示框 ----------
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}  % 提示框可跨页断开
+
+% ---------- 列表 ----------
+\usepackage{enumitem}
+\setlist{nosep}
+
+% ---------- 图注表注 ----------
+\usepackage[font=small,labelfont=bf]{caption}
+
+% ---------- 代码 ----------
+\usepackage{listings}
+\lstset{
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  columns=flexible,
+  numbers=none,
+  frame=single,
+  framerule=0.3pt,
+  rulecolor=\color{gray!60},
+  backgroundcolor=\color{gray!5}
+}
+
+% ---------- 超链接 ----------
+\usepackage[colorlinks,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+% ============================================================
+% 自定义命令
+% ============================================================
+
+% 待填写提示框（环境用法）：
+%   \begin{TODO}
+%   说明文字……
+%   \end{TODO}
+% 各章节中所有 TODO 框在最终提交前必须全部删除。
+\newtcolorbox{TODO}{colback=yellow!10,colframe=orange!80!black,
+  boxrule=0.6pt,arc=1.5mm,left=2mm,right=2mm,top=1mm,bottom=1mm,
+  breakable,fontupper=\small,
+  before upper={\textbf{【待填写】}\ }}
+
+% 重点结论框（环境用法）：\begin{hlbox}...\end{hlbox}
+\newtcolorbox{hlbox}{colback=blue!4,colframe=blue!55!black,
+  boxrule=0.6pt,arc=1.5mm,left=2mm,right=2mm,top=1.5mm,bottom=1.5mm,breakable}
+
+% 示例数据框（等宽字体展示原始记录，保留源码换行、左对齐）
+\newtcolorbox{databox}[1][]{colback=gray!5,colframe=gray!55,
+  boxrule=0.5pt,arc=1mm,left=2mm,right=2mm,top=1.5mm,bottom=1.5mm,
+  fontupper=\small\ttfamily\obeylines\raggedright,#1}
+
+% 常用表头样式
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}

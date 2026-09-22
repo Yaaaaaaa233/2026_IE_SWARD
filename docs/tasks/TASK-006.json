@@ -1,0 +1,42 @@
+{
+  "id": "TASK-006",
+  "title": "任务一算法说明文档 LaTeX 框架入库（数据清洗章节完稿，其余章节为待填模板）",
+  "status": "review",
+  "owner": "娄澜",
+  "actor": "ZCode",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/TASK-006-task1-latex-skeleton",
+  "base_commit": "79d07c373cb42d1a228dcaa94f9e0ca878c54bf9",
+  "write_scope": [
+    "docs/report/task1/main.tex",
+    "docs/report/task1/preamble.tex",
+    "docs/report/task1/README.md",
+    "docs/report/task1/figures/README.md",
+    "docs/report/task1/sections/sec01_overview.tex",
+    "docs/report/task1/sections/sec02_data.tex",
+    "docs/report/task1/sections/sec03_cleaning.tex",
+    "docs/report/task1/sections/sec04_features.tex",
+    "docs/report/task1/sections/sec05_label_split.tex",
+    "docs/report/task1/sections/sec06_model.tex",
+    "docs/report/task1/sections/sec07_results.tex",
+    "docs/report/task1/sections/sec08_conclusion.tex",
+    "docs/report/task1/sections/appx_code.tex",
+    "docs/report/task1/sections/appx_dict.tex",
+    "docs/report/task1/sections/appx_open.tex",
+    "docs/tasks/TASK-006.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-22-task1-latex-skeleton.md"
+  ],
+  "dependencies": ["TASK-005"],
+  "acceptance": [
+    "docs/report/task1 下 LaTeX 源码可编译：xelatex main.tex 连续两遍无错误无溢出警告（PDF 按治理规则不入库，由各成员本地构建）",
+    "正文不含真实车辆标识：样例车统一代号车辆A/B（车辆A=正类事故样本），坐标截断两位小数；无本机盘符路径；数据集级聚合统计口径与 docs/cleaning 文档一致",
+    "第3章数据清洗（sec03_cleaning.tex）为完稿（2.0 版全量实测口径）；其余章节保留黄色【待填写】框并在 README 中写明章节分工与填写约定",
+    "文档内容覆盖赛题 6.1 对说明文档的要求（特征工程、模型选择、参数设置、关键发现、设计思路均已留位）",
+    "任务登记、交接简报、tasks 索引齐备；治理检查与单元测试通过"
+  ],
+  "evidence": ["docs/worklog/2026-09-22-task1-latex-skeleton.md"],
+  "handoff": "docs/worklog/2026-09-22-task1-latex-skeleton.md",
+  "notes": "说明文档框架按赛题 6.1 提交内容设计，内容取自 2.0 版数据侧实测产物（清洗规则 v0–v4、契约 v0.1、统一配置、基线成绩）。据 ADR-0005 重组，任务一建模已转双人竞优，本文档为全队共同交付物框架：第 1/6/7/8 章待建模与路线负责人填充，第 5 章待验证负责人冻结补充。owner 登记为提出人，后续维护责任待协调者（叶安）确认。"
+}

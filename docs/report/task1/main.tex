@@ -1,0 +1,86 @@
+% !TEX program = xelatex
+% ============================================================
+% 2026 清华 IE 亮剑（Agent 大赛）《驾驶安全》算法赛道
+% 任务一：事故预测算法 —— 算法说明文档（LaTeX 主文件）
+%
+% 编译方式（本目录下执行）：
+%   xelatex main.tex   （连续编译两遍，生成目录与交叉引用）
+%   或 latexmk -xelatex main.tex
+%
+% 框架结构（团队成员只需编辑自己的 sections/*.tex 文件）：
+%   sec01_overview.tex    第1章  赛题理解与总体技术路线        【组长/全员】
+%   sec02_data.tex        第2章  数据概览与版本管理            【数据线，已预填】
+%   sec03_cleaning.tex    第3章  数据清洗与质量保障            【数据线，已完稿】
+%   sec04_features.tex    第4章  特征工程                      【数据线+建模线】
+%   sec05_label_split.tex 第5章  标签构造、样本划分与评估方案  【验证负责人，已预填】
+%   sec06_model.tex       第6章  模型选择与参数设置            【建模线】
+%   sec07_results.tex     第7章  实验结果与关键发现            【建模线】
+%   sec08_conclusion.tex  第8章  总结与展望                    【组长/全员】
+%   appx_code.tex         附录A  代码仓库结构与复现说明        【各代码负责人】
+%   appx_dict.tex         附录B  特征字典                      【数据线，已预填】
+%   appx_open.tex         附录C  官方待确认问题与当前应对      【组长维护】
+%
+% 对照赛题“6.1 提交内容”的自查清单：
+%   [1] 预测结果文件（CSV：车辆ID + 二分类 + 概率）→ 由代码生成，第7/8章说明
+%   [2] 算法或模型说明文档（本 PDF：特征工程、模型选择、参数设置、关键发现、设计思路）
+%   [3] 可复现代码 + 安装运行说明 → 附录A
+% ============================================================
+\documentclass[11pt,a4paper,fontset=windows]{ctexart}
+\input{preamble}
+
+\begin{document}
+
+% ---------------- 封面 ----------------
+\begin{titlepage}
+  \centering
+  \vspace*{2.5cm}
+  {\Large 2026 清华 IE 亮剑（Agent 大赛）\par}
+  \vspace{0.4cm}
+  {\Large 《驾驶安全》算法赛道\par}
+  \vspace{2.2cm}
+  \rule{\textwidth}{0.8pt}\par
+  \vspace{0.8cm}
+  {\Huge\bfseries 任务一：事故预测算法\par}
+  \vspace{0.5cm}
+  {\LARGE 算法说明文档\par}
+  \vspace{0.8cm}
+  \rule{\textwidth}{0.8pt}\par
+  \vspace{3.2cm}
+
+  % —— 以下信息提交前统一替换 ——
+  \large
+  \begin{tabular}{rl}
+    \textbf{队伍名称} & 【队伍名称】 \\[0.4em]
+    \textbf{队伍成员} & 【成员一、成员二、成员三、成员四】 \\[0.4em]
+    \textbf{指导教师} & 【如有则填写】 \\[0.4em]
+    \textbf{数据版本} & Crazy Logi-AI 2.0（2026-09-17 官方发布版） \\[0.4em]
+    \textbf{提交日期} & 【提交日期】 \\
+  \end{tabular}
+
+  \vfill
+  {\small 本文档基于全组统一的 \LaTeX{} 框架撰写；数据版本 source\_version = 2.0，
+  清洗版本、特征版本与划分版本号见正文第 2 章与附录 A。}
+  \vspace*{1.5cm}
+\end{titlepage}
+
+% ---------------- 目录 ----------------
+\tableofcontents
+\newpage
+
+% ---------------- 正文 ----------------
+\input{sections/sec01_overview}
+\input{sections/sec02_data}
+\input{sections/sec03_cleaning}
+\input{sections/sec04_features}
+\input{sections/sec05_label_split}
+\input{sections/sec06_model}
+\input{sections/sec07_results}
+\input{sections/sec08_conclusion}
+
+% ---------------- 附录 ----------------
+\appendix
+\input{sections/appx_code}
+\input{sections/appx_dict}
+\input{sections/appx_open}
+
+\end{document}

@@ -1,0 +1,33 @@
+% ============================================================
+% 附录B 特征字典（节选）
+% 【负责人：数据线（已按《已生成特征字典.csv》预填节选）】
+% ============================================================
+\section{特征字典（节选）}
+
+全量字典见随代码交付的 \texttt{已生成特征字典.csv}（24 类 $\times$ 3 形态 +
+元数据列），每个特征列登记字段名、来源、定义、窗口、缺失规则与“是否需折内
+拟合”。下表为节选示例：
+
+\begin{table}[H]
+\centering
+\caption{特征字典节选}
+\label{tab:dict}
+\small
+\begin{tabularx}{\textwidth}{llLL}
+\toprule
+字段 & 来源 & 定义与窗口 & 缺失规则 \\
+\midrule
+\texttt{gpsno} & 事件日志 & 车辆关联键，不入模型 & --- \\
+\texttt{evt\_11401\_count\_20d} & 风险事件 & 去精确重复后的报警条数，最近 20 天 & 无该类记录计 0，另看覆盖标记 \\
+\texttt{evt\_11401\_segments30\_20d} & 风险事件 & 30 秒事件段数，最近 20 天 & 同上 \\
+\texttt{evt\_11401\_days\_20d} & 风险事件 & 有该事件的天数，最近 20 天 & 同上 \\
+\texttt{evt\_11803\_count\_20d} & 风险事件 & 事故条数，最近 20 天（历史窗内） & 同上 \\
+\texttt{evt\_11804\_count\_20d} & 风险事件 & 未遂事故条数，最近 20 天（历史窗内） & 同上 \\
+\texttt{event\_observed\_days} & 派生 & 窗口内事件观测覆盖天数 & --- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent 说明：三形态后缀 \texttt{\_count} / \texttt{\_segments30} / \texttt{\_days}
+对应 3.3 节三种事件计数口径；\texttt{traj\_} / \texttt{imu\_} 前缀特征待 2.0
+传感器数据到位后按同一字典规范登记。

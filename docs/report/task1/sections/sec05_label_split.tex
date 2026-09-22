@@ -1,0 +1,70 @@
+% ============================================================
+% 第5章 标签构造、样本划分与评估方案
+% 【负责人：验证负责人（已按统一配置预填“数据侧承诺”，折分与指标
+%   细节以验证负责人冻结版为准）】
+% ============================================================
+\section{标签构造、样本划分与评估方案}
+
+\subsection{标签定义}
+
+\begin{itemize}
+  \item \textbf{正类}：标签窗口（2026-06-21 起 40 天）内出现至少一条有效的
+        11803（事故）或 11804（未遂事故）记录。主口径实测：正类车
+        \textbf{126} 台 / 标签记录 \textbf{222} 条（清洗前后守恒）。
+  \item \textbf{负类}：窗口内无 11803/11804 记录即记 $y=0$。团队决策
+        （2026-09-18）：事件日志视为完整，不再区分“确认负类”与“代理负类”；
+        若官方日后说明日志不完整，回滚此假设并重算全部基线。
+  \item \textbf{清洗与标签的关系}：坐标无效只置字段缺失并标记，不得删除行或车
+        ——主口径标签窗内 10 条 $(0,0)$ 记录（含事故样本车辆A）全部保留
+        （见 3.4 节核心纪律）；事故 11803 与未遂 11804 \textbf{不套用}普通报警的
+        30 秒段合并规则。
+\end{itemize}
+
+\subsection{样本划分：车辆级分层 5 折}
+
+\begin{itemize}
+  \item 车辆级划分（同车全部窗口在同一折），按标签分层，保证每折正类
+        25--26 台；折号由哈希确定，完全可复现，登记于 \texttt{folds.csv}
+        （含 \texttt{gpsno}$\to$\texttt{fold} 映射与 \texttt{split\_version}）。
+  \item 填补、标准化、平滑、分箱、PCA、相关聚类、特征选择、校准、阈值与融合
+        \textbf{均只在训练折拟合}。
+  \item 每次实验保存每车折外预测、折号、种子与配置版本，保证任何数字可回溯。
+\end{itemize}
+
+\subsection{评价指标体系}
+
+以 AUC 为唯一主指标（与官方一致），配套指标用于运营性判断：
+
+\begin{table}[H]
+\centering
+\caption{评价指标体系}
+\label{tab:metrics}
+\small
+\begin{tabularx}{\textwidth}{lL}
+\toprule
+指标 & 用途 \\
+\midrule
+\texttt{roc\_auc\_overall\_oof} & 主指标：500 台车折外预测的整体 AUC \\
+\texttt{roc\_auc\_per\_fold} & 折间稳定性（5 折逐一报告） \\
+average\_precision & 正类稀缺下的排序参考（非梯形 PR AUC） \\
+lift@10\% / lift@20\% & 预警名单的运营价值 \\
+recall@K / precision@K & 管理容量 K 下能覆盖多少高风险车 \\
+brier\_score / log\_loss & 概率校准质量 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{实验准入规则（全组统一纪律）}
+
+折外 AUC 提升 \textbf{0.005} 为提示线，四条同时满足才进入主线：
+\begin{enumerate}[label=(\arabic*)]
+  \item 至少 4/5 折不下降；
+  \item 车辆级配对 bootstrap 区间下界 $\ge -0.005$（同一车辆新旧预测成对重采样）；
+  \item 折间方向一致；
+  \item 不伤害缺失子群（如 IMU 缺口车辆）。
+\end{enumerate}
+
+\begin{TODO}
+种子集合（12/34/56/78/90）下的多种子均值与方差、阈值选择规则（官方未给则按
+管理容量 K 或召回目标在训练内层选择）请验证负责人补充冻结说明与最终版本号。
+\end{TODO}
