@@ -19,7 +19,10 @@
   300＝时段桶/昼夜点集、100＝事件坐标与相邻日子集；日级统计另需有效天数 >=min_days
   （20 天窗无法提供 100 级天样本，日级下限随实现登记，见 daily_rhythm_features）；
 - 时间戳转秒统一 astype("datetime64[ns]") -> astype(int64) // 1e9（r1 缺陷类教训）；
-- 原始高频序列不直接入模，入模均为统计量与阈值事件计数（红线 4）。本模块不做文件 IO。
+- 原始高频序列不直接入模，入模均为统计量与阈值事件计数（红线 4）。本模块不做文件 IO；
+- 统一清洗（红线 2：缺数以缺失表达、不删车）：所有消费 lat/lon/t/speed 的函数入口丢弃
+  非有限值行（finite_row_mask/window_mask 收口），空输入/单点输入返回 NaN 特征不崩溃，
+  非法坐标不进 DBSCAN（视为噪声）。
 """
 from __future__ import annotations
 
@@ -60,18 +63,34 @@ def to_epoch_s(times) -> np.ndarray:
 
 
 def hour_of_day(t_epoch: np.ndarray) -> np.ndarray:
-    """epoch 秒 → 本地小时（0-23，naive 时间戳按记录时区口径）。"""
-    return (np.asarray(t_epoch, dtype=np.int64) // 3600 % 24).astype(int)
+    """epoch 秒 → 本地小时（0-23，naive 时间戳按记录时区口径）；非有限时间置 -1（清洗语义）。"""
+    t = np.asarray(t_epoch, dtype=float)
+    safe = np.where(np.isfinite(t), t, 0.0)
+    hours = (safe.astype(np.int64) // 3600 % 24).astype(int)
+    return np.where(np.isfinite(t), hours, -1)
 
 
 def window_mask(t_epoch: np.ndarray, window_start_s: float, window_end_s: float) -> np.ndarray:
     """特征窗半开区间 [window_start_s, window_end_s) 掩码。
 
     window_end_s 即 as_of（标签窗起点）：as_of 及其后的标签窗行一律排除，
-    边界含 start 不含 end。
+    边界含 start 不含 end；非有限时间（NaN/inf，含 NaT 解析失败行）一律排除（统一清洗）。
     """
-    t = np.asarray(t_epoch, dtype=np.int64)
-    return (t >= window_start_s) & (t < window_end_s)
+    t = np.asarray(t_epoch, dtype=float)
+    return np.isfinite(t) & (t >= window_start_s) & (t < window_end_s)
+
+
+def finite_row_mask(*cols) -> np.ndarray:
+    """统一清洗（红线 2）：丢弃任一列非有限值（NaN/inf）的行，返回逐行保留掩码。
+
+    缺数以缺失表达、不删车；空输入返回空掩码。消费 lat/lon/speed 的统计函数入口统一用本
+    掩码取"有效行"（顺序保留），空/单点有效输入由各函数门槛置缺失、不崩溃。
+    """
+    mask: np.ndarray | None = None
+    for c in cols:
+        keep = np.isfinite(np.asarray(c, dtype=float).ravel())
+        mask = keep if mask is None else (mask & keep)
+    return np.zeros(0, dtype=bool) if mask is None else mask
 
 
 def haversine_m(lat1, lon1, lat2, lon2):
@@ -99,11 +118,11 @@ def _is_night(hours: np.ndarray) -> np.ndarray:
 
 def _window_sorted(t_epoch: np.ndarray, window_start_s: float, window_end_s: float,
                    *cols) -> tuple:
-    """窗内行（标签窗排除）按 data_time 稳定排序后返回 (t, *cols)（stage 0 排序纪律）。"""
-    t = np.asarray(t_epoch, dtype=np.int64).ravel()
+    """窗内行（标签窗排除、非有限时间排除）按 data_time 稳定排序后返回 (t, *cols)（stage 0 排序纪律）。"""
+    t = np.asarray(t_epoch, dtype=float).ravel()
     idx = np.flatnonzero(window_mask(t, window_start_s, window_end_s))
     idx = idx[np.argsort(t[idx], kind="stable")]
-    out = [t[idx]]
+    out = [t[idx].astype(np.int64)]
     for c in cols:
         out.append(np.asarray(c).ravel()[idx])
     return tuple(out)
@@ -141,11 +160,16 @@ def run_duration_field_semantics(t_epoch: np.ndarray, run_duration_s: np.ndarray
        （首段豁免——窗内可能自行程中段开始）；
     4) 每个长间隔（>gap_limit_s）都伴随字段重置（长休息后重新起算）。
     其余（含无重置的窗口累计量）一律 CALIBER_GAP：按相邻点间隔 >gap_limit_s 切段。
+    统一清洗：非有限时间行丢弃后再判定；字段含非有限值或清洗后 n < 2 → CALIBER_GAP。
     """
-    t = np.asarray(t_epoch, dtype=np.int64).ravel()
+    t = np.asarray(t_epoch, dtype=float).ravel()
     r = np.asarray(run_duration_s, dtype=float).ravel()
+    if r.size != t.size:
+        return CALIBER_GAP
+    keep = np.isfinite(t)
+    t, r = t[keep], r[keep]
     n = t.size
-    if n < 2 or r.size != n or not np.isfinite(r).all():
+    if n < 2 or not np.isfinite(r).all():
         return CALIBER_GAP
     order = np.argsort(t, kind="stable")
     t, r = t[order], r[order]
@@ -182,9 +206,9 @@ def driving_spells(t_epoch: np.ndarray, window_start_s: float, window_end_s: flo
     run_duration_field_semantics 判定为单行程累计（trip_cumulative）时按字段重置直接切段，
     否则按相邻点间隔 >gap_limit_s（默认 180 min）切段并置口径标志 gap_180min。
     段时长：trip_cumulative 取字段窗内增量（r[末]-r[首]），gap_180min 取段首末时刻差。
-    标签窗外行不参与切段（标签一律 -1）。
+    标签窗外行与非有限时间行不参与切段（标签一律 -1）。
     """
-    t_all = np.asarray(t_epoch, dtype=np.int64).ravel()
+    t_all = np.asarray(t_epoch, dtype=float).ravel()
     labels = np.full(t_all.size, -1, dtype=int)
     idx = np.flatnonzero(window_mask(t_all, window_start_s, window_end_s))
     idx = idx[np.argsort(t_all[idx], kind="stable")]
@@ -223,11 +247,12 @@ def spell_features(t_epoch: np.ndarray, window_start_s: float, window_end_s: flo
     - f3_traj_night_spell_h：各段时长落在深夜 23-5 的累计小时数。
     门槛（不足置缺失）：窗内有效点 <MIN_MAIN_ROWS 全部缺失；深夜项另需深夜桶点数
     >=MIN_BUCKET_ROWS。切段口径见 driving_spells（随 SpellSplit.caliber 登记）。
+    统一清洗：非有限时间行不参与统计（window_mask 收口）。
     """
     out = {"f3_traj_max_spell_h": float("nan"),
            "f3_traj_gt4h_share": float("nan"),
            "f3_traj_night_spell_h": float("nan")}
-    t_all = np.asarray(t_epoch, dtype=np.int64).ravel()
+    t_all = np.asarray(t_epoch, dtype=float).ravel()
     mask = window_mask(t_all, window_start_s, window_end_s)
     if int(mask.sum()) < MIN_MAIN_ROWS:
         return out
@@ -258,7 +283,8 @@ def speed_shape_features(t_epoch: np.ndarray, window_start_s: float, window_end_
     - f3_traj_cruise80_share：高速巡航占比＝相邻两点均 >80km/h 的间隔累计时长
       （持续 >80km/h）占相邻有限点总累计时长之比（道路类型代理，禁地图）。
     门槛（不足置缺失）：全体需窗内有限点 >=MIN_MAIN_ROWS；分时段项另需桶内有限点
-    >=MIN_BUCKET_ROWS。
+    >=MIN_BUCKET_ROWS。统一清洗：非有限速度行只从速度统计中丢弃（巡航占比按相邻有效点对
+    计），非有限时间行由 window_mask 排除；空/单点输入返回 NaN 不崩溃。
     """
     keys = ("f3_traj_speed_p50", "f3_traj_speed_p90", "f3_traj_speed_p99",
             "f3_traj_over90_am", "f3_traj_over90_night",
@@ -300,6 +326,8 @@ def dbscan_hotspots(event_lat: np.ndarray, event_lon: np.ndarray,
                     min_samples: int = DBSCAN_MIN_SAMPLES) -> tuple[np.ndarray, int]:
     """事件坐标 DBSCAN 热点（Haversine，eps 200m，min_samples 2，sklearn）。
 
+    统一清洗：非有限坐标行不进聚类、标签置 -1（噪声），簇数只计有效坐标簇；
+    空输入/全非法坐标返回（逐点 -1 标签，0 簇），单点输入为噪声不崩溃。
     返回（逐点簇标签，噪声为 -1；簇数）。仅自包含坐标统计，禁地图匹配/路网/POI 外部数据。
     """
     la = np.asarray(event_lat, dtype=float).ravel()
@@ -307,10 +335,16 @@ def dbscan_hotspots(event_lat: np.ndarray, event_lon: np.ndarray,
     n = la.size
     if n == 0:
         return np.zeros(0, dtype=int), 0
-    coords = np.radians(np.column_stack([la, lo]))
-    labels = DBSCAN(eps=eps_m / EARTH_R_M, min_samples=min_samples,
-                    metric="haversine").fit(coords).labels_
-    n_clusters = int(len(set(labels.tolist()) - {-1}))
+    if lo.size != n:
+        raise ValueError("event_lat 与 event_lon 行数不一致")
+    valid = finite_row_mask(la, lo)
+    labels = np.full(n, -1, dtype=int)
+    if not valid.any():
+        return labels, 0
+    coords = np.radians(np.column_stack([la[valid], lo[valid]]))
+    labels[valid] = DBSCAN(eps=eps_m / EARTH_R_M, min_samples=min_samples,
+                           metric="haversine").fit(coords).labels_
+    n_clusters = int(len(set(labels[valid].tolist()) - {-1}))
     return labels.astype(int), n_clusters
 
 
@@ -322,12 +356,15 @@ def hotspot_features(event_lat: np.ndarray, event_lon: np.ndarray,
     - f3_traj_hotspot_n：DBSCAN 簇（热点）数；
     - f3_traj_hotspot_event_share：落入热点（非噪声）事件占比；
     - f3_traj_samepoint_recur_n：同点位复发次数＝Σ(簇大小-1)（各热点超出首次的事件数）。
-    门槛（不足置缺失）：窗内事件坐标 >=MIN_SUB_ROWS。
+    统一清洗：非有限坐标行丢弃（只统计有效坐标事件），有效坐标不足 MIN_SUB_ROWS 置缺失。
+    门槛（不足置缺失）：窗内有效事件坐标 >=MIN_SUB_ROWS。
     """
     keys = ("f3_traj_hotspot_n", "f3_traj_hotspot_event_share", "f3_traj_samepoint_recur_n")
     out = {k: float("nan") for k in keys}
     _, la, lo = _window_sorted(event_t_epoch, window_start_s, window_end_s,
                                event_lat, event_lon)
+    keep = finite_row_mask(la, lo)                       # 非法坐标行丢弃（不进 DBSCAN）
+    la, lo = np.asarray(la)[keep], np.asarray(lo)[keep]
     n = la.size
     if n < MIN_SUB_ROWS:
         return out
@@ -345,9 +382,12 @@ def route_repeat_distance_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarra
     """路线重复度＝相邻日（日历相邻且均 >=min_day_rows 点）路径点集平均最近邻距离（米）。
 
     日对距离取双向（A→B 与 B→A）最近邻距离的平均，再对日对取均值；越小越重复。
-    门槛（不足置缺失）：窗内有效点 >=MIN_MAIN_ROWS 且至少一个有效日对。
+    统一清洗：非有限坐标行丢弃（finite_row_mask）。门槛（不足置缺失）：清洗后窗内有效点
+    >=MIN_MAIN_ROWS 且至少一个有效日对；空输入/单点输入返回 NaN 不崩溃。
     """
     t, la, lo = _window_sorted(t_epoch, window_start_s, window_end_s, lat, lon)
+    keep = finite_row_mask(la, lo)
+    t, la, lo = t[keep], np.asarray(la, dtype=float)[keep], np.asarray(lo, dtype=float)[keep]
     if t.size < MIN_MAIN_ROWS:
         return float("nan")
     day = t // 86400
@@ -370,9 +410,14 @@ def route_repeat_distance_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarra
 
 def activity_radius_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarray,
                       window_start_s: float, window_end_s: float) -> float:
-    """活动半径＝坐标点相对质心的 RMS 距离（米）。门槛：窗内有效点 >=MIN_MAIN_ROWS。"""
+    """活动半径＝坐标点相对质心的 RMS 距离（米）。
+
+    统一清洗：非有限坐标行丢弃。门槛：清洗后窗内有效点 >=MIN_MAIN_ROWS（空/单点置缺失）。
+    """
     t, la, lo = _window_sorted(t_epoch, window_start_s, window_end_s, lat, lon)
-    if t.size < MIN_MAIN_ROWS:
+    keep = finite_row_mask(la, lo)
+    la, lo = np.asarray(la, dtype=float)[keep], np.asarray(lo, dtype=float)[keep]
+    if t[keep].size < MIN_MAIN_ROWS:
         return float("nan")
     d = haversine_m(la, lo, float(la.mean()), float(lo.mean()))
     return float(np.sqrt(np.mean(np.asarray(d, dtype=float) ** 2)))
@@ -382,9 +427,13 @@ def daynight_centroid_shift_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndar
                               window_start_s: float, window_end_s: float) -> float:
     """昼夜活动区偏移＝日间(9-17)/深夜(23-5)点集质心距离（米）。
 
-    门槛（不足置缺失）：窗内有效点 >=MIN_MAIN_ROWS，且昼夜两侧点集各 >=MIN_BUCKET_ROWS。
+    统一清洗：非有限坐标行丢弃。门槛（不足置缺失）：清洗后窗内有效点 >=MIN_MAIN_ROWS，
+    且昼夜两侧点集各 >=MIN_BUCKET_ROWS；空/单点输入返回 NaN 不崩溃。
     """
     t, la, lo = _window_sorted(t_epoch, window_start_s, window_end_s, lat, lon)
+    keep = finite_row_mask(la, lo)
+    t = t[keep]
+    la, lo = np.asarray(la, dtype=float)[keep], np.asarray(lo, dtype=float)[keep]
     if t.size < MIN_MAIN_ROWS:
         return float("nan")
     hours = hour_of_day(t)
@@ -403,6 +452,7 @@ def spatial_features(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarray,
 
     轨迹点统计与事件坐标热点统计合并输出；各口径与门槛见 hotspot_features /
     route_repeat_distance_m / activity_radius_m / daynight_centroid_shift_m。
+    统一清洗在各子函数入口收口（非有限坐标/时间行丢弃），空/单点输入整族返回 NaN 不崩溃。
     """
     out = hotspot_features(event_lat, event_lon, event_t_epoch, window_start_s, window_end_s)
     out["f3_traj_route_repeat_m"] = route_repeat_distance_m(
@@ -426,15 +476,17 @@ def daily_rhythm_features(t_epoch: np.ndarray, lat: np.ndarray, lon: np.ndarray,
     - f3_traj_daily_km_cv：有效天日里程变异系数（std/mean，ddof=0）；
     - f3_traj_gap_days：窗内无数据日历天数（断档天数）；
     - f3_traj_daily_run_h：有效天日均运行时长（小时）。
-    门槛（不足置缺失）：窗内有效点 >=MIN_MAIN_ROWS；CV/日均另需有效天数 >=min_days
+    门槛（不足置缺失）：清洗后窗内有效点 >=MIN_MAIN_ROWS；CV/日均另需有效天数 >=min_days
     （日级样本下限，20 天窗无法提供 500/300/100 级天样本，随实现登记）；断档天数为计数，
-    仅受点数门槛约束。
+    仅受点数门槛约束。统一清洗：非有限坐标行丢弃（finite_row_mask），空/单点输入返回 NaN。
     """
     keys = ("f3_traj_daily_km_cv", "f3_traj_gap_days", "f3_traj_daily_run_h")
     out = {k: float("nan") for k in keys}
     t, la, lo = _window_sorted(t_epoch, window_start_s, window_end_s, lat, lon)
-    la = np.asarray(la, dtype=float)
-    lo = np.asarray(lo, dtype=float)
+    keep = finite_row_mask(la, lo)
+    t = t[keep]
+    la = np.asarray(la, dtype=float)[keep]
+    lo = np.asarray(lo, dtype=float)[keep]
     n = t.size
     if n < MIN_MAIN_ROWS:
         return out

@@ -18,6 +18,9 @@
   任一门槛不足置缺失，零分母（日间率 <=EPS 或缺失）置缺失；
 - 事件结构 event_chains：相邻事件间隔 <=30min 计连环；产出连环事件数、最大连环长、同连环段内类型对共现计数；
 - 双速度源 ems_gps_discrepancy：|EMS−GPS| 窗内均值／p95；
+- 统一清洗（红线 2：缺数以缺失表达、不删车）：时间/坐标/速度类输入的非有限值行不进统计
+  （feature_window_mask/有限掩码收口），事件场景/类型缺失以 __na__ 类别表达（na_category），
+  空输入/单点输入置缺失不崩溃，除零一律置缺失；
 - 综合分 composite_scores：固定等权合成、不做数据驱动调权；夜间风险链分＝夜间暴露＋深夜事件率＋夜间退化度，
   疲劳结构分＝连续驾驶（调用方传入）＋深夜连续＋疲劳报警夜间集中度；方向统一为分越高风险越高。
 
@@ -67,9 +70,20 @@ def valid_time_mask(series: pd.Series) -> np.ndarray:
 
 
 def hour_of_day(t_epoch: np.ndarray, tz_offset_s: float = TZ_OFFSET_S) -> np.ndarray:
-    """epoch 秒 → 本地小时（0–23），tz_offset_s 默认北京时间 UTC+8。"""
-    t = np.asarray(t_epoch, dtype=np.int64)
-    return (((t + int(tz_offset_s)) // 3600) % 24).astype(int)
+    """epoch 秒 → 本地小时（0–23），tz_offset_s 默认北京时间 UTC+8；非有限时间置 -1（清洗语义）。"""
+    t = np.asarray(t_epoch, dtype=float)
+    safe = np.where(np.isfinite(t), t, 0.0)
+    hours = (((safe + int(tz_offset_s)) // 3600) % 24).astype(int)
+    return np.where(np.isfinite(t), hours, -1)
+
+
+def na_category(values, na_label: str = "__na__") -> np.ndarray:
+    """事件场景/类型列清洗：缺失（NaN/None/pd.NA）以 na_label 类别表达。
+
+    缺数以缺失语义表达、不冒充真实类别名（不产生 "nan" 字符串类别），不删行不删车（红线 2）。
+    """
+    arr = np.asarray(values, dtype=object).ravel()
+    return pd.Series(arr, dtype="object").fillna(na_label).astype(str).to_numpy()
 
 
 def feature_window_mask(t_epoch: np.ndarray, as_of_s: float,
@@ -77,9 +91,10 @@ def feature_window_mask(t_epoch: np.ndarray, as_of_s: float,
     """特征窗掩码 [as_of−lookback, as_of)（左闭右开）。
 
     >= as_of 的行（含标签窗 [as_of, as_of+H)）一律排除——红线：一切特征统计不触标签窗。
+    非有限时间（NaN/inf）行一律排除（统一清洗；NaT 解析失败哨兵亦在窗外）。
     """
     t = np.asarray(t_epoch, dtype=float)
-    return (t >= as_of_s - lookback_s) & (t < as_of_s)
+    return np.isfinite(t) & (t >= as_of_s - lookback_s) & (t < as_of_s)
 
 
 def label_window_mask(t_epoch: np.ndarray, as_of_s: float, horizon_s: float) -> np.ndarray:
@@ -191,6 +206,7 @@ def historical_temporal_features(t_epoch: np.ndarray, as_of_s: float,
     - f3_hist_trend_per_day：趋势——后半窗日均−前半窗日均（事件/天，前后半窗各 lookback/2）；
     - f3_hist_x_trend：历史×趋势交互——衰减加权计数 × f3_hist_trend_per_day。
     仅取 [as_of−lookback, as_of) 的事件（标签窗排除由 feature_window_mask 收口）。
+    统一清洗：非有限事件时间行排除；空事件列表返回（衰减计数 0、其余缺失）不崩溃。
     """
     t = np.asarray(t_epoch, dtype=float)
     ts = np.sort(t[feature_window_mask(t, as_of_s, lookback_s)])
@@ -352,6 +368,8 @@ def night_degradation(event_t_epoch: np.ndarray,
     - 率类：各自时段暴露行数 ≥ 逐侧档位门槛（合并版 min_rows_side=300、分场景版 min_rows_sub=100）；
     - 比值：双侧行数均过逐侧档位门槛，且双侧行数合计 ≥ min_rows_total=500（窗级档）；
     任一门槛不足置缺失；零分母（日间率 <=EPS 或缺失）置缺失。
+    统一清洗：非有限/窗外事件与暴露时间行排除，暴露量非有限行丢弃，场景缺失以 __na__
+    类别表达（na_category）；空事件/空暴露返回缺失率不崩溃。
     """
     ev_t = np.asarray(event_t_epoch, dtype=float)
     ev_m = feature_window_mask(ev_t, as_of_s, lookback_s)
@@ -359,7 +377,7 @@ def night_degradation(event_t_epoch: np.ndarray,
     if event_scenario is None:
         ev_sc = np.array(["__merged__"] * len(ev_t), dtype=object)
     else:
-        ev_sc = np.asarray(event_scenario, dtype=object)[ev_m]
+        ev_sc = na_category(event_scenario)[ev_m]
     ex_t = np.asarray(exposure_t_epoch, dtype=float)
     ex_m = feature_window_mask(ex_t, as_of_s, lookback_s)
     ex_t = ex_t[ex_m]
@@ -367,6 +385,8 @@ def night_degradation(event_t_epoch: np.ndarray,
         ex_amt = np.ones(len(ex_t), dtype=float)
     else:
         ex_amt = np.asarray(exposure_amount, dtype=float)[ex_m]
+    ok = np.isfinite(ex_amt)                     # 暴露量非有限行丢弃（统一清洗）
+    ex_t, ex_amt = ex_t[ok], ex_amt[ok]
 
     def _band_hours(t: np.ndarray) -> np.ndarray:
         return hour_of_day(t, tz_offset_s).astype(float)
@@ -418,9 +438,11 @@ def event_chains(t_epoch: np.ndarray, event_type: Sequence[str] | np.ndarray,
     - f3_chain_max_len：最大连环长（最长连环段内事件数，无连环为 0）；
     - f3_copair_{a}__{b}：同连环段内类型对共现计数（段内全部事件位置对 i<j，类型名排序后
       拼接，同类型对形如 f3_copair_x__x）。
+    统一清洗：非有限/窗外事件时间行排除，场景缺失以 __na__ 类别表达（na_category）；
+    空事件列表返回 0 计数不崩溃。
     """
     t = np.asarray(t_epoch, dtype=float)
-    ty = np.asarray(event_type).astype(str)
+    ty = na_category(event_type)
     m = feature_window_mask(t, as_of_s, lookback_s)
     t, ty = t[m], ty[m]
     order = np.argsort(t, kind="stable")

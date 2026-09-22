@@ -36,7 +36,7 @@ import yaml
 
 from .core import (COHORT_MIN_VEHICLES, composite_scores, cohort_keys, cohort_relative,
                    ems_gps_discrepancy, event_chains, historical_temporal_features,
-                   hour_of_day, night_degradation, profile_deviation, to_epoch_s)
+                   hour_of_day, na_category, night_degradation, profile_deviation, to_epoch_s)
 from .interface import (DUAL_SUFFIX_H, DUAL_SUFFIX_KM, NEW_FEATURES_FILE, build_f3_interface,
                         is_count_column)
 from .trajectory import (NIGHT_HI, NIGHT_LO, SPELL_GAP_S, daily_rhythm_features,
@@ -326,9 +326,10 @@ def fatigue_night_concentration(event_t_epoch: np.ndarray, event_scenario,
     """疲劳报警夜间集中度＝窗内疲劳类（scenario 名含 "fatigue"）事件中深夜（23–5）占比。
 
     口径随实现登记（§3.2 综合分组成项）：疲劳类事件为 0 置缺失；标签窗排除同其余特征。
+    统一清洗：非有限事件时间行排除、场景缺失以 __na__ 类别表达（na_category），不崩溃。
     """
     t = np.asarray(event_t_epoch, dtype=float)
-    sc = np.asarray(event_scenario).astype(str)
+    sc = na_category(event_scenario)
     m = (t >= as_of_s - lookback_s) & (t < as_of_s)
     t, sc = t[m], sc[m]
     fat = np.array([FATIGUE_KEYWORD in s for s in sc], dtype=bool)
@@ -504,7 +505,7 @@ def run_scan(cfg: F3Config) -> Path:
             ev_lo = np.zeros(0)
         else:
             ev_t = to_epoch_s(ev["event_time"])
-            ev_sc = ev["scenario"].astype(str).to_numpy()
+            ev_sc = na_category(ev["scenario"].to_numpy())   # 场景缺失以 __na__ 表达（统一清洗）
             ev_sp = pd.to_numeric(ev["speed"], errors="coerce").to_numpy(dtype=float)
             ev_la = pd.to_numeric(ev["lat"], errors="coerce").to_numpy(dtype=float)
             ev_lo = pd.to_numeric(ev["lon"], errors="coerce").to_numpy(dtype=float)
