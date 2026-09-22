@@ -14,7 +14,11 @@ docs/plans/feat-007-r4-execution.md §3.0 预登记定义（执行中不得擅�
 - 时间戳转秒统一 astype("datetime64[ns]") → astype(int64)//1e9（r1 缺陷教训）；
 - 输入分片 schema（canonical 列名，轨迹交付表 `运行时长` 等源列名经 column_map 映射）：
   轨迹分片 part-*：gpsno, data_time, speed, lat, lon［必需］；run_duration_s, ems_speed,
-  gps_speed［可选，缺失置 NaN］；
+  gps_speed［可选，缺失置 NaN］；无表头分片（shard_has_header=false）按
+  trajectory_column_order 声明文件列序读取（允许含 dist_m/heading 等非 canonical 别名列，
+  读取后仅消费 canonical 列），缓冲前先做特征窗预过滤（大表内存守卫）；
+  IMU 分片 part-*（可选输入，无表头 12 列固定列序，见 imu_column_order）：轻量扫描仅取
+  gpsno/data_time/ems_speed/gps_speed 四列统计 |EMS−GPS| 双速度源一致性；
   事件表：event_id, gpsno, event_time, scenario, speed（交付表 `speed` 列）, lat, lon；
   画像表：gpsno, energy_type, highway_share, profile_month_km, profile_month_hours,
   profile_month_night_share；
@@ -66,6 +70,12 @@ class F3Config:
     horizon_days: float
     shard_delimiter: str = "\t"
     chunk_rows: int = 200_000
+    shard_has_header: bool = True                    # False＝轨迹分片无表头（names 按列序声明）
+    trajectory_column_order: tuple[str, ...] = ()    # 无表头轨迹分片按文件列序的 canonical 列名清单
+    imu_dir: Path | None = None                      # IMU 分片目录（可选输入；空＝跳过，特征按缺失）
+    imu_has_header: bool = False                     # IMU 分片无表头为常态
+    imu_column_order: tuple[str, ...] = ()           # IMU 分片按文件列序的 canonical 列名清单
+    imu_delimiter: str = "\t"
     min_km: float = 50.0            # 计数归一低暴露置缺失（沿用 F1 规则）
     min_hours: float = 1.0
     cohort_energy_column: str = "energy_type"
@@ -98,7 +108,10 @@ def load_f3_config(path: str | Path) -> F3Config:
 
     窗口三元组 window.as_of／lookback_days／horizon_days 必填（红线 6）；
     cohort.source_columns 为同群相对化的既有强特征清单（占位示例见 example.yaml）；
-    events.copair_columns 为预登记显著共现组合（§3.0：预登记显著组合入特征，缺省空清单）。
+    events.copair_columns 为预登记显著共现组合（§3.0：预登记显著组合入特征，缺省空清单）；
+    shard_has_header／trajectory_column_order 为无表头轨迹分片列序声明（缺省带表头现状）；
+    imu_dir／imu_has_header／imu_column_order／imu_delimiter 为 IMU 双速度源可选输入
+    （imu_dir 为空置 None：跳过轻量扫描，f3_ems_gps_absdiff_* 特征按缺失处理）。
     """
     source = Path(path).resolve()
     raw = yaml.safe_load(source.read_text(encoding="utf-8"))
@@ -124,6 +137,12 @@ def load_f3_config(path: str | Path) -> F3Config:
         horizon_days=float(win["horizon_days"]),
         shard_delimiter=str(raw.get("shard_delimiter", "\t")),
         chunk_rows=int(raw.get("chunk_rows", 200_000)),
+        shard_has_header=bool(raw.get("shard_has_header", True)),
+        trajectory_column_order=tuple(str(c) for c in raw.get("trajectory_column_order", ())),
+        imu_dir=(_resolve(base, str(raw["imu_dir"])) if raw.get("imu_dir") else None),
+        imu_has_header=bool(raw.get("imu_has_header", False)),
+        imu_column_order=tuple(str(c) for c in raw.get("imu_column_order", ())),
+        imu_delimiter=str(raw.get("imu_delimiter", "\t")),
         min_km=float(exposure.get("min_km", 50.0)),
         min_hours=float(exposure.get("min_hours", 1.0)),
         cohort_energy_column=str(cohort.get("energy_type_column", "energy_type")),
@@ -147,18 +166,30 @@ def _scan_trajectory_shards(cfg: F3Config,
                             vehicles: set[str]) -> dict[str, dict[str, np.ndarray]]:
     """轨迹分片一遍流式扫描：分块读取 part-*，按车聚合缓冲（组内保持到达序）。
 
+    无表头分片（shard_has_header=False）以 header=None、names=list(trajectory_column_order)
+    按固定列序读取（列序清单允许含 dist_m/heading 等非 canonical 别名列，读取后仅消费
+    canonical 列）；带表头（True，缺省）维持现状。缓冲前先做特征窗预过滤：只保留
+    [as_of−lookback, as_of) 内的行（大表内存守卫，特征全部只消费窗内数据），其余抽取逻辑不变。
     Tier 2 的全部轨迹特征由聚合阶段对每车缓冲一次带出（§3.3 一遍扫描）。
     返回 {gpsno: {canonical 列名: 数组}}；t 列为 epoch 秒（ns 约定转换）。
     """
     buffers: dict[str, dict[str, list]] = {}
+    w0, w1 = cfg.as_of_s - cfg.lookback_s, cfg.as_of_s
     for shard in sorted(cfg.trajectory_dir.glob("part-*")):
-        reader = pd.read_csv(shard, sep=cfg.shard_delimiter, chunksize=cfg.chunk_rows,
-                             dtype={"gpsno": str})
+        if cfg.shard_has_header:
+            reader = pd.read_csv(shard, sep=cfg.shard_delimiter, chunksize=cfg.chunk_rows,
+                                 dtype={"gpsno": str})
+        else:
+            reader = pd.read_csv(shard, sep=cfg.shard_delimiter, chunksize=cfg.chunk_rows,
+                                 header=None, names=list(cfg.trajectory_column_order),
+                                 dtype={"gpsno": str})
         for chunk in reader:
             chunk = _rename_canonical(chunk, cfg.column_map)
             missing = [c for c in TRAJ_REQUIRED_COLS if c not in chunk.columns]
             if missing:
                 raise ValueError(f"轨迹分片缺少必需列 {missing}：{shard}")
+            t_all = to_epoch_s(chunk["data_time"])            # 特征窗预过滤（缓冲前丢弃窗外行）
+            chunk = chunk[(t_all >= w0) & (t_all < w1)]
             chunk = chunk[chunk["gpsno"].astype(str).isin(vehicles)]
             if not len(chunk):
                 continue
@@ -174,6 +205,81 @@ def _scan_trajectory_shards(cfg: F3Config,
                 for c, arr in data.items():
                     buf[c].append(arr[sel])
     return {g: {c: np.concatenate(v) for c, v in d.items()} for g, d in buffers.items()}
+
+
+# ------------------------------------------------------------- IMU 双速度源轻量扫描（可选输入）
+
+IMU_REQUIRED_COLS = ("gpsno", "data_time", "ems_speed", "gps_speed")   # 轻扫仅消费这 4 列
+IMU_P95_HIST_MAX = 50.0        # p95 固定直方图上界（|EMS−GPS| 速度差）
+IMU_P95_HIST_STEP = 0.5        # p95 固定直方图步长
+
+
+def _hist_p95_midpoint(diff: np.ndarray,
+                       hist_max: float = IMU_P95_HIST_MAX,
+                       step: float = IMU_P95_HIST_STEP) -> float:
+    """p95 固定直方图区间中位近似（0–hist_max、步长 step，确定性可复现）。
+
+    分箱 [k·step,(k+1)·step)，越界值截断进首/末箱；p95＝累计计数首次达到 ceil(0.95·n) 的
+    箱中位 (k+0.5)·step。不做插值、不含随机性（同输入两次结果逐值一致）；无有效样本置缺失。
+    """
+    d = np.asarray(diff, dtype=float)
+    d = d[np.isfinite(d)]
+    n = d.size
+    if n == 0:
+        return float("nan")
+    n_bins = int(round(hist_max / step))
+    idx = np.clip((d // step).astype(int), 0, n_bins - 1)
+    counts = np.bincount(idx, minlength=n_bins)
+    target = int(np.ceil(0.95 * n))
+    b = int(np.searchsorted(np.cumsum(counts), target))
+    return float((b + 0.5) * step)
+
+
+def _scan_imu_speed_pairs(cfg: F3Config,
+                          vehicles: set[str]) -> dict[str, dict[str, float]]:
+    """IMU 双速度源轻量扫描（可选输入，分块流式读分片，参照 IMU 大表设计）。
+
+    IMU 分片为无表头 TSV，12 列固定列序（cfg.imu_column_order 按文件列序声明 canonical
+    列名）：gpsno, 设备串号, 数据时间, 数据日期, ems_speed, gps_speed, ax, ay, az, gx, gy, gz。
+    usecols 只取 gpsno／data_time／ems_speed／gps_speed 对应位置列（其余 8 列不进内存），
+    ``\\N`` 视为缺失；只统计特征窗 [as_of−lookback, as_of) 内两源均有限行的
+    |ems_speed − gps_speed|（标签窗排除），每车产出：
+    n（样本数）、mean（均值）、p95（_hist_p95_midpoint 固定直方图区间中位近似）。
+    imu_dir 未配置（None）时跳过、返回空字典（f3_ems_gps_absdiff_* 特征按缺失处理）；
+    时间转秒沿用 to_epoch_s（ns 约定）。
+    """
+    if cfg.imu_dir is None:
+        return {}
+    order = list(cfg.imu_column_order)
+    missing = [c for c in IMU_REQUIRED_COLS if c not in order]
+    if missing:
+        raise ValueError(f"IMU 列序声明缺少必需列 {missing}：{cfg.imu_column_order}")
+    usecols = [order.index(c) for c in IMU_REQUIRED_COLS]      # 对应位置列（文件列序）
+    w0, w1 = cfg.as_of_s - cfg.lookback_s, cfg.as_of_s
+    buffers: dict[str, list] = {}
+    for shard in sorted(cfg.imu_dir.glob("part-*")):
+        reader = pd.read_csv(shard, sep=cfg.imu_delimiter, chunksize=cfg.chunk_rows,
+                             header=(0 if cfg.imu_has_header else None),
+                             names=(None if cfg.imu_has_header else order),
+                             usecols=usecols, na_values=["\\N"], dtype={"gpsno": str})
+        for chunk in reader:
+            chunk.columns = [order[i] for i in sorted(usecols)]   # 列名按声明列序归一
+            t = to_epoch_s(chunk["data_time"])
+            e = pd.to_numeric(chunk["ems_speed"], errors="coerce").to_numpy(dtype=float)
+            g = pd.to_numeric(chunk["gps_speed"], errors="coerce").to_numpy(dtype=float)
+            gps = chunk["gpsno"].astype(str).to_numpy()
+            sel = ((t >= w0) & (t < w1) & np.isfinite(e) & np.isfinite(g)
+                   & np.isin(gps, list(vehicles)))
+            if not sel.any():
+                continue
+            diff = np.abs(e[sel] - g[sel])
+            gps = gps[sel]
+            for g_no in dict.fromkeys(gps.tolist()):
+                buffers.setdefault(g_no, []).append(diff[gps == g_no])
+    return {g_no: {"n": int(sum(len(p) for p in parts)),
+                   "mean": float(np.concatenate(parts).mean()),
+                   "p95": _hist_p95_midpoint(np.concatenate(parts))}
+            for g_no, parts in buffers.items()}
 
 
 # ------------------------------------------------------------- 单车特征（Tier 1/2/3）
@@ -262,7 +368,9 @@ def vehicle_new_features(t_epoch: np.ndarray, run_duration_s: np.ndarray, speed:
                          profile_month_night_share: float,
                          as_of_s: float, lookback_s: float,
                          min_km: float, min_hours: float,
-                         copair_columns=()) -> tuple[dict, float, float]:
+                         copair_columns=(),
+                         imu_absdiff_mean: float = float("nan"),
+                         imu_absdiff_p95: float = float("nan")) -> tuple[dict, float, float]:
     """单车 Tier 1/2/3 新增特征（一遍扫描聚合阶段调用，纯函数）。
 
     返回 (特征字典, 窗内里程 km, 窗内运行时长 h)。键序即声明列序：Tier1 历史险情时间结构 →
@@ -270,6 +378,9 @@ def vehicle_new_features(t_epoch: np.ndarray, run_duration_s: np.ndarray, speed:
     Tier3 事件连环/共现/双速度源/事件时速。计数类按 §3.0 双轨产出
     （{stem}_per_1000km／{stem}_per_100h，低暴露置缺失），原始计数不入表（原始计数收敛）；
     共现列仅取预登记组合（copair_columns，§3.0 预登记显著组合入特征）。
+    f3_ems_gps_absdiff_mean／f3_ems_gps_absdiff_p95 来自 IMU 分片轻量扫描（_scan_imu_speed_pairs，
+    |EMS−GPS| 窗内均值／p95，imu_absdiff_* 由调用方传入）；imu_dir 未配置时保持缺省 NaN
+    （可选输入缺失处理）。
     """
     w0, w1 = as_of_s - lookback_s, as_of_s
     km, hours = window_exposure(t_epoch, lat, lon, w0, w1)
@@ -310,6 +421,8 @@ def vehicle_new_features(t_epoch: np.ndarray, run_duration_s: np.ndarray, speed:
     for col in copair_columns:
         raw[col] = chains.get(col, 0.0)
     raw.update(ems_gps_discrepancy(ems_speed, gps_speed, t_epoch, as_of_s, lookback_s))
+    raw["f3_ems_gps_absdiff_mean"] = imu_absdiff_mean   # IMU 双速度源轻扫（可选输入）
+    raw["f3_ems_gps_absdiff_p95"] = imu_absdiff_p95
     raw["f3_event_speed_mean"] = event_speed_mean(ev_t, ev_speed, as_of_s, lookback_s)
     # ---- 计数归一双轨（§3.0：计数类一律双轨，入基座只留 per_1000km 版由收尾通则处理）
     out: dict = {}
@@ -358,7 +471,8 @@ def _empty_arrays(n: int = 0) -> dict[str, np.ndarray]:
 def run_scan(cfg: F3Config) -> Path:
     """一遍扫描编排（分片读取→聚合）→ f3_new_features.csv（每车一行，键 sample_id/gpsno）。
 
-    轨迹分片一遍流式读取按车缓冲；事件/画像/基座小表整读；聚合阶段按车调用
+    轨迹分片一遍流式读取按车缓冲（缓冲前特征窗预过滤）；事件/画像/基座小表整读；IMU 分片
+    轻量扫描双速度源（可选输入，imu_dir 为空跳过）；聚合阶段按车调用
     vehicle_new_features（Tier 1/2/3），再做同群相对化（折内拟合）与综合分合成
     （固定等权、不做数据驱动调权）。
     """
@@ -370,6 +484,7 @@ def run_scan(cfg: F3Config) -> Path:
     vehicles = set(roster["gpsno"])
 
     buffers = _scan_trajectory_shards(cfg, vehicles)
+    imu_stats = _scan_imu_speed_pairs(cfg, vehicles)   # imu_dir 未配置时为空（特征按缺失）
     ev_groups = {g: sub for g, sub in events.groupby(events["gpsno"].astype(str))}
     prof_idx = profile.assign(gpsno=profile["gpsno"].astype(str)).set_index("gpsno")
 
@@ -408,7 +523,9 @@ def run_scan(cfg: F3Config) -> Path:
             buf["ems_speed"], buf["gps_speed"],
             ev_t, ev_sc, ev_sp, ev_la, ev_lo,
             p_km, p_hours, p_night, as_of_s, lookback_s,
-            cfg.min_km, cfg.min_hours, copair_columns=cfg.copair_columns)
+            cfg.min_km, cfg.min_hours, copair_columns=cfg.copair_columns,
+            imu_absdiff_mean=float(imu_stats.get(gps, {}).get("mean", float("nan"))),
+            imu_absdiff_p95=float(imu_stats.get(gps, {}).get("p95", float("nan"))))
         rows.append({"sample_id": rec.sample_id, "gpsno": gps, **feats})
 
     new_df = pd.DataFrame(rows)

@@ -33,6 +33,36 @@ trajectory_columns:
 shard_delimiter: "\t"
 chunk_rows: 200000
 
+# ---- 新键说明 ①：无表头轨迹分片（缺省不写＝带表头现状；真实轨迹分片为无表头 TSV）----
+# shard_has_header: false          # false＝分片首行即数据（header=None 读取）；true＝首行为表头
+# trajectory_column_order:         # 无表头时按文件列序的 canonical 列名清单（必配 shard_has_header: false）
+#   - "gpsno"                      # 允许含 dist_m/heading 等非 canonical 别名列（读取后仅消费 canonical 列）
+#   - "dist_m"                     # 例：真实 8 列固定列序 gpsno, 与上一轨迹点的距离, 运行时长,
+#   - "run_duration_s"             #     数据产生时间, 速度, 航向角, 纬度, 经度
+#   - "data_time"
+#   - "speed"
+#   - "heading"
+#   - "lat"
+#   - "lon"
+
+# ---- 新键说明 ②：IMU 双速度源（可选输入，轻量扫描 |EMS−GPS|；imu_dir 置空跳过、特征按缺失）----
+# imu_dir: "../../artifacts/inputs/imu_shards"   # IMU 分片目录（part-*）；不配置或留空＝跳过
+# imu_has_header: false                          # IMU 分片无表头为常态
+# imu_column_order:                              # 12 列固定列序的 canonical 列名清单（按文件列序）
+#   - "gpsno"                                    # gpsno, 设备串号, 数据时间, 数据日期,
+#   - "device_sn"                                # ems_speed, gps_speed, ax, ay, az, gx, gy, gz
+#   - "data_time"
+#   - "data_date"
+#   - "ems_speed"
+#   - "gps_speed"
+#   - "ax"
+#   - "ay"
+#   - "az"
+#   - "gx"
+#   - "gy"
+#   - "gz"
+# imu_delimiter: "\t"
+
 # ---- 计数归一低暴露置缺失（§3.0 沿用 F1 规则）-------------------------------
 exposure:
   min_km: 50.0
