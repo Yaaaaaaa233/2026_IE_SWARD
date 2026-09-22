@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-006",
+  "title": "迭代期 r3（叶安线）：y 盲剪枝 bundle（pruned_bundle / lean 两候选）＋配对判定",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "590073a",
+  "dependencies": [
+    "FEAT-005"
+  ],
+  "write_scope": [
+    "docs/plans/feat-006-r3-execution.md",
+    "docs/tasks/FEAT-006.json",
+    "docs/worklog/2026-09-22-feat-006-r3.md",
+    "outputs/feat-006/round-1/"
+  ],
+  "acceptance": [
+    "预登记 y 盲选特征规则（执行前写死，两候选 A/B）",
+    "剪枝构建脚本＋保留/剔除清单＋构建指纹",
+    "统一评估器配对判定（判据不放松）＋多种子旁证，结果无论正负登记"
+  ],
+  "evidence": [
+    "docs/plans/feat-006-r3-execution.md"
+  ],
+  "handoff": "docs/worklog/2026-09-22-feat-006-r3.md",
+  "notes": "动机：r1/r2 全员正向无人过门＋full_r2 共线稀释实证；审计建议 bundle 的可 salvage 版本＝y 盲预登记剪枝（避开多重比较坑）。全部数字入受控台账 §8。"
+}
