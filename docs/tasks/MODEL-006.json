@@ -1,0 +1,35 @@
+{
+  "id": "MODEL-006",
+  "title": "升级版特征工程 V12–V13（五层金字塔+IMU诚实收缩+事件语义增强）：可解释性资产入库，实验未过采纳门",
+  "status": "review",
+  "owner": "王健祺",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/MODEL-006-upgraded-fe",
+  "base_commit": "6849996",
+  "write_scope": [
+    "models/upgraded_fe/",
+    "models/upgraded_fe/config_local.template.json",
+    ".gitignore",
+    "docs/tasks/MODEL-006.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-23-model-006-upgraded-fe.md"
+  ],
+  "dependencies": [
+    "MODEL-005",
+    "MODEL-004"
+  ],
+  "acceptance": [
+    "构建脚本可从仓库一键复跑（config_local 模板制）",
+    "判据按 ADR-0004 执行：V12/V13 均未过 V5 门，负结果如实登记，V5 保持登记最优",
+    "任务二消费版本明确仍为 V5（README 与本登记双处声明）",
+    "真实数字与特征产物不入公开仓库；治理检查与单测通过"
+  ],
+  "evidence": [
+    "models/upgraded_fe/README.md",
+    "docs/worklog/2026-09-23-model-006-upgraded-fe.md"
+  ],
+  "handoff": "docs/worklog/2026-09-23-model-006-upgraded-fe.md",
+  "notes": "可解释性收益：13 列语义损坏特征清除、五层金字塔字典、事件时车速/时段结构新特征、安静车强度分位。V13-C1（L2+L4 双层 92 列）点估计全系列最高但区间跨零。受控材料：升级版特征工程/ 目录（构建产物、V12/V13 实验脚本与 results）。0923 答疑会澄清正类口径（事故≥1 或 未遂≥2）后，本特征构建可即插即用重跑。"
+}
