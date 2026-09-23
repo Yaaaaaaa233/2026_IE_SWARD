@@ -3,7 +3,7 @@
   "title": "整理 MOE 与 MOP 评价指标及基线判优规则",
   "status": "review",
   "owner": null,
-  "actor": "Codex（本次用户请求的执行工具）",
+  "actor": "Codex（指标方案实现者；新增 v1.3 FEAT-009 协议技术登记）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "work/EVAL-001-evaluation-metrics",
@@ -30,12 +30,14 @@
     "给出同折分比较、拟合与校准边界、配对不确定性、阈值及判优规则",
     "保留 Proposed 状态，不冻结官方 30/40 天歧义、数据契约或算法路线",
     "只提交规则层文档及明确标注的合成示例，不公开真实数据统计或模型结果",
-    "治理检查、现有单元测试与暂存区检查通过，交接明确尚未运行模型实验"
+    "治理检查、现有单元测试与暂存区检查通过，交接明确尚未运行模型实验",
+    "v1.3 登记新协议代理标签／折分身份、重新训练 RF 锚点和 FEAT-009 配对判据；该任务专属登记仍待 EVAL-001 责任人复核，不代表新版全项目基线被接受"
   ],
   "evidence": [
     "docs/worklog/2026-09-20-evaluation-metrics.md",
-    "docs/worklog/2026-09-20-evaluation-metrics-navigation.md"
+    "docs/worklog/2026-09-20-evaluation-metrics-navigation.md",
+    "docs/worklog/2026-09-24-feat-009-protocol-v2-execution.md"
   ],
   "handoff": "docs/worklog/2026-09-20-evaluation-metrics-navigation.md",
-  "notes": "用户直接授权整理并上传评价指标；认领时远端无开放 PR，独立分支执行。文档完成并经实现者自查，治理检查与 17 项现有单元测试通过；不代表模型验证或协议已接受。人类责任人与复核人待确认。"
+  "notes": "用户直接授权整理并上传评价指标；认领时远端无开放 PR，独立分支执行。原文档完成并经实现者自查，治理检查与 17 项现有单元测试通过；不代表模型验证或协议已接受。2026-09-24 按 FEAT-009 新口径执行新增 v1.3 任务专属代理协议和 RF 锚点登记，真实运行数字、预测和指纹仅存受控目录。EVAL-001 责任人仍为空，v1.3 登记的人工复核和全项目适用性确认待完成；模型证据不等同规则接受。"
 }

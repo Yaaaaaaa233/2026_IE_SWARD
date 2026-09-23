@@ -35,8 +35,29 @@ uv pip install --python <env>/bin/python -r feature_engineering/experiments/task
 
 macOS 上的 PyPI LightGBM wheel 还需要 OpenMP。此 Apple Silicon 主机使用 conda-forge 的 `llvm-openmp=23.1.1`，运行库定义见[平台依赖文件](environment-macos-arm64.yml)；调用任务环境中的 Python 时，将该运行库的 `lib` 目录加入 `DYLD_LIBRARY_PATH`。其他 macOS 主机可按 [LightGBM 安装指南](https://lightgbm.readthedocs.io/en/stable/Installation-Guide.html)使用 Homebrew 的 `libomp`。
 
-当前环境已用编造数据对四个候选完成冒烟拟合，只验证依赖加载和参数接口，不是 S1 实验。0923 答疑后旧标签／折分 S1 已冻结；当前 [FEAT-009](../../../docs/tasks/FEAT-009.json) 为 `blocked`，旧版 S0 不再放行真实候选。
+## 新协议 v2 执行入口
 
-## S1 工作树草稿（冻结）
+用户于 2026-09-24 授权按 [FEAT-009 新协议方案](../../../docs/plans/feat-009-protocol-v2-adaptation-plan.md)连续执行。新版流程使用本目录的 `prepare_protocol_v2.py`、`run_protocol_v2.py`、`audit_protocol_v2_run.py` 和 `diagnose_protocol_v2.py`；旧 `run.py` 保留旧 S1 前置门，不是本轮入口。状态、边界与人工待复核项见[执行交接](../../../docs/worklog/2026-09-24-feat-009-protocol-v2-execution.md)。
 
-本地 `modeling.py`、`run.py` 和合成测试仍是未提交、未完成验收的工作树草稿。`run.py` 的前置检查在 FEAT-009 非 `active` 时拒绝进入真实 S1；不要把这些草稿或旧 S0 产物解释为新版协议已经实现。恢复顺序、旧画像统计期的时间穿越与新版输入要求见[调整方案](../../../docs/plans/2026-09-23-official-qa-adjustment-plan.md)。
+先按本机配置生成隔离输入并重训新版 RF 锚点：
+
+```sh
+python feature_engineering/experiments/task1_feature_modeling/prepare_protocol_v2.py
+python models/task1_baselines.py --feature-root "../特征工程" \
+  --model-input outputs/feat-009/v2/y1/f0_model_input.csv \
+  --output-dir outputs/feat-009/v2/y2/new_rf_anchor --seed 42 --inner-folds 3
+```
+
+查看受控 `outputs/feat-009/v2/y2/pre_registration.json` 中锁定的标签、折分、主对照、候选池与门槛后，运行一次嵌套 OOF 并复核：
+
+```sh
+DYLD_LIBRARY_PATH="<llvm-openmp-lib-dir>" PYTHONPATH=feature_engineering/experiments/task1_feature_modeling \
+  <env>/bin/python feature_engineering/experiments/task1_feature_modeling/run_protocol_v2.py \
+  --confirm-preregistration --output outputs/feat-009/v2/y3/<run-id>
+<env>/bin/python feature_engineering/experiments/task1_feature_modeling/audit_protocol_v2_run.py \
+  --run-dir outputs/feat-009/v2/y3/<run-id>
+<env>/bin/python feature_engineering/experiments/task1_feature_modeling/diagnose_protocol_v2.py \
+  --run-dir outputs/feat-009/v2/y3/<run-id>
+```
+
+输出目录在 `.gitignore` 覆盖范围内。不要把本机输入、标签、预测、统计、图表或指纹加入 Git。当前正式比较仍是开发期代理回测；标签人工复核、字段来源抽查、任务二 V5 新口径 OOF 和最终 61 天训练另有边界，不由本轮 OOF 自动满足。

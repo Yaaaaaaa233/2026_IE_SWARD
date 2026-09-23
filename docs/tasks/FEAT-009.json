@@ -1,9 +1,9 @@
 {
   "id": "FEAT-009",
   "title": "叶安线已有特征建模优化方案：折内模型选择与互补性诊断（非 r6）",
-  "status": "blocked",
+  "status": "review",
   "owner": "叶安",
-  "actor": "Codex（新版适配方案入库；阶段执行待认领）",
+  "actor": "Codex（按叶安 2026-09-24 指令执行 FEAT-009 新协议 Y0–Y4 技术流程）",
   "reviewer": "叶安（仅新版适配方案入库确认）",
   "reviewed_at": "2026-09-24",
   "branch": "main（ADR-0003 无 PR 直接提交模式）",
@@ -26,7 +26,12 @@
     "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md",
     "docs/worklog/README.md",
     "outputs/feat-009/",
-    "outputs/acceptance/FEAT-009.md"
+    "outputs/acceptance/FEAT-009.md",
+    "feature_engineering/experiments/task1_feature_modeling/environment-macos-arm64.yml",
+    "feature_engineering/experiments/task1_feature_modeling/README.md",
+    "docs/worklog/2026-09-24-feat-009-protocol-v2-execution.md",
+    "docs/plans/评价指标与基线对照方案（MOE与MOP）.md",
+    "docs/tasks/EVAL-001.json"
   ],
   "dependencies": [
     "FEAT-008",
@@ -41,7 +46,8 @@
     "Y2 在本线新版主效果前冻结候选池、主对照与门槛；Y3 外层五折、内层三折严格嵌套，一次完整 OOF 配对判定，不以多种子或诊断替代主判定",
     "四个原候选是待复核提案，缺依赖或类数／成本不适合时须在主运行前修订预登记，不得事后删选后称同一实验通过",
     "Y4 只作特征族与预测互补性诊断及 L1/L2/L3 人工交接；新的组合、融合或 61 天训练方案另任务预登记",
-    "合成负向测试、治理检查、单测、受控图表与真实复核记录齐备；真实数据数字、指纹与逐车预测不入公开 Git"
+    "合成负向测试、治理检查、单测、受控图表与真实复核记录齐备；真实数据数字、指纹与逐车预测不入公开 Git",
+    "Y0/Y1 新口径机器输入已生成，Y2 新 RF 锚点与候选预登记完成，Y3 嵌套 OOF、独立指标复算及 Y4 诊断在受控目录留档；真实人工复核仍待完成"
   ],
   "evidence": [
     "docs/plans/feat-009-feature-modeling-proposal.md",
@@ -52,8 +58,14 @@
     "docs/worklog/2026-09-23-feat-009-s1-acceptance-freeze.md",
     "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
     "docs/worklog/2026-09-23-official-qa-freeze.md",
-    "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md"
+    "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md",
+    "docs/worklog/2026-09-24-feat-009-protocol-v2-execution.md",
+    "feature_engineering/experiments/task1_feature_modeling/prepare_protocol_v2.py",
+    "feature_engineering/experiments/task1_feature_modeling/run_protocol_v2.py",
+    "feature_engineering/experiments/task1_feature_modeling/audit_protocol_v2_run.py",
+    "feature_engineering/experiments/task1_feature_modeling/diagnose_protocol_v2.py",
+    "feature_engineering/experiments/task1_feature_modeling/explore_regularized_ebm.py"
   ],
-  "handoff": "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md",
-  "notes": "旧协议 S0 输入对账与合成负向测试曾由 Codex 完成，叶安于 2026-09-23 复核当时的审计结论；旧 V5 复跑仅证明旧产物与旧实现相符。0923 答疑后这些证据不放行新版 S1。叶安于 2026-09-24 指示完整新版方案入库，ADR-0008 仅接受 Y0–Y4 路线与验收规则；公共新版代理标签／折分仍待数据评估复核，F0/F1/F3 画像可见性、新版 RF／V5 与 EVAL-001 升版均待完成，任务继续 blocked。当前未提交的建模草稿和其他任务复核改动未纳入本次方案提交。阶段实际执行前补写具体源码 write_scope 并按前置样张门进行人工核查。真实产物只留受控 outputs/feat-009。"
+  "handoff": "docs/worklog/2026-09-24-feat-009-protocol-v2-execution.md",
+  "notes": "旧协议 S0 与旧 OOF 不沿用。2026-09-24 叶安授权连续执行新版路线；受控 outputs/feat-009/v2 保存新版标签折分绑定、时间可见特征、重新训练的 RF 锚点、预登记、嵌套 OOF、独立复算和诊断图。执行发现的画像派生交互已排除，首次不完整尝试单独留档且未用于效果判定。新版 V5 OOF 尚未登记，比较对象为新 RF。Y0/Y1 机器验收完成但数据来源人工抽查、公开标签复核和 Y3/Y4 图表人工复核仍待实际责任人；因此任务为 review，不是 accepted。公开仓库不记录真实指标、预测或数据指纹。最终 61 天训练与一次 8 月 1 日推理检查未执行。"
 }
