@@ -8,6 +8,7 @@
 - [特征工程当前工作、接口状态与路线图 v0.1](feature-engineering-roadmap.md)（任务 [FEAT-001](../tasks/FEAT-001.json)，待复核）：特征线本地实现盘点、A/B/C 三段接口状态、问题边界及 F-R0～F-R4 执行路线；不含真实数据派生统计和模型产物。
 - [任务二执行路线图 v0.2](task2-roadmap.md)：行为大类→扣分规则→可运营/动态微调→白盒黑盒融合→MOE（不冻结）；执行=任务二三组（ADR-0005）
 - [模型路线提案 v0.1](model-route-proposal.md)（任务 [MODEL-002](../tasks/MODEL-002.json)，评审中）：方案 A 八种组合方案库 C1–C8 与方案 B 分群集成设计、E-B 实验矩阵与择优规则、待决策问题清单。不含本地实验数值。
+- [FEAT-009 叶安线已有特征建模优化方案](feat-009-feature-modeling-proposal.md)（`ready`，叶安 2026-09-23 确认入库）：在 r5 特征提取收口后，检验折内模型选择与现有模型的互补性；未启动真实实验。
 - [评价指标与基线对照方案 v0.1](评价指标与基线对照方案（MOE与MOP）.md)（任务 [EVAL-001](../tasks/EVAL-001.json)，Proposed）：MOE/MOP 指标口径、判优规则与配对 bootstrap 提议；R0 接受为评估合同 v1.0 后升格至 [interfaces/](../interfaces/README.md)（2026-09-21 自仓库根目录归位，GOV-005）。
 
 各线细化 roadmap（DATACON 线等）陆续按上述要求补齐后在此登记。历史路线草案（v1，M0–M4 工程视角）已并入路线图 v2 与本入口，原文见 Git 历史。

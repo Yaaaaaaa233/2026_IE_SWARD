@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-009",
+  "title": "叶安线已有特征建模优化方案：折内模型选择与互补性诊断（非 r6）",
+  "status": "ready",
+  "owner": "叶安",
+  "actor": "Codex（仅代拟方案；真实实验未开始）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式；本次仅方案入库）",
+  "base_commit": "3971d7e",
+  "write_scope": [
+    "feature_engineering/experiments/task1_feature_modeling/",
+    "docs/plans/feat-009-feature-modeling-proposal.md",
+    "docs/tasks/FEAT-009.json",
+    "docs/worklog/2026-09-23-feat-009-plan-draft.md",
+    "outputs/feat-009/",
+    "outputs/acceptance/FEAT-009.md"
+  ],
+  "dependencies": ["FEAT-008", "MODEL-005", "EVAL-002"],
+  "acceptance": [
+    "叶安已确认本方案入库；S0-S3 各步按已写明的具体操作、机器验收、可视化验收和放行条件执行，真实实验尚未开始",
+    "S0 对 F1/F3/V5/原 RF 同车标签折号与输入指纹进行只读核对；泄漏和上游全量筛列边界有明确记录",
+    "S1 冻结外层五折、折内三折选型，主候选仅一次对 V5 配对裁决；辅助指标容差按 ADR-0004，不以多种子或诊断替代主判定",
+    "S2 只做特征族与预测互补性诊断；新的组合或融合候选须另任务预登记",
+    "相关合成负向测试、治理检查、单测、受控 L2/L3 图表与真实复核记录齐备；真实数据数字与逐车预测不入公开 Git"
+  ],
+  "evidence": ["docs/plans/feat-009-feature-modeling-proposal.md"],
+  "handoff": "docs/worklog/2026-09-23-feat-009-plan-draft.md",
+  "notes": "2026-09-23 叶安在本任务会话中确认方案并授权入库，故置 ready；任务实现／实验的 reviewer 与 reviewed_at 仍为空，不冒充执行验收。未运行模型、未预支过门结论。FEAT-008 的 r5 为最后一轮特征提取判定；本任务只用已有特征优化学习算法，仍处 ADR-0005 双线竞优阶段 1。"
+}

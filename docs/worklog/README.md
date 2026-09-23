@@ -6,3 +6,4 @@
 
 - [2026-09-16 治理初始化](2026-09-16-governance-bootstrap.md)
 - [2026-09-23 状态页同步](2026-09-23-status-page-sync.md)
+- [2026-09-23 FEAT-009 建模优化方案代拟与确认](2026-09-23-feat-009-plan-draft.md)
