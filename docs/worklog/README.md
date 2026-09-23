@@ -11,3 +11,4 @@
 - [2026-09-23 官方答疑后旧协议冻结与调整方案](2026-09-23-official-qa-freeze.md)
 - [2026-09-23 官方答疑公共口径对齐与范围收窄](2026-09-23-official-qa-foundation-alignment.md)
 - [2026-09-23 未遂计数单位裁定](2026-09-23-near-miss-count-unit.md)
+- [2026-09-23 任务一代理标签 v2 与车辆折分生成](2026-09-23-task1-proxy-label-v2.md)

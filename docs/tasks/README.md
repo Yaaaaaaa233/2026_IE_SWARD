@@ -5,6 +5,7 @@
 - [DATACON-001：任务一数据契约草案与合成接口模板](DATACON-001.json)
 - [EVAL-001：MOE 与 MOP 评价指标及基线判优规则](EVAL-001.json)
 - [EVAL-002：任务一基线冻结与采纳判据落地（EVAL-001 v1.0 + ADR-0004）](EVAL-002.json)
+- [EVAL-003：按 ADR-0007 生成新版任务一代理标签与车辆折分](EVAL-003.json)
 - [GOV-001：治理框架初始化](GOV-001.json)
 - [TASK-005：数据清洗版本与规则总说明（v0–v4）入库，docx 转 Markdown](TASK-005.json)
 - [TASK-006：任务一算法说明文档 LaTeX 框架入库（数据清洗章节完稿，其余章节为待填模板）](TASK-006.json)

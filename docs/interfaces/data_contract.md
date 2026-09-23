@@ -89,6 +89,8 @@
 | label_status | category | 日志完整假设确认前使用枚举；见第 4 节 |
 | label_version | string | 标签定义版本 |
 
+当前实现的**内部代理回测**标签版本为 `label_v2_record_count_20260923`，对应车辆折分版本为 `split_v2_record_strat5_seed42`。生成入口见 [tools/build_task1_proxy_labels.py](../../tools/build_task1_proxy_labels.py)：对清洗后的 `events_clean` 精确重复记录只计一次，按 ADR-0007 逐条计数；旧版本文件不覆盖。该入口使用既有 6/21–7/31 的 40 天历史代理标签窗，不能生成赛事方保管的 8/1 后正式标签。实测验收范围见[公开证据元信息](../evidence/task1-proxy-label-v2.md)。
+
 ## 4. 标记枚举
 
 - `coord_flag`：`ok / missing / zero_placeholder / out_of_range`

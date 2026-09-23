@@ -14,3 +14,18 @@ python -m unittest discover -s tests -v              # 合成反例测试
 工作区、暂存区和 HEAD 可能不同，提交前必须查 index。`governance_policy.json` 维护结构与已存在资产的清单，不能为了绕过失败放宽规则；例外要在 PR 写明公开依据并真实复核。
 
 任务互斥检查仅看本快照的 `active` 任务，不是跨设备锁。文本和 JSON 中所有可能的敏感信息无法自动穷举，因此仍须按数据规范做内容审查。
+
+## 任务一新版代理标签
+
+`build_task1_proxy_labels.py` 按 [ADR-0007](../docs/decisions/ADR-0007-near-miss-count-unit.md) 从受控 `events_clean.csv` 逐条计数，生成有版本的 `labels.csv`、`splits.csv` 与本地 manifest；它仅用于已有历史数据可检验的 40 天代理回测。需要本机受控输入，输出目录必须是**尚不存在的新目录**，旧标签和折分不会覆盖。示例（`CONTRACT_DIR` 指向受控契约目录，`OUTPUT_DIR` 指向被 Git 忽略的受控输出目录）：
+
+```sh
+python tools/build_task1_proxy_labels.py \
+  --events "$CONTRACT_DIR/events_clean.csv" \
+  --features "$CONTRACT_DIR/features.csv" \
+  --vehicles "$CONTRACT_DIR/target_vehicles.csv" \
+  --output-dir "$OUTPUT_DIR" \
+  --as-of 2026-06-21 --end-exclusive 2026-07-31
+```
+
+该输出不是新的模型输入，也不是 8/1 以后官方保管的真实标签；使用前应核对特征时间可见性、输入版本与折分，并由数据／评估负责人复核。真实计数、车辆标签与文件指纹只保留在受控 manifest。
