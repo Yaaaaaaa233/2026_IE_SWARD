@@ -1,0 +1,35 @@
+{
+  "id": "MODEL-005",
+  "title": "方案B V5 入库（王健祺线当前登记最优）：五成员融合+分群校准可复跑管线与任务二对接接口",
+  "status": "review",
+  "owner": "王健祺",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/SCORE-001-task2-roadmap",
+  "base_commit": "7b473d9",
+  "write_scope": [
+    "models/solution_b_v5/",
+    "models/solution_b_v5/config_local.template.json",
+    ".gitignore",
+    "docs/tasks/MODEL-005.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-23-model-005-v5.md"
+  ],
+  "dependencies": [
+    "MODEL-004",
+    "FEAT-002"
+  ],
+  "acceptance": [
+    "run_v5.py 从仓库目录一键复跑：五成员嵌套折外+分群校准，输出 oof/model_score/forecast/manifest",
+    "复现一致：与受控台账登记的 V5 折外预测一致（同种子）",
+    "ADR-0004 判据自动报告：对冻结基线 RF 的配对区间与过门判定",
+    "真实数字与预测产物不入公开仓库（outputs 已忽略）；机器路径模板化"
+  ],
+  "evidence": [
+    "models/solution_b_v5/README.md",
+    "docs/worklog/2026-09-23-model-005-v5.md"
+  ],
+  "handoff": "docs/worklog/2026-09-23-model-005-v5.md",
+  "notes": "任务二消费方式：model_score.csv（gpsno, prob, rank_pct, calib_flag）+ manifest 输入指纹登记。V5 迭代史（V1–V4 方法层结论）见 README 与 MODEL-004。｜治理依据：ADR-0004（基线冻结与判据）、ADR-0005（重组与写入域）。"
+}

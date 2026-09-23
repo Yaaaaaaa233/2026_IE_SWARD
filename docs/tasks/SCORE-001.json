@@ -1,0 +1,33 @@
+{
+  "id": "SCORE-001",
+  "title": "任务二总体执行路线图 v0.2（行为大类→扣分规则→可运营/动态微调→白盒黑盒融合→MOE与基线）",
+  "status": "review",
+  "owner": "王健祺",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/SCORE-001-task2-roadmap",
+  "base_commit": "7b473d9",
+  "write_scope": [
+    "docs/plans/task2-roadmap.md",
+    "docs/plans/README.md",
+    "docs/tasks/SCORE-001.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-23-task2-roadmap.md"
+  ],
+  "dependencies": [
+    "MODEL-005"
+  ],
+  "acceptance": [
+    "路线图与 0922 会议口径一致：大类→扣分→可运营/动态微调→MOE（独立任务）",
+    "组长批示落实：待拍板 1–3 项保留为执行期决策点；Q1 持续跟进任务一最新版本；MOE 不冻结",
+    "对齐 ADR-0005 写入域（task2/ 与 docs/plans/task2-*）与 ADR-0004 判据引用",
+    "不含真实数据统计，可入公开仓库；治理检查与单测通过"
+  ],
+  "evidence": [
+    "docs/plans/task2-roadmap.md",
+    "docs/worklog/2026-09-23-task2-roadmap.md"
+  ],
+  "handoff": "docs/worklog/2026-09-23-task2-roadmap.md",
+  "notes": "任务前缀 SCORE 为任务二评分线新起编号（ADR-0005 后任务二三人组沿用或另定，待确认）。执行期决策点 3 项见路线图 §7；Q1 消费任务一版本按 manifest 指纹登记。｜治理依据：ADR-0004（基线冻结与判据）、ADR-0005（重组与写入域）。"
+}

@@ -65,3 +65,6 @@ docs/plans/roadmap_overall_numbers.md
 # 方案B本机路径配置与数据派生产物（模板入库，真实配置与产物不入）
 models/solution_b/config_local.json
 models/solution_b/report/
+
+# 方案B V5 本机路径配置（模板入库）
+models/solution_b_v5/config_local.json
