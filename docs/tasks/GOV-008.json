@@ -14,6 +14,7 @@
     "docs/tasks/README.md",
     "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
     "docs/decisions/ADR-0006-official-qa-foundation.md",
+    "docs/decisions/ADR-0007-near-miss-count-unit.md",
     "docs/decisions/README.md",
     "docs/interfaces/README.md",
     "docs/interfaces/data_contract.md",
@@ -30,6 +31,7 @@
     "docs/DEVELOPMENT_STATUS.md",
     "docs/worklog/2026-09-23-official-qa-freeze.md",
     "docs/worklog/2026-09-23-official-qa-foundation-alignment.md",
+    "docs/worklog/2026-09-23-near-miss-count-unit.md",
     "docs/worklog/README.md",
     "docs/report/task1/README.md",
     "docs/report/task1/main.tex",
@@ -40,15 +42,17 @@
   "acceptance": [
     "旧标签与旧折分下的新拟合、OOF 判优、FEAT-009 S1 主判定已显式冻结，旧产物保留原版本身份",
     "ADR-0006 与公共契约、评价基座、顶层路线、任务二交付和报告入口统一官方标签、61 天历史、夜间定义及提交口径",
-    "未遂计数单位与评测右端保持待确认；旧效果不转为新协议结论，不安排叶安线或王健祺线的具体算法和重跑顺序",
+    "未遂计数单位由叶安按有效事件记录逐条计次裁定；评测右端仍待确认；旧效果不转为新协议结论，不安排两条算法线的具体调整",
     "公开文档不含真实逐车值、真实图表或本机绝对数据路径；治理和相关检查通过"
   ],
   "evidence": [
     "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
     "docs/decisions/ADR-0006-official-qa-foundation.md",
+    "docs/decisions/ADR-0007-near-miss-count-unit.md",
     "docs/worklog/2026-09-23-official-qa-freeze.md",
-    "docs/worklog/2026-09-23-official-qa-foundation-alignment.md"
+    "docs/worklog/2026-09-23-official-qa-foundation-alignment.md",
+    "docs/worklog/2026-09-23-near-miss-count-unit.md"
   ],
-  "handoff": "docs/worklog/2026-09-23-official-qa-foundation-alignment.md",
-  "notes": "叶安先要求冻结旧效果，随后明确将后续调整收窄为全项目公共口径，不规定两条算法线如何优化。ADR-0006 接受官方已明确规则；未遂计数单位、精确右端和新标签／折分产物仍待确认。真实新版模型未运行；答疑原件不入公开仓库。"
+  "handoff": "docs/worklog/2026-09-23-near-miss-count-unit.md",
+  "notes": "叶安先要求冻结旧效果，随后将调整收窄为公共口径，并决定未遂按精确去重后的有效事件记录逐条计次（ADR-0007）。这属于团队内部裁定，非官方新增解释。精确右端和新标签／折分产物仍待确认；真实新版模型未运行。"
 }

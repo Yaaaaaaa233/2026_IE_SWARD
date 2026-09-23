@@ -16,7 +16,7 @@
 | 模块 | 职责 | 入口 / 契约 | 依赖 | 生命周期 | 备注 |
 | --- | --- | --- | --- | --- | --- |
 | 五版清洗管线（v0–v4） | 一阶段单类型标注 + 二阶段跨类型互证 + 处置可信度 | 数据线受控目录（脚本 `10_全量清洗_契约v0.1.py`、`11_二阶段跨类型标注分级.py`） | 官方数据 2.0 | runnable | 规则总说明见 [cleaning/](../cleaning/)；TASK-005 |
-| 数据契约五表 | target_vehicles / events_clean / vehicle_day / features / labels + splits / oof | [interfaces/data_contract.md](../interfaces/data_contract.md) | DATACON-001 | review（草案 v0.2） | 公共标签语义已校正，新版产物待发布 |
+| 数据契约五表 | target_vehicles / events_clean / vehicle_day / features / labels + splits / oof | [interfaces/data_contract.md](../interfaces/data_contract.md) | DATACON-001 | review（草案 v0.3） | 公共标签与未遂记录计次语义已校正，新版产物待发布 |
 | 旧版冻结折分 | 车辆级按旧标签分层五折（哈希确定） | 契约 splits 表 | 五版清洗 | runnable（历史） | 新标签下不得直接用于判优；新版折分待数据／评估线发布 |
 
 ## 特征线（特征工程与降维）
