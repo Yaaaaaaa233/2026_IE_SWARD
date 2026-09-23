@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-008",
+  "title": "迭代期 r5（叶安线，终轮）：P1–P4 修复版候选（轨迹/同群真正入模）＋预登记一次判定",
+  "status": "active",
+  "owner": "叶安",
+  "actor": "DSH 主会话＋deepseek-v4.1-flash 子智能体（叶安 2026-09-23 裁定 r5 修复版一次）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "9d01b3a",
+  "dependencies": ["FEAT-007"],
+  "write_scope": [
+    "feature_engineering/src/accident_pipeline_f3/",
+    "feature_engineering/tests/",
+    "docs/plans/feat-008-r5-execution.md",
+    "docs/tasks/FEAT-008.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-23-feat-008-r5.md",
+    "outputs/feat-008/round-1/",
+    "outputs/figures/feat-008/",
+    "outputs/acceptance/FEAT-008.md"
+  ],
+  "acceptance": [
+    "P1 跳变过滤落地（隐含速度>70m/s 步不计里程且切断段，f3_traj_jump_steps 质量列产出）＋合成测试",
+    "P2 停车切段落地（≥30min 停车或 >180min 断档切段，连续驾驶三件套产出）＋30min 边界合成测试",
+    "P3 同群群键回归预登记口径（能源类型×highway_ratio 中位二分，折内拟合）；P4 深夜小时口径统一 +8h",
+    "族配额制 select_new_columns（每族≤6、分场景夜间不入模、综合分优先、总量≤40）＋确定性合成测试",
+    "F3R5_v1 组装＋契约断言全过＋manifest 指纹；L1 全项＋版本三件套",
+    "配对判定只判一次（seed42 主判定、7/2026 旁证、ADR-0004 判据）＋5 块归因消融；过门棘轮/未过门负结果登记并收口进阶段 3（不再有 r6）",
+    "L2 轻量（P1 修复车复核、P2 切段 2 车、P3 群键分布）＋L3 B/D/E；过门补全完整 L2/L3"
+  ],
+  "evidence": ["docs/plans/feat-008-r5-execution.md"],
+  "handoff": "docs/worklog/2026-09-23-feat-008-r5.md",
+  "notes": "迭代期终轮（r5）。背景：r4 归因揭示新增 40 列预算被夜间分场景三元组挤占、轨迹/事件结构 0 列入模——新信息路线未被真正检验；L2 另查出 P1–P5 真实数据问题。本轮回调 P1–P4（P5 文档补写）＋族配额构成规则，预登记一次判定。**无论过门与否 r5 即最后一轮特征侧判定**，未过门收口进阶段 3（EVAL-003 人工宣告）。预登记口径见方案 §2，执行中不得擅改。"
+}
