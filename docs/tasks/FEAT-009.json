@@ -1,7 +1,7 @@
 {
   "id": "FEAT-009",
   "title": "叶安线已有特征建模优化方案：折内模型选择与互补性诊断（非 r6）",
-  "status": "active",
+  "status": "blocked",
   "owner": "叶安",
   "actor": "Codex（执行 FEAT-009-S0 输入审计与工具实现）",
   "reviewer": "叶安（S0 审计结论与严格嵌套方向）",
@@ -39,8 +39,10 @@
     "docs/plans/feat-009-feature-modeling-proposal.md",
     "feature_engineering/experiments/task1_feature_modeling/README.md",
     "docs/worklog/2026-09-23-feat-009-s0-audit.md",
-    "docs/worklog/2026-09-23-feat-009-s1-acceptance-freeze.md"
+    "docs/worklog/2026-09-23-feat-009-s1-acceptance-freeze.md",
+    "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
+    "docs/worklog/2026-09-23-official-qa-freeze.md"
   ],
-  "handoff": "docs/worklog/2026-09-23-feat-009-s1-acceptance-freeze.md",
-  "notes": "S0 输入对账、指纹核验和合成负向测试已由 Codex 执行，叶安于 2026-09-23 确认审计结论与严格嵌套 S1 方向。V5 已基于清单输入受控复跑；键、标签、折号、分组及预测在浮点精度内一致。原 V5 manifest 仍未登记 OOF 输出校验和，复跑证据仅在本地受控输出。叶安于 2026-09-23 确认 S1 阶段前置样张与人工判读标准；方案及合成样图已入库。FEAT-009 依赖版本已锁定，四个 EBM／LightGBM 候选均通过编造数据冒烟拟合；这只验证依赖和 API，不是 S1 实验，也没有用比赛数据训练候选。FEAT-008、MODEL-005、EVAL-002 仍为 review 且 reviewer 字段空，S1 未放行。候选模型尚未在 FEAT-009 真实输入上运行，未产生真实效果或过门结论。真实数据派生报告、指纹、图表与逐车预测仅在本机受控 outputs/feat-009。"
+  "handoff": "docs/worklog/2026-09-23-official-qa-freeze.md",
+  "notes": "S0 输入对账、指纹核验和合成负向测试已由 Codex 执行，叶安于 2026-09-23 确认当时的审计结论与严格嵌套 S1 方向。V5 已基于旧版清单输入受控复跑；该证据只证明旧版产物与实现一致。原 V5 manifest 未登记 OOF 输出校验和的限制保留。S1 前置样张和候选环境的合成冒烟记录保留，但真实候选未运行。FEAT-008、MODEL-005、EVAL-002 的复核状态以各自已同步任务文件为准；2026-09-23 官方答疑改变正类定义并明确画像统计期后，旧标签、旧折分和旧 S0 不再放行 S1。叶安要求先冻结并形成调整方案，本任务置 blocked；解除前需新 ADR、版本化标签/折分、画像可见性审计、新版 S0 与新基线证据。真实产物继续留在受控 outputs/feat-009。"
 }

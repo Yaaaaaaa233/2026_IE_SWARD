@@ -35,4 +35,8 @@ uv pip install --python <env>/bin/python -r feature_engineering/experiments/task
 
 macOS 上的 PyPI LightGBM wheel 还需要 OpenMP。此 Apple Silicon 主机使用 conda-forge 的 `llvm-openmp=23.1.1`，运行库定义见[平台依赖文件](environment-macos-arm64.yml)；调用任务环境中的 Python 时，将该运行库的 `lib` 目录加入 `DYLD_LIBRARY_PATH`。其他 macOS 主机可按 [LightGBM 安装指南](https://lightgbm.readthedocs.io/en/stable/Installation-Guide.html)使用 Homebrew 的 `libomp`。
 
-当前环境已用编造数据对四个候选完成冒烟拟合，只验证依赖加载和参数接口，不是 S1 实验。FEAT-008、MODEL-005、EVAL-002 的具名复核完成，并通过 S1 代码与无泄漏测试前，不运行真实候选。
+当前环境已用编造数据对四个候选完成冒烟拟合，只验证依赖加载和参数接口，不是 S1 实验。0923 答疑后旧标签／折分 S1 已冻结；当前 [FEAT-009](../../../docs/tasks/FEAT-009.json) 为 `blocked`，旧版 S0 不再放行真实候选。
+
+## S1 工作树草稿（冻结）
+
+本地 `modeling.py`、`run.py` 和合成测试仍是未提交、未完成验收的工作树草稿。`run.py` 的前置检查在 FEAT-009 非 `active` 时拒绝进入真实 S1；不要把这些草稿或旧 S0 产物解释为新版协议已经实现。恢复顺序、旧画像统计期的时间穿越与新版输入要求见[调整方案](../../../docs/plans/2026-09-23-official-qa-adjustment-plan.md)。
