@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-"""F3 管线编排：一遍扫描（分片读取→聚合）＋ interface 组装（FEAT-007 r4）。
+"""F3 管线编排：一遍扫描（分片读取→聚合）＋ interface 组装。
+
+FEAT-007 r4 建立；FEAT-008 r5 按 docs/plans/feat-008-r5-execution.md §2 预登记修复：
+P1 跳变步不计里程/时长并切断段＋f3_traj_jump_steps 质量列、P2 停车双切段
+（spell_features 传入 speed/lat/lon）、P3 同群群键列名（highway_ratio，本地配置）、
+P4 时区统一（trajectory 侧）、P5 画像折月 30.44（core）。
 
 运行阶段（cli）：scan / interface / run-all。设计依据
 docs/plans/feat-007-r4-execution.md §3.0 预登记定义（执行中不得擅改）：
@@ -39,8 +44,9 @@ from .core import (COHORT_MIN_VEHICLES, composite_scores, cohort_keys, cohort_re
                    hour_of_day, na_category, night_degradation, profile_deviation, to_epoch_s)
 from .interface import (DUAL_SUFFIX_H, DUAL_SUFFIX_KM, NEW_FEATURES_FILE, build_f3_interface,
                         is_count_column)
-from .trajectory import (NIGHT_HI, NIGHT_LO, SPELL_GAP_S, daily_rhythm_features,
-                         haversine_m, spatial_features, speed_shape_features, spell_features)
+from .trajectory import (NIGHT_HI, NIGHT_LO, daily_rhythm_features,
+                         jump_step_count, spatial_features,
+                         speed_shape_features, spell_features, valid_drive_steps)
 
 FATIGUE_KEYWORD = "fatigue"   # 疲劳类场景判定（scenario 名含该词，疲劳报警夜间集中度口径）
 DAY_S = 86400.0
@@ -286,10 +292,11 @@ def _scan_imu_speed_pairs(cfg: F3Config,
 
 def window_exposure(t_epoch: np.ndarray, lat: np.ndarray, lon: np.ndarray,
                     window_start_s: float, window_end_s: float) -> tuple[float, float]:
-    """窗内暴露（§3.0 计数归一分母）：里程 km 与运行时长 h。
+    """窗内暴露（§3.0 计数归一分母）：里程 km 与运行时长 h（r5 §2 P1 跳变过滤口径）。
 
-    相邻有效点（坐标有限、0 < dt <= 180 min）的 Haversine 步长与间隔累计
-    （与 trajectory.daily_rhythm 同口径）；窗内不足 2 个有效点对时相应值为 0。
+    有效行驶步（valid_drive_steps）：相邻点坐标有限、0 < dt <= 180 min、非坐标跳变
+    （隐含速度 >70 m/s 的步不计里程且不计运行时长——切段语义下该步不属任何连续段，
+    随执行登记）；与 trajectory.daily_rhythm 同口径；窗内不足 2 个有效点对时相应值为 0。
     """
     t = np.asarray(t_epoch, dtype=float)
     la = np.asarray(lat, dtype=float)
@@ -300,10 +307,8 @@ def window_exposure(t_epoch: np.ndarray, lat: np.ndarray, lon: np.ndarray,
     t, la, lo = t[order], la[order], lo[order]
     if t.size < 2:
         return 0.0, 0.0
-    dt = np.diff(t)
-    ok = (dt > 0) & (dt <= SPELL_GAP_S)
-    step_m = np.asarray(haversine_m(la[:-1], lo[:-1], la[1:], lo[1:]), dtype=float)
-    km = float(step_m[ok].sum() / 1000.0)
+    dt, disp, ok = valid_drive_steps(t, la, lo)
+    km = float(disp[ok].sum() / 1000.0)
     hours = float(dt[ok].sum() / 3600.0)
     return km, hours
 
@@ -410,8 +415,9 @@ def vehicle_new_features(t_epoch: np.ndarray, run_duration_s: np.ndarray, speed:
     raw["f3_night_exposure_share"] = night_share
     raw["f3_fatigue_night_conc"] = fatigue_night_concentration(ev_t, ev_scenario,
                                                                as_of_s, lookback_s)
-    # ---- Tier 2：轨迹族一次带出（疲劳结构/速度形态/空间结构/日节律）
-    raw.update(spell_features(t_epoch, w0, w1, run_duration_s))
+    # ---- Tier 2：轨迹族一次带出（疲劳结构/速度形态/空间结构/日节律；r5 P1/P2 修复口径）
+    raw.update(spell_features(t_epoch, w0, w1, run_duration_s, speed, lat, lon))
+    raw["f3_traj_jump_steps"] = jump_step_count(t_epoch, lat, lon, w0, w1)  # P1 质量列
     raw.update(speed_shape_features(t_epoch, w0, w1, speed))
     raw.update(spatial_features(lat, lon, t_epoch, ev_lat, ev_lon, ev_t, w0, w1))
     raw.update(daily_rhythm_features(t_epoch, lat, lon, w0, w1))

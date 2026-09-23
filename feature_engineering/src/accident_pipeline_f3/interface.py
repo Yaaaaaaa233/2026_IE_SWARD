@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
-"""F3 interface：组装 F3_v1 model_input（lean 基座＋新增保留列，FEAT-007 r4）。
+"""F3 interface：组装 F3R5_v1 model_input（lean 基座＋新增保留列）。
 
-设计依据 docs/plans/feat-007-r4-execution.md §3.0 预登记定义（执行中不得擅改）：
+FEAT-007 r4 建立；FEAT-008 r5 按 docs/plans/feat-008-r5-execution.md §2 预登记改
+select_new_columns 为族配额制（每族 <=6、分场景夜间不入模、综合分恒优先、总量 <=40、
+族间轮转防挤占——修复 r4 夜间分场景 30 列吃光预算/轨迹 0 列入模的构成缺陷）。
+
+设计依据 docs/plans/feat-007-r4-execution.md §3.0 预登记定义（原口径继承）：
 - 基座预登记：候选基座＝FEAT-006 候选 B（lean）保留清单；load_base_columns 从配置声明的
   列清单文件读取（FEAT-006 保留/剔除清单在受控目录不在仓库，
   configs/pipeline_f3_v1.example.yaml 留 base_columns_file 占位），清单列序即声明列序；
-- 新增列＝Tier 1/2/3 产出，上限 40（§3.0）：select_new_columns 综合分（f3_score_）优先、
-  原始计数收敛，按（优先级，产出序）稳定选取，选取结果即新增列声明列序，确定性；
+- 新增列＝Tier 1/2/3 产出，上限 40（r5 §2 族配额制）：select_new_columns 按族配额
+  （每族 <=6、族内声明列序、score 恒优先、族间按预登记族序轮转），确定性；
 - 计数归一（§3.0）：计数类 per_1000km／per_100h 双轨由 pipeline 产出，入基座时同场景只保留
   per_1000km 版——收尾通则统一处理（finalize_columns 第一步剔除 per_100h 版）；
 - 近常数排除（§3.0）：接口层按方差阈值排除（不按缺失率），恒 0／常数列不得混入 model_input
@@ -35,13 +39,36 @@ from .core import NEAR_CONST_VAR, near_constant_filter, to_epoch_s, valid_time_m
 if TYPE_CHECKING:  # pragma: no cover - 仅类型标注，避免与 pipeline 循环导入
     from .pipeline import F3Config
 
-FEATURE_VERSION = "F3_v1"
+FEATURE_VERSION = "F3R5_v1"
 RHO_THRESHOLD = 0.95          # §3.0 收尾通则：|Spearman ρ|>0.95 成对去后者（边界不含）
-MAX_NEW_COLUMNS = 40          # §3.0 新增列上限（综合分优先、原始计数收敛）
+MAX_NEW_COLUMNS = 40          # §3.0 新增列上限（r5 §2 族配额制）
 COMPOSITE_PREFIX = "f3_score_"
 COPAIR_PREFIX = "f3_copair_"
 DUAL_SUFFIX_KM = "_per_1000km"
 DUAL_SUFFIX_H = "_per_100h"
+
+# ---- r5 §2 族配额构成规则（预登记，修复 r4 的 40 列预算挤占缺陷）--------------------
+FAMILY_CAP = 6                # 每族上限 6 列
+FAMILY_ORDER = ("score", "hist", "cohort", "profile", "night", "spell", "speed",
+                "spatial", "rhythm", "chain", "ems", "event", "other")
+# f3_night_* 只留合并版（含暴露占比）；分场景变体不入模（预登记 §2 白名单）
+NIGHT_MERGED_ALLOW = frozenset({
+    "f3_night_deep_rate", "f3_night_day_rate",
+    "f3_night_degradation", "f3_night_exposure_share",
+})
+# 族→前缀精确映射（预登记"随执行登记"：只对名字、不改规则；干名先剥计数双轨后缀）
+SPELL_STEMS = frozenset({
+    "f3_traj_max_spell_h", "f3_traj_gt4h_share", "f3_traj_night_spell_h",
+    "f3_traj_jump_steps",
+})
+SPEED_PREFIXES = ("f3_traj_speed_", "f3_traj_over90_", "f3_traj_cruise80_")
+SPATIAL_PREFIXES = ("f3_traj_hotspot_", "f3_traj_samepoint_")
+SPATIAL_STEMS = frozenset({
+    "f3_traj_route_repeat_m", "f3_traj_activity_radius_m", "f3_traj_daynight_shift_m",
+})
+RHYTHM_STEMS = frozenset({
+    "f3_traj_daily_km_cv", "f3_traj_gap_days", "f3_traj_daily_run_h",
+})
 
 # 计数类列干（§3.0 计数归一“一律”口径）：事件/热点/复发/断档等离散发生次数统计量
 COUNT_STEMS = frozenset({
@@ -118,28 +145,89 @@ def is_count_column(column: str) -> bool:
     return stem.startswith(COPAIR_PREFIX) or stem in COUNT_STEMS
 
 
-def _new_column_priority(name: str) -> int:
-    """新增列选取优先级（§3.0）：0＝综合分优先，1＝其余，2＝计数类原始计数收敛垫后。"""
-    if name.startswith(COMPOSITE_PREFIX):
-        return 0
-    return 2 if is_count_column(name) else 1
+def is_night_scenario_variant(column: str) -> bool:
+    """f3_night_* 分场景变体判定（r5 §2：分场景夜间不入模，只留合并版白名单）。"""
+    return column.startswith("f3_night_") and column not in NIGHT_MERGED_ALLOW
+
+
+def family_of_column(column: str) -> str:
+    """列 → 族（r5 §2 预登记映射，随执行登记；先剥计数双轨后缀取干名再归类）。
+
+    score←f3_score_；hist←f3_hist_；cohort←干名以 _cohort_z/_cohort_pct 结尾；
+    profile←f3_profile_；night←f3_night_（分场景变体已在候选期排除）；
+    spell←连续驾驶四列（含 P1 质量列 f3_traj_jump_steps）；speed←f3_traj_speed_/
+    over90_/cruise80_；spatial←hotspot_/samepoint_ 前缀与路线重复/活动半径/昼夜偏移；
+    rhythm←日里程 CV/断档天数/日均运行时长；chain←f3_chain_/f3_copair_；ems←f3_ems_；
+    event←f3_event_；其余（如 f3_fatigue_night_conc）→ other。
+    """
+    stem = count_stem(column)
+    if stem.startswith(COMPOSITE_PREFIX):
+        return "score"
+    if stem.startswith("f3_hist_"):
+        return "hist"
+    if stem.endswith("_cohort_z") or stem.endswith("_cohort_pct"):
+        return "cohort"
+    if stem.startswith("f3_profile_"):
+        return "profile"
+    if stem.startswith("f3_night_"):
+        return "night"
+    if stem in SPELL_STEMS:
+        return "spell"
+    if stem.startswith(SPEED_PREFIXES):
+        return "speed"
+    if stem.startswith(SPATIAL_PREFIXES) or stem in SPATIAL_STEMS:
+        return "spatial"
+    if stem in RHYTHM_STEMS:
+        return "rhythm"
+    if stem.startswith("f3_chain_") or stem.startswith(COPAIR_PREFIX):
+        return "chain"
+    if stem.startswith("f3_ems_"):
+        return "ems"
+    if stem.startswith("f3_event_"):
+        return "event"
+    return "other"
 
 
 def select_new_columns(candidate_columns: Sequence[str],
                        max_new: int = MAX_NEW_COLUMNS) -> list[str]:
-    """新增列选取（§3.0：上限 40、综合分优先、原始计数收敛）。
+    """新增列选取（r5 §2 族配额制，预登记；修复 r4 的 40 列预算挤占缺陷）。
 
-    按（优先级，产出序）稳定排序后取前 max_new 个；去重保持首次出现顺序。
-    返回顺序即新增列声明列序（收尾通则“保先者”依据），同输入两次调用逐项一致。
+    规则（执行中不得擅改）：
+    1. f3_night_* 分场景变体不入模（只留合并版白名单 NIGHT_MERGED_ALLOW）；
+    2. 计数双轨 per_100h 版不占配额（收尾通则必剔，候选期即排除）；
+    3. 按族配额选取：每族上限 FAMILY_CAP=6 列、族内按声明列序保先、总量 <=max_new=40；
+       综合分（score 族）恒优先＝整族最先入选，其余族按 FAMILY_ORDER（预登记列举序）
+       轮转取列——任一族不挤占其他族为零（正对 r4 缺陷：夜间分场景 30 列吃光预算、
+       轨迹 0 列入模）；
+    4. 返回顺序即新增列声明列序（score 先行、余族轮转获取序），同输入两次调用逐项一致。
     """
     seen: set[str] = set()
-    uniq: list[str] = []
+    buckets: dict[str, list[str]] = {f: [] for f in FAMILY_ORDER}
     for c in candidate_columns:
-        if c not in seen:
-            seen.add(c)
-            uniq.append(c)
-    ordered = sorted(enumerate(uniq), key=lambda p: (_new_column_priority(p[1]), p[0]))
-    return [c for _, c in ordered[:max_new]]
+        if c in seen or c in META_COLUMNS:
+            continue
+        seen.add(c)
+        if is_night_scenario_variant(c):
+            continue
+        if c.endswith(DUAL_SUFFIX_H):
+            continue                     # per_100h 双轨版不占族配额（收尾通则必剔）
+        buckets[family_of_column(c)].append(c)
+    selected: list[str] = buckets["score"][:min(FAMILY_CAP, max_new)]   # score 恒优先
+    ptr = {f: 0 for f in FAMILY_ORDER}
+    rest = tuple(f for f in FAMILY_ORDER if f != "score")
+    while len(selected) < max_new:
+        took = False
+        for f in rest:                   # 轮转：score 之外按预登记族序
+            if len(selected) >= max_new:
+                break
+            i, cap = ptr[f], min(FAMILY_CAP, len(buckets[f]))
+            if i < cap:
+                selected.append(buckets[f][i])
+                ptr[f] = i + 1
+                took = True
+        if not took:
+            break
+    return selected
 
 
 # ------------------------------------------------------------- 收尾通则（§3.0）
@@ -335,7 +423,9 @@ def build_f3_interface(cfg: "F3Config") -> Path:
     dropped_payload = {
         "feature_version": FEATURE_VERSION,
         "rules": {"rho_threshold": RHO_THRESHOLD, "var_threshold": NEAR_CONST_VAR,
-                  "max_new_columns": MAX_NEW_COLUMNS, "dual_track_keep": DUAL_SUFFIX_KM},
+                  "max_new_columns": MAX_NEW_COLUMNS, "dual_track_keep": DUAL_SUFFIX_KM,
+                  "family_quota": {"cap": FAMILY_CAP, "order": list(FAMILY_ORDER),
+                                   "night_merged_allow": sorted(NIGHT_MERGED_ALLOW)}},
         "declared_columns": declared,
         "kept_base": base_kept,
         "kept_new": new_kept,
@@ -356,6 +446,8 @@ def build_f3_interface(cfg: "F3Config") -> Path:
         "new_kept_count": len(new_kept),
         "base_kept": base_kept,
         "new_kept": new_kept,
+        "new_family_counts": {f: sum(1 for c in new_kept if family_of_column(c) == f)
+                              for f in FAMILY_ORDER},
         "window": {"as_of": cfg.as_of, "lookback_days": cfg.lookback_days,
                    "horizon_days": cfg.horizon_days},
         "code_commit": resolve_code_commit(),

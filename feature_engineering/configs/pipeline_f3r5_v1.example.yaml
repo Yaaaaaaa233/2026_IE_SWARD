@@ -1,0 +1,82 @@
+# Public template. Contains no machine path or experiment result.
+# 复制为 pipeline_f3_v1.local.yaml（git 忽略）后填本机/受控路径；仓库只留本占位模板。
+feature_version: "F3R5_v1"
+output_dir: "../../artifacts/feature_f3r5_v1"
+
+# ---- 输入表（占位示例路径，非本机路径）------------------------------------
+trajectory_dir: "../../artifacts/inputs/trajectory_shards"   # 轨迹分片目录（part-*，一遍流式扫描）
+events_path: "../../artifacts/inputs/events.csv"             # 事件表：event_id,gpsno,event_time,scenario,speed,lat,lon
+profile_path: "../../artifacts/inputs/profile.csv"           # 画像表：gpsno,energy_type,highway_share,profile_month_km,profile_month_hours,profile_month_night_share
+base_input: "../../artifacts/model_interface/model_input.csv"  # lean 基座来源（FEAT-006 产出）
+# 占位：FEAT-006 候选 B（lean 109）保留清单在受控目录、不入仓库；JSON 数组或一行一列文本
+base_columns_file: "<controlled-dir>/feat-006/lean_keep_columns.txt"
+
+# ---- 窗口三元组（§3.0 红线 6：显式配置、禁止硬编码）--------------------------
+window:
+  as_of: "2026-06-21T00:00:00"   # 占位示例：按当期特征窗右端点（标签窗起点）填写
+  lookback_days: 20.0            # 特征窗 [as_of−20d, as_of)
+  horizon_days: 30.0             # 占位示例：按任务一冻结标签口径填写
+
+# ---- 轨迹分片列映射（canonical → 分片实际列名；缺省同名）---------------------
+# canonical：gpsno,data_time,speed,lat,lon［必需］；run_duration_s,ems_speed,gps_speed［可选］
+# 轨迹交付表 `运行时长` 等源列名在此映射，例：
+trajectory_columns:
+  gpsno: "gpsno"
+  data_time: "data_time"
+  run_duration_s: "运行时长"
+  speed: "speed"
+  lat: "lat"
+  lon: "lon"
+  ems_speed: "ems_speed"
+  gps_speed: "gps_speed"
+
+shard_delimiter: "\t"
+chunk_rows: 200000
+
+# ---- 新键说明 ①：无表头轨迹分片（缺省不写＝带表头现状；真实轨迹分片为无表头 TSV）----
+# shard_has_header: false          # false＝分片首行即数据（header=None 读取）；true＝首行为表头
+# trajectory_column_order:         # 无表头时按文件列序的 canonical 列名清单（必配 shard_has_header: false）
+#   - "gpsno"                      # 允许含 dist_m/heading 等非 canonical 别名列（读取后仅消费 canonical 列）
+#   - "dist_m"                     # 例：真实 8 列固定列序 gpsno, 与上一轨迹点的距离, 运行时长,
+#   - "run_duration_s"             #     数据产生时间, 速度, 航向角, 纬度, 经度
+#   - "data_time"
+#   - "speed"
+#   - "heading"
+#   - "lat"
+#   - "lon"
+
+# ---- 新键说明 ②：IMU 双速度源（可选输入，轻量扫描 |EMS−GPS|；imu_dir 置空跳过、特征按缺失）----
+# imu_dir: "../../artifacts/inputs/imu_shards"   # IMU 分片目录（part-*）；不配置或留空＝跳过
+# imu_has_header: false                          # IMU 分片无表头为常态
+# imu_column_order:                              # 12 列固定列序的 canonical 列名清单（按文件列序）
+#   - "gpsno"                                    # gpsno, 设备串号, 数据时间, 数据日期,
+#   - "device_sn"                                # ems_speed, gps_speed, ax, ay, az, gx, gy, gz
+#   - "data_time"
+#   - "data_date"
+#   - "ems_speed"
+#   - "gps_speed"
+#   - "ax"
+#   - "ay"
+#   - "az"
+#   - "gx"
+#   - "gy"
+#   - "gz"
+# imu_delimiter: "\t"
+
+# ---- 计数归一低暴露置缺失（§3.0 沿用 F1 规则）-------------------------------
+exposure:
+  min_km: 50.0
+  min_hours: 1.0
+
+# ---- 同群相对化（§3.0：群键＝能源类型×高速里程占比车队中位二分，折内拟合）-----
+cohort:
+  energy_type_column: "energy_type"
+  highway_share_column: "highway_ratio"
+  source_columns:                # 占位示例：既有强特征（事件率／IMU 波动率／夜间占比）
+    - "f2_any_scenario_per_1000km"
+    - "r2_vol_amagres_std"
+    - "night_hours_ratio"
+
+# ---- 事件共现（§3.0：预登记显著组合入特征）-----------------------------------
+events:
+  copair_columns: []             # 预登记类型对计数列名（f3_copair_{a}__{b}）；空清单＝共现列不入特征

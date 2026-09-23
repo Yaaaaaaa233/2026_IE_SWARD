@@ -213,9 +213,10 @@ def test_profile_deviation_rates():
         window_night_share=np.array([0.3, 0.1]),
         profile_month_km=np.array([500.0, 0.0]), profile_month_hours=np.array([50.0, np.nan]),
         profile_month_night_share=np.array([0.25, 0.2]))
-    # 里程/时长按窗长折月（20d→30d，×1.5）后对账
-    assert out.loc[0, "f3_profile_km_dev"] == pytest.approx((600.0 - 500.0) / 500.0)
-    assert out.loc[0, "f3_profile_hours_dev"] == pytest.approx((60.0 - 50.0) / 50.0)
+    # 里程/时长按窗长折月（20d→30.44d，r5 §2 P5 预登记字面公式）后对账
+    scale = 30.44 / 20.0
+    assert out.loc[0, "f3_profile_km_dev"] == pytest.approx((400.0 * scale - 500.0) / 500.0)
+    assert out.loc[0, "f3_profile_hours_dev"] == pytest.approx((40.0 * scale - 50.0) / 50.0)
     assert out.loc[0, "f3_profile_night_dev"] == pytest.approx((0.3 - 0.25) / 0.25)
     assert out.loc[1, "f3_profile_night_dev"] == pytest.approx((0.1 - 0.2) / 0.2)
     assert not np.isfinite(out.loc[1, "f3_profile_km_dev"])      # 零基线置缺失

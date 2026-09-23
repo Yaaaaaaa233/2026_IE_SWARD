@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
-"""F3 Tier 2 轨迹族纯函数：连续驾驶切段、速度形态、空间结构、日节律（FEAT-007 r4）。
+"""F3 Tier 2 轨迹族纯函数：连续驾驶切段、速度形态、空间结构、日节律。
 
-设计依据 docs/plans/feat-007-r4-execution.md §3.0 预登记定义（执行中不得擅改）：
+FEAT-007 r4 建立本模块；FEAT-008 r5 按 docs/plans/feat-008-r5-execution.md §2 预登记
+修复（执行中不得擅改）：
+- P1 坐标跳变过滤：相邻点隐含速度 >70 m/s 判坐标跳变——该步不计里程/运行时长并切断段；
+  产出质量列 f3_traj_jump_steps（跳变步计数，供任务二，无样本门槛）；
+- P2 停车双切段：连续驻车步（速度=0 或位移 <50m）自出发点至末驻车到达点跨越 >=30min
+  （边界含）判驻车块切段（块内点不属任何段），间隔 >180min 与跳变步亦切段；
+  段内 <30min 短停计入行驶时长；
+- P4 时区统一：小时/日界一律本地（北京时间 UTC+8）口径，与 core.hour_of_day 一致。
+
+设计依据 docs/plans/feat-007-r4-execution.md §3.0 预登记定义（原口径继承）：
 - 特征窗 [as_of-lookback, as_of)：窗口边界一律显式传参（红线 6），window_end_s 即 as_of，
   各特征函数内部按半开区间 [window_start_s, window_end_s) 过滤，一切统计不触
   [as_of, as_of+H) 标签窗（合成测试断言）；
-- 连续驾驶切段：run_duration_field_semantics 先判运行时长字段语义——单行程累计
-  （trip_cumulative）按字段重置直接切段，否则按相邻点间隔 >180 min 切段并置口径标志
-  （gap_180min）；spell_features 产出最长连续驾驶、>4h 连续占比、深夜 23-5 连续驾驶时长；
 - 速度形态：速度 p50/p90/p99、分时段超速占比（>90km/h，早 7-9/深夜 23-5 分桶）、速度 CV、
   高速巡航占比（相邻两点均 >80km/h 的累计时长占比；道路类型代理，禁地图匹配）；
 - 空间结构：仅自包含统计，禁任何外部地图/路网/POI 数据；事件坐标 DBSCAN（Haversine，
@@ -17,7 +23,7 @@
 - 日节律：每日里程 CV、断档天数、日均运行时长；
 - 最低样本门槛沿用 r2（500/300/100，不足置缺失）：500＝窗内轨迹有效点（全体点级统计）、
   300＝时段桶/昼夜点集、100＝事件坐标与相邻日子集；日级统计另需有效天数 >=min_days
-  （20 天窗无法提供 100 级天样本，日级下限随实现登记，见 daily_rhythm_features）；
+  （随实现登记，见 daily_rhythm_features）；
 - 时间戳转秒统一 astype("datetime64[ns]") -> astype(int64) // 1e9（r1 缺陷类教训）；
 - 原始高频序列不直接入模，入模均为统计量与阈值事件计数（红线 4）。本模块不做文件 IO；
 - 统一清洗（红线 2：缺数以缺失表达、不删车）：所有消费 lat/lon/t/speed 的函数入口丢弃
@@ -43,6 +49,13 @@ CRUISE_KMH = 80.0                # 高速巡航阈值（道路类型代理）
 AM_LO, AM_HI = 7, 9              # 早桶 [7,9)
 DAY_LO, DAY_HI = 9, 17           # 日间桶 [9,17)（与 §3.0 夜间退化度日间口径一致）
 NIGHT_LO, NIGHT_HI = 23, 5       # 深夜桶 [23,24)∪[0,5)
+# ---- r5 预登记修复口径（docs/plans/feat-008-r5-execution.md §2，执行中不得擅改）----
+TZ_OFFSET_S = 8.0 * 3600.0       # P4：小时/日界统一北京时间 UTC+8（与 core.hour_of_day 一致）
+JUMP_SPEED_MPS = 70.0            # P1：隐含速度 >70 m/s（≈252km/h）判坐标跳变
+STOP_DISP_M = 50.0               # P2：步位移 <50m 视为驻车信号
+STOP_SPEED_KMH = 0.0             # P2：速度=0 判驻车信号（预登记字面口径）
+STOP_SPAN_S = 30.0 * 60.0        # P2：驻车块持续 >=30min（边界含）切段
+STOP_LABEL = -2                  # P2：>=30min 驻车块行标签（不属任何连续驾驶段；窗外仍为 -1）
 DBSCAN_EPS_M = 200.0             # §3.0 空间热点：eps 200m
 DBSCAN_MIN_SAMPLES = 2           # §3.0 空间热点：min_samples 2
 MIN_MAIN_ROWS = 500              # 最低样本门槛（r2 沿用）：窗内轨迹有效点
@@ -62,10 +75,11 @@ def to_epoch_s(times) -> np.ndarray:
             .astype("int64").to_numpy() // 10**9)
 
 
-def hour_of_day(t_epoch: np.ndarray) -> np.ndarray:
-    """epoch 秒 → 本地小时（0-23，naive 时间戳按记录时区口径）；非有限时间置 -1（清洗语义）。"""
+def hour_of_day(t_epoch: np.ndarray, tz_offset_s: float = TZ_OFFSET_S) -> np.ndarray:
+    """epoch 秒 → 本地小时（0-23）；P4：默认北京时间 UTC+8，与 core.hour_of_day 口径统一；
+    非有限时间置 -1（清洗语义）。"""
     t = np.asarray(t_epoch, dtype=float)
-    safe = np.where(np.isfinite(t), t, 0.0)
+    safe = np.where(np.isfinite(t), t + float(tz_offset_s), 0.0)
     hours = (safe.astype(np.int64) // 3600 % 24).astype(int)
     return np.where(np.isfinite(t), hours, -1)
 
@@ -128,17 +142,74 @@ def _window_sorted(t_epoch: np.ndarray, window_start_s: float, window_end_s: flo
     return tuple(out)
 
 
-def _night_overlap_s(t0: float, t1: float) -> float:
-    """[t0, t1] 与深夜桶（[23,24)∪[0,5) 时）重叠秒数。"""
+def _step_geometry(t: np.ndarray, lat: np.ndarray, lon: np.ndarray,
+                   speed_kmh: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """相邻步几何（已排序窗内行）：(dt, 位移 m, 跳变步, 驻车步)——P1/P2 预登记口径。
+
+    跳变步＝dt>0 且位移 > JUMP_SPEED_MPS·dt（隐含速度 >70 m/s，坐标跳变）；
+    驻车步＝到达点驻车：到达点速度有限且 =0，或步位移有限且 <STOP_DISP_M（50m）
+    （到达点语义：驶离步出发点速度=0 不误判驻车，随执行登记）；
+    位移需两端坐标有限；速度/坐标缺失时对应信号不参与判定（缺数不冒充，红线 2）。
+    """
+    n = t.size
+    if n < 2:
+        z = np.zeros(0)
+        return z, z.copy(), z.astype(bool), z.astype(bool)
+    dt = (t[1:] - t[:-1]).astype(float)
+    la = np.asarray(lat, dtype=float)
+    lo = np.asarray(lon, dtype=float)
+    disp = np.full(n - 1, np.nan)
+    both = (np.isfinite(la[:-1]) & np.isfinite(la[1:])
+            & np.isfinite(lo[:-1]) & np.isfinite(lo[1:]))
+    if both.any():
+        disp[both] = np.asarray(haversine_m(la[:-1][both], lo[:-1][both],
+                                            la[1:][both], lo[1:][both]), dtype=float)
+    jump = (dt > 0) & np.isfinite(disp) & (disp > JUMP_SPEED_MPS * dt)
+    sp = np.asarray(speed_kmh, dtype=float)
+    sp_arr_zero = np.isfinite(sp[1:]) & (sp[1:] <= STOP_SPEED_KMH)
+    stationary = ~jump & (sp_arr_zero | (np.isfinite(disp) & (disp < STOP_DISP_M)))
+    return dt, disp, jump, stationary
+
+
+def valid_drive_steps(t: np.ndarray, lat: np.ndarray, lon: np.ndarray,
+                      max_gap_s: float = SPELL_GAP_S) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """有效行驶步（P1 里程/时长统一口径）：返回 (dt, 位移 m, ok 掩码)。
+
+    ok 排除间隔 >max_gap_s 与跳变步（隐含速度 >70 m/s）；跳变步不计里程且不计运行时长
+    （切段语义下该步不属任何连续段，随执行登记）；位移需两端坐标有限。
+    """
+    no_speed = np.full(t.size, np.nan)
+    dt, disp, jump, _ = _step_geometry(t, lat, lon, no_speed)
+    ok = (dt > 0) & (dt <= max_gap_s) & np.isfinite(disp) & ~jump
+    return dt, disp, ok
+
+
+def jump_step_count(t_epoch: np.ndarray, lat: np.ndarray, lon: np.ndarray,
+                    window_start_s: float, window_end_s: float) -> float:
+    """P1 质量列 f3_traj_jump_steps：窗内坐标跳变步计数（隐含速度 >70 m/s）。
+
+    无样本门槛（计数供任务二暴露族治理；空/单点输入返回 0 不崩溃，统一清洗同窗口口径）。
+    """
+    t, la, lo = _window_sorted(t_epoch, window_start_s, window_end_s, lat, lon)
+    if t.size < 2:
+        return 0.0
+    _, _, jump, _ = _step_geometry(t, np.asarray(la, dtype=float),
+                                   np.asarray(lo, dtype=float), np.full(t.size, np.nan))
+    return float(int(jump.sum()))
+
+
+def _night_overlap_s(t0: float, t1: float, tz_offset_s: float = TZ_OFFSET_S) -> float:
+    """[t0, t1] 与深夜桶（本地 [23,24)∪[0,5) 时）重叠秒数（P4：本地=epoch+tz_offset_s）。"""
     if t1 <= t0:
         return 0.0
     total = 0.0
-    d0 = int(np.floor(t0 / 86400.0))
-    d1 = int(np.floor(t1 / 86400.0))
+    a0, a1 = t0 + tz_offset_s, t1 + tz_offset_s
+    d0 = int(np.floor(a0 / 86400.0))
+    d1 = int(np.floor(a1 / 86400.0))
     for d in range(d0, d1 + 1):
         base = d * 86400.0
-        seg_lo = max(t0, base)
-        seg_hi = min(t1, base + 86400.0)
+        seg_lo = max(a0, base)
+        seg_hi = min(a1, base + 86400.0)
         for lo_h, hi_h in ((NIGHT_LO, 24), (0, NIGHT_HI)):
             n_lo = max(seg_lo, base + lo_h * 3600.0)
             n_hi = min(seg_hi, base + hi_h * 3600.0)
@@ -200,12 +271,20 @@ class SpellSplit:
 
 def driving_spells(t_epoch: np.ndarray, window_start_s: float, window_end_s: float,
                    run_duration_s: np.ndarray | None = None,
+                   speed_kmh: np.ndarray | None = None,
+                   lat: np.ndarray | None = None, lon: np.ndarray | None = None,
                    gap_limit_s: float = SPELL_GAP_S) -> SpellSplit:
-    """连续驾驶切段（§3.0 切段规则）。
+    """连续驾驶切段（r5 §2 P2 双切段口径）。
 
-    run_duration_field_semantics 判定为单行程累计（trip_cumulative）时按字段重置直接切段，
-    否则按相邻点间隔 >gap_limit_s（默认 180 min）切段并置口径标志 gap_180min。
-    段时长：trip_cumulative 取字段窗内增量（r[末]-r[首]），gap_180min 取段首末时刻差。
+    切段规则（预登记，执行中不得擅改）：
+    - 驻车块：连续驻车步（速度=0 或位移 <50m）自驻车出发点（末个行驶点）至末个驻车
+      到达点跨越 >=30min（边界含）→ 驻车到达点标 STOP_LABEL（-2，不属任何段），段在
+      块前结束、块后重开；不足 30min 的短停点与时长计入所在段（段内 <30min 短停计入行驶）；
+    - 相邻点间隔 >gap_limit_s（默认 180min，严格大于）切段；
+    - 坐标跳变步（隐含速度 >70 m/s，P1）切段；
+    - run_duration_field_semantics 判为单行程累计（trip_cumulative）时字段重置亦切段。
+    速度与坐标均未提供时驻车/跳变检测无信号、退化到间隔/字段口径（随运行登记）。
+    段时长：trip_cumulative 取字段窗内增量，否则取段首末时刻差（驻车块时间不计入任何段）。
     标签窗外行与非有限时间行不参与切段（标签一律 -1）。
     """
     t_all = np.asarray(t_epoch, dtype=float).ravel()
@@ -220,33 +299,75 @@ def driving_spells(t_epoch: np.ndarray, window_start_s: float, window_end_s: flo
         return SpellSplit(labels=labels, starts=np.zeros(0, dtype=int),
                           ends=np.zeros(0, dtype=int), durations_s=np.zeros(0),
                           caliber=CALIBER_GAP)
-    if r is not None and run_duration_field_semantics(t, r, gap_limit_s) == CALIBER_TRIP:
-        caliber = CALIBER_TRIP
-        new_seg = np.r_[True, r[1:] < r[:-1] - RUN_RESET_TOL_S]
-    else:
-        caliber = CALIBER_GAP
-        new_seg = np.r_[True, np.diff(t) > gap_limit_s]
+    sp = (np.asarray(speed_kmh, dtype=float).ravel()[idx]
+          if speed_kmh is not None else np.full(n, np.nan))
+    la = (np.asarray(lat, dtype=float).ravel()[idx]
+          if lat is not None else np.full(n, np.nan))
+    lo = (np.asarray(lon, dtype=float).ravel()[idx]
+          if lon is not None else np.full(n, np.nan))
+    caliber = (CALIBER_TRIP
+               if r is not None and run_duration_field_semantics(t, r, gap_limit_s) == CALIBER_TRIP
+               else CALIBER_GAP)
+    new_seg = np.zeros(n, dtype=bool)
+    new_seg[0] = True
+    stop_point = np.zeros(n, dtype=bool)
+    if n >= 2:
+        dt, _, jump, stationary = _step_geometry(t, la, lo, sp)
+        new_seg[1:] |= (dt > gap_limit_s) | jump
+        if caliber == CALIBER_TRIP:
+            new_seg[1:] |= r[1:] < r[:-1] - RUN_RESET_TOL_S
+        i, m = 0, stationary.size
+        while i < m:                     # 驻车块扫描：span = t[末驻车到达点] − t[块首出发点]
+            if stationary[i]:
+                j = i
+                while j + 1 < m and stationary[j + 1]:
+                    j += 1
+                if t[j + 1] - t[i] >= STOP_SPAN_S:
+                    stop_point[i + 1:j + 2] = True
+                    if j + 2 < n:
+                        new_seg[j + 2] = True
+                i = j + 1
+            else:
+                i += 1
     seg_id = np.cumsum(new_seg) - 1
-    starts = np.flatnonzero(new_seg)
-    ends = np.r_[starts[1:] - 1, n - 1]
-    if caliber == CALIBER_TRIP:
+    labels[idx] = np.where(stop_point, STOP_LABEL, seg_id)
+    starts_l: list[int] = []
+    ends_l: list[int] = []
+    k = 0
+    while k < n:                          # 连续驾驶段＝同段内相邻非驻车点的极大连续段
+        if stop_point[k]:
+            k += 1
+            continue
+        s = k
+        while k + 1 < n and not stop_point[k + 1] and seg_id[k + 1] == seg_id[s]:
+            k += 1
+        starts_l.append(s)
+        ends_l.append(k)
+        k += 1
+    starts = np.asarray(starts_l, dtype=int)
+    ends = np.asarray(ends_l, dtype=int)
+    if caliber == CALIBER_TRIP and starts.size:
         durations = r[ends] - r[starts]
-    else:
+    elif starts.size:
         durations = (t[ends] - t[starts]).astype(float)
-    labels[idx] = seg_id
+    else:
+        durations = np.zeros(0)
     return SpellSplit(labels=labels, starts=idx[starts], ends=idx[ends],
                       durations_s=durations, caliber=caliber)
 
 
 def spell_features(t_epoch: np.ndarray, window_start_s: float, window_end_s: float,
-                   run_duration_s: np.ndarray | None = None) -> dict[str, float]:
-    """连续驾驶切段统计（§3.0 疲劳结构）。
+                   run_duration_s: np.ndarray | None = None,
+                   speed_kmh: np.ndarray | None = None,
+                   lat: np.ndarray | None = None, lon: np.ndarray | None = None) -> dict[str, float]:
+    """连续驾驶切段统计（§3.0 疲劳结构；r5 §2 P1/P2 修复口径）。
 
-    - f3_traj_max_spell_h：最长连续驾驶段时长（小时）；
+    - f3_traj_max_spell_h：最长连续驾驶段时长（小时；≥30min 驻车/断档/跳变均切段）；
     - f3_traj_gt4h_share：>4h 段累计时长占全部连续驾驶累计时长之比；
-    - f3_traj_night_spell_h：各段时长落在深夜 23-5 的累计小时数。
+    - f3_traj_night_spell_h：各段时长落在深夜 23-5（本地，P4 +8h）的累计小时数。
     门槛（不足置缺失）：窗内有效点 <MIN_MAIN_ROWS 全部缺失；深夜项另需深夜桶点数
-    >=MIN_BUCKET_ROWS。切段口径见 driving_spells（随 SpellSplit.caliber 登记）。
+    >=MIN_BUCKET_ROWS。切段口径见 driving_spells（随 SpellSplit.caliber 登记）；
+    speed/lat/lon 提供驻车与跳变检测信号（缺省退化到间隔/字段口径）。
     统一清洗：非有限时间行不参与统计（window_mask 收口）。
     """
     out = {"f3_traj_max_spell_h": float("nan"),
@@ -256,7 +377,8 @@ def spell_features(t_epoch: np.ndarray, window_start_s: float, window_end_s: flo
     mask = window_mask(t_all, window_start_s, window_end_s)
     if int(mask.sum()) < MIN_MAIN_ROWS:
         return out
-    split = driving_spells(t_all, window_start_s, window_end_s, run_duration_s)
+    split = driving_spells(t_all, window_start_s, window_end_s, run_duration_s,
+                           speed_kmh, lat, lon)
     dur = split.durations_s
     if dur.size:
         out["f3_traj_max_spell_h"] = float(dur.max() / 3600.0)
@@ -382,6 +504,7 @@ def route_repeat_distance_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarra
     """路线重复度＝相邻日（日历相邻且均 >=min_day_rows 点）路径点集平均最近邻距离（米）。
 
     日对距离取双向（A→B 与 B→A）最近邻距离的平均，再对日对取均值；越小越重复。
+    日分组按本地日历日（epoch+8h，P4 与 core 一致）。
     统一清洗：非有限坐标行丢弃（finite_row_mask）。门槛（不足置缺失）：清洗后窗内有效点
     >=MIN_MAIN_ROWS 且至少一个有效日对；空输入/单点输入返回 NaN 不崩溃。
     """
@@ -390,7 +513,7 @@ def route_repeat_distance_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarra
     t, la, lo = t[keep], np.asarray(la, dtype=float)[keep], np.asarray(lo, dtype=float)[keep]
     if t.size < MIN_MAIN_ROWS:
         return float("nan")
-    day = t // 86400
+    day = (t + TZ_OFFSET_S) // 86400
     groups = {int(d): np.flatnonzero(day == d) for d in np.unique(day)}
     pair_vals: list[float] = []
     for d in sorted(groups):
@@ -469,16 +592,18 @@ def spatial_features(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarray,
 def daily_rhythm_features(t_epoch: np.ndarray, lat: np.ndarray, lon: np.ndarray,
                           window_start_s: float, window_end_s: float,
                           min_days: int = MIN_DAYS) -> dict[str, float]:
-    """日节律（§3.0）：每日里程 CV、断档天数、日均运行时长。
+    """日节律（§3.0）：每日里程 CV、断档天数、日均运行时长（r5 §2 P1/P4 口径）。
 
-    - 日里程/日运行时长：窗内相邻有效点（间隔 <=180 min 且坐标有限）的 Haversine 步长与
-      间隔时长，按前点日期累计（跨日/长间隔对不计）；
+    - 日里程/日运行时长：窗内有效行驶步（valid_drive_steps：跳变步不计、间隔 <=180 min、
+      坐标有限）的位移与间隔，按前点本地日历日（epoch+8h，P4 与 core 一致）累计
+      （跨日/长间隔对不计）；
     - f3_traj_daily_km_cv：有效天日里程变异系数（std/mean，ddof=0）；
-    - f3_traj_gap_days：窗内无数据日历天数（断档天数）；
+    - f3_traj_gap_days：窗内无数据本地日历天数（断档天数；窗口边界跨入的部分本地日
+      无数据亦计断档，随执行登记）；
     - f3_traj_daily_run_h：有效天日均运行时长（小时）。
     门槛（不足置缺失）：清洗后窗内有效点 >=MIN_MAIN_ROWS；CV/日均另需有效天数 >=min_days
-    （日级样本下限，20 天窗无法提供 500/300/100 级天样本，随实现登记）；断档天数为计数，
-    仅受点数门槛约束。统一清洗：非有限坐标行丢弃（finite_row_mask），空/单点输入返回 NaN。
+    （日级样本下限，随实现登记）；断档天数为计数，仅受点数门槛约束。
+    统一清洗：非有限坐标行丢弃（finite_row_mask），空/单点输入返回 NaN。
     """
     keys = ("f3_traj_daily_km_cv", "f3_traj_gap_days", "f3_traj_daily_run_h")
     out = {k: float("nan") for k in keys}
@@ -490,20 +615,18 @@ def daily_rhythm_features(t_epoch: np.ndarray, lat: np.ndarray, lon: np.ndarray,
     n = t.size
     if n < MIN_MAIN_ROWS:
         return out
-    day = t // 86400
+    day = (t + TZ_OFFSET_S) // 86400
     active = np.unique(day)
-    d_lo = int(window_start_s // 86400)
-    d_hi = int((window_end_s - 1) // 86400)
+    d_lo = int((window_start_s + TZ_OFFSET_S) // 86400)
+    d_hi = int((window_end_s - 1 + TZ_OFFSET_S) // 86400)
     out["f3_traj_gap_days"] = float(max(d_hi - d_lo + 1 - active.size, 0))
     n_active = int(active.size)
     if n < 2:
         return out
-    dt = np.diff(t).astype(float)
-    step_m = np.asarray(haversine_m(la[:-1], lo[:-1], la[1:], lo[1:]), dtype=float)
-    ok = (dt > 0) & (dt <= SPELL_GAP_S) & np.isfinite(step_m)
+    dt, disp, ok = valid_drive_steps(t, la, lo)
     pair_day = day[:-1][ok]
     slot = np.searchsorted(active, pair_day)  # 有效天（含无步长天）内定位
-    km_sum = np.bincount(slot, weights=step_m[ok] / 1000.0, minlength=n_active)[:n_active]
+    km_sum = np.bincount(slot, weights=disp[ok] / 1000.0, minlength=n_active)[:n_active]
     run_sum = np.bincount(slot, weights=dt[ok], minlength=n_active)[:n_active]
     if n_active >= min_days:
         mean_km = float(km_sum.mean())

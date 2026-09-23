@@ -48,7 +48,7 @@ MIN_ROWS_SIDE = 300                   # 沿用 r2 MIN_SEG_ROWS（分段级/逐�
 MIN_ROWS_SUB = 100                    # 沿用 r2 MIN_HALF_ROWS（子分级最低样本）
 COHORT_MIN_VEHICLES = 30              # 群内最低车辆台数，不足回退全体
 NEAR_CONST_VAR = 1e-12                # 近常数排除的方差阈值（低于等于阈值剔除）
-MONTH_DAYS = 30.0                     # 画像月均折算口径
+MONTH_DAYS = 30.44                    # 画像月均折算（r5 §2 P5 预登记字面公式：×30.44/窗长）
 NIGHT_HOUR_RANGES = ((23.0, 24.0), (0.0, 5.0))   # 深夜 23–5（半开区间 [23,24)∪[0,5)）
 DAY_HOUR_RANGE = (9.0, 17.0)                     # 日间 9–17（半开区间 [9,17)）
 
@@ -325,8 +325,9 @@ def profile_deviation(window_mileage_km: np.ndarray, window_hours: np.ndarray,
                       month_days: float = MONTH_DAYS) -> pd.DataFrame:
     """画像基线偏差：窗内里程/时长/夜间占比相对画像月均的偏差率（预期／实际对账）。
 
-    偏差率＝(窗内值−画像月均)/|画像月均|；里程与时长为窗口总量，按月均口径折月
-    （× month_days/lookback_days）后对账；夜间占比为率、直接对账。画像月均为 0 或缺失、
+    预登记字面公式（r5 §2 P5 文档补写）：偏差率＝(窗内实际日均×30.44 ÷ 画像月均) − 1
+    （里程/时长按月折算对账；月长 30.44＝365.25/12）；夜间占比为率、直接对账
+    （偏差率＝(窗内占比−画像占比)/|画像占比|，随实现登记）。画像月均为 0 或缺失、
     窗内值缺失时置缺失（零分母置缺失）。输出列：f3_profile_km_dev、f3_profile_hours_dev、
     f3_profile_night_dev。
     """

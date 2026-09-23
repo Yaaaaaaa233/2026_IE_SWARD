@@ -45,17 +45,18 @@ def test_load_base_columns_text_and_json(tmp_path):
         load_base_columns(dup)
 
 
-def test_select_new_columns_priority_and_cap():
+def test_select_new_columns_family_quota_and_cap():
     cands = ["f3_hist_recurrence_gap_days", "f3_chain_event_count_per_1000km",
              "f3_score_fatigue", "f3_traj_speed_p50", "f3_copair_a__b_per_100h",
              "f3_score_night_chain", "f3_hist_decay_count_per_100h"]
-    # §3.0：上限 40、综合分优先、原始计数收敛；同级按产出序
+    # r5 §2 族配额：score 恒优先整族先行，余族按预登记族序轮转（hist→speed→chain）
     assert select_new_columns(cands, max_new=4) == [
         "f3_score_fatigue", "f3_score_night_chain",
         "f3_hist_recurrence_gap_days", "f3_traj_speed_p50"]
     full = select_new_columns(cands)
-    assert full[-3:] == ["f3_chain_event_count_per_1000km", "f3_copair_a__b_per_100h",
-                         "f3_hist_decay_count_per_100h"]
+    assert full == ["f3_score_fatigue", "f3_score_night_chain",
+                    "f3_hist_recurrence_gap_days", "f3_traj_speed_p50",
+                    "f3_chain_event_count_per_1000km"]
     assert is_count_column("f3_traj_gap_days_per_1000km")
     assert not is_count_column("f3_traj_speed_cv")
 

@@ -67,22 +67,24 @@ def test_run_duration_semantics_and_trip_spells():
 
 
 def test_spell_features_long_gt4h_night():
-    t0 = _epoch("2026-06-01 22:00:00")
+    # P4：本地（北京）小时＝naive+8h；naive 14:00 起＝本地 22:00→03:00（5h 段）
+    t0 = _epoch("2026-06-01 14:00:00")
     ws, we = t0 - 3600, t0 + 24 * 3600
-    s1 = t0 + np.arange(0, 5 * 3600 + 1, 36, dtype=np.int64)           # 22:00→03:00（5h）
-    s2 = t0 + 10 * 3600 + np.arange(0, 2 * 3600 + 1, 72, dtype=np.int64)  # 08:00→10:00（2h）
+    s1 = t0 + np.arange(0, 5 * 3600 + 1, 36, dtype=np.int64)           # 本地 22:00→03:00（5h）
+    s2 = t0 + 10 * 3600 + np.arange(0, 2 * 3600 + 1, 72, dtype=np.int64)  # 本地 08:00→10:00（2h）
     f = spell_features(np.concatenate([s1, s2]), ws, we)
     assert f["f3_traj_max_spell_h"] == pytest.approx(5.0)
     assert f["f3_traj_gt4h_share"] == pytest.approx(5.0 / 7.0)   # 5h 段 / (5h+2h)
-    assert f["f3_traj_night_spell_h"] == pytest.approx(4.0)      # 深夜 23:00–03:00
+    assert f["f3_traj_night_spell_h"] == pytest.approx(4.0)      # 本地深夜 23:00–03:00
 
 
 def test_speed_shape_quantiles_over90_buckets_cv():
-    t0 = _epoch("2026-06-01 08:00:00")
+    # P4：桶按本地（北京）小时（naive+8h）；naive 23:00＝本地早 7-9 桶、naive 15:00＝本地深夜桶
+    t0 = _epoch("2026-06-01 00:00:00")
     ws, we = t0 - 3600, t0 + 10 * 86400
     n_am, n_night = 400, 300
-    t_am = t0 + np.arange(n_am, dtype=np.int64)                  # 08:00 起（早 7-9 桶）
-    t_ni = t0 + 15 * 3600 + np.arange(n_night, dtype=np.int64)   # 23:00 起（深夜 23-5 桶）
+    t_am = t0 + 23 * 3600 + np.arange(n_am, dtype=np.int64)       # naive 23:00（本地 07:00，早桶）
+    t_ni = t0 + 15 * 3600 + np.arange(n_night, dtype=np.int64)    # naive 15:00（本地 23:00，深夜桶）
     sp_am = np.full(n_am, 50.0)
     sp_am[:40] = 100.0
     sp_ni = np.full(n_night, 50.0)
@@ -181,9 +183,10 @@ def test_activity_radius_and_daynight_centroid_shift():
     lo = np.where(np.arange(600) < 300, 120.01, 119.99)
     expected = 6_371_000.0 * np.radians(0.01) * np.cos(np.radians(30.0))
     assert activity_radius_m(la, lo, t, ws, we) == pytest.approx(float(expected), rel=1e-3)
-    # 昼夜偏移：日间(9-17)质心 (30,120)、深夜(23-5)质心 (30.1,120) → 0.1° 经线距离
-    t_day = t0 + 10 * 3600 + np.arange(400, dtype=np.int64)   # 10:00 起（日间桶）
-    t_ni = t0 + 23 * 3600 + np.arange(400, dtype=np.int64)    # 23:00 起（深夜桶）
+    # 昼夜偏移（P4 本地小时）：日间(9-17)＝naive 01:00 起、深夜(23-5)＝naive 15:00 起
+    # 日间质心 (30,120)、深夜质心 (30.1,120) → 0.1° 经线距离
+    t_day = t0 + 1 * 3600 + np.arange(400, dtype=np.int64)    # naive 01:00（本地 09:00，日间桶）
+    t_ni = t0 + 15 * 3600 + np.arange(400, dtype=np.int64)    # naive 15:00（本地 23:00，深夜桶）
     la2 = np.r_[np.full(400, 30.0), np.full(400, 30.1)]
     lo2 = np.full(800, 120.0)
     shift = daynight_centroid_shift_m(la2, lo2, np.concatenate([t_day, t_ni]), ws, we)
@@ -207,7 +210,9 @@ def test_daily_mileage_cv_gap_days_run_hours():
     expect_km = np.array(km)
     assert f["f3_traj_daily_km_cv"] == pytest.approx(
         float(expect_km.std() / expect_km.mean()), rel=1e-3)
-    assert f["f3_traj_gap_days"] == 2
+    # P4：断档天数按本地日历日（naive+8h）——窗口边界跨入的部分本地日无数据亦计断档
+    # （UTC 窗 [6-1 00:00, 6-11 00:00)＝本地 6-1 08:00~6-11 08:00，覆盖 11 个本地日）
+    assert f["f3_traj_gap_days"] == 3
     assert f["f3_traj_daily_run_h"] == pytest.approx(79 * 60 / 3600.0)
 
 
@@ -217,7 +222,8 @@ def test_label_window_exclusion_all_families():
     rng = np.random.default_rng(11)
     ts, las, los, sps = [], [], [], []
     for d in range(8):                               # 8 日 ×3 时段块 ×50 点
-        for hour in (8, 12, 23):
+        # P4：naive 23/04/15 时＝本地 07/12/23 时（早桶/日间桶/深夜桶各一块）
+        for hour in (23, 4, 15):
             n = 50
             ts.append(t0 + d * 86400 + hour * 3600 + np.arange(n, dtype=np.int64) * 30)
             las.append(30.0 + 0.001 * d + rng.uniform(-0.0001, 0.0001, n))
@@ -270,8 +276,10 @@ def test_min_sample_gates_missing():
     assert all(np.isnan(v) for v in
                spatial_features(la, lo, t, la[:50], lo[:50], t[:50], ws, we).values())
     # 600 行：桶内/子集样本决定分桶、昼夜、日级与日对特征的缺失
-    t2 = np.r_[t0 + np.arange(400, dtype=np.int64),
-               t0 + 15 * 3600 + np.arange(200, dtype=np.int64)]   # 早桶 400 / 深夜桶 200
+    # P4 本地小时桶：t0＝naive 08:00 → +15h＝naive 23:00（本地早 7-9 桶，400 行）、
+    # +7h＝naive 15:00（本地深夜桶，200 行）
+    t2 = np.r_[t0 + 15 * 3600 + np.arange(400, dtype=np.int64),
+               t0 + 7 * 3600 + np.arange(200, dtype=np.int64)]
     sp2 = np.where(np.arange(600) < 300, 100.0, 50.0)
     la2 = np.full(600, 30.0)
     lo2 = np.full(600, 120.0)
@@ -288,5 +296,6 @@ def test_min_sample_gates_missing():
     assert not np.isnan(f4["f3_traj_gap_days"])           # 计数特征只受点数门槛约束
     f5 = spatial_features(la2, lo2, t2, la2[:5], lo2[:5], t2[:5], ws, we)
     assert np.isnan(f5["f3_traj_daynight_shift_m"])       # 日间桶 0 行 <300
-    assert np.isnan(f5["f3_traj_route_repeat_m"])         # 单日无相邻日对
+    # P4：两块分落相邻本地日（naive 23:00→本地次日 07:00）→ 相邻日对成立，同点位→0
+    assert f5["f3_traj_route_repeat_m"] == pytest.approx(0.0)
     assert not np.isnan(f5["f3_traj_activity_radius_m"])
