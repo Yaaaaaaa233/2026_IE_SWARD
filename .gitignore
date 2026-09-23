@@ -68,3 +68,6 @@ models/solution_b/report/
 
 # 方案B V5 本机路径配置（模板入库）
 models/solution_b_v5/config_local.json
+
+# 升级版特征工程本机配置（模板入库）
+models/upgraded_fe/config_local.json
