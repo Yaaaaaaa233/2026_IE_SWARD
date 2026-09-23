@@ -1,13 +1,13 @@
 {
   "id": "FEAT-009",
   "title": "叶安线已有特征建模优化方案：折内模型选择与互补性诊断（非 r6）",
-  "status": "ready",
+  "status": "active",
   "owner": "叶安",
-  "actor": "Codex（仅代拟方案；真实实验未开始）",
+  "actor": "Codex（执行 FEAT-009-S0 输入审计与工具实现）",
   "reviewer": null,
   "reviewed_at": null,
-  "branch": "main（ADR-0003 无 PR 直接提交模式；本次仅方案入库）",
-  "base_commit": "3971d7e",
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "34025373e2c522de204a93fd51eedb6bbb164a49",
   "write_scope": [
     "feature_engineering/experiments/task1_feature_modeling/",
     "docs/plans/feat-009-feature-modeling-proposal.md",
@@ -16,7 +16,11 @@
     "outputs/feat-009/",
     "outputs/acceptance/FEAT-009.md"
   ],
-  "dependencies": ["FEAT-008", "MODEL-005", "EVAL-002"],
+  "dependencies": [
+    "FEAT-008",
+    "MODEL-005",
+    "EVAL-002"
+  ],
   "acceptance": [
     "叶安已确认本方案入库；S0-S3 各步按已写明的具体操作、机器验收、可视化验收和放行条件执行，真实实验尚未开始",
     "S0 对 F1/F3/V5/原 RF 同车标签折号与输入指纹进行只读核对；泄漏和上游全量筛列边界有明确记录",
@@ -24,7 +28,10 @@
     "S2 只做特征族与预测互补性诊断；新的组合或融合候选须另任务预登记",
     "相关合成负向测试、治理检查、单测、受控 L2/L3 图表与真实复核记录齐备；真实数据数字与逐车预测不入公开 Git"
   ],
-  "evidence": ["docs/plans/feat-009-feature-modeling-proposal.md"],
-  "handoff": "docs/worklog/2026-09-23-feat-009-plan-draft.md",
-  "notes": "2026-09-23 叶安在本任务会话中确认方案并授权入库，故置 ready；任务实现／实验的 reviewer 与 reviewed_at 仍为空，不冒充执行验收。未运行模型、未预支过门结论。FEAT-008 的 r5 为最后一轮特征提取判定；本任务只用已有特征优化学习算法，仍处 ADR-0005 双线竞优阶段 1。"
+  "evidence": [
+    "docs/plans/feat-009-feature-modeling-proposal.md",
+    "docs/worklog/2026-09-23-feat-009-s0-audit.md"
+  ],
+  "handoff": "docs/worklog/2026-09-23-feat-009-s0-audit.md",
+  "notes": "S0 输入对账、指纹核验和合成负向测试已由 Codex 执行，机器检查通过，待叶安人工复核。F3 全表筛列与外层折同群变换对内层选型存在转导／验证特征分布边界；V5 OOF 使用全量无标签聚类分组，source manifest 未登记 OOF 输出校验和。FEAT-008、MODEL-005、EVAL-002 仍为 review，S1 未运行。进入 S1 前须有前置交付复核依据、核验 V5 OOF 来源、按内层训练折重建筛列与同群变换，并由叶安复核比较边界。未训练候选模型，未产生效果或过门结论。真实数据派生报告、指纹与图表仅在本机受控 outputs/feat-009/s0。"
 }

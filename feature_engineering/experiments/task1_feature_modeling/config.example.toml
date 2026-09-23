@@ -1,0 +1,16 @@
+# 仅作结构示例。复制为 configs/feat-009.local.toml 并填写本机路径；该文件已被 .gitignore 忽略。
+f1_model_input = "/path/to/artifacts_f1_v1/model_interface/model_input.csv"
+f3_model_input = "/path/to/feature_f3r5_run/model_interface/model_input.csv"
+v5_oof = "/path/to/oof_predictions_v5.csv"
+rf_oof = "/path/to/task1_baseline_oof_predictions.csv"
+
+f3_manifest = "/path/to/feature_f3r5_run/model_interface/f3_manifest.json"
+f3_dropped_columns = "/path/to/feature_f3r5_run/model_interface/f3_dropped_columns.json"
+f3_new_features = "/path/to/feature_f3r5_run/f3_new_features.csv"
+v5_manifest = "/path/to/manifest.json"
+v5_cluster_assignments = "/path/to/artifacts_f1_v1/clustering/cluster_assignments.csv"
+v5_splits = "/path/to/splits.csv"
+v5_vehicles = "/path/to/target_vehicles.csv"
+
+# 相对路径以仓库根目录为基准；真实产物必须位于受控且被忽略的目录。
+output_dir = "outputs/feat-009/s0"
