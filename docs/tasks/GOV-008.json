@@ -1,9 +1,9 @@
 {
   "id": "GOV-008",
-  "title": "0923 官方答疑后的任务一冻结与协议重置调整方案",
+  "title": "0923 官方答疑后的旧效果冻结与全项目公共口径对齐",
   "status": "review",
   "owner": "叶安",
-  "actor": "Codex（按叶安指令冻结旧口径并起草调整方案）",
+  "actor": "Codex（按叶安指令冻结旧效果并对齐公共口径）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "main（ADR-0003 无 PR 直接提交模式）",
@@ -13,25 +13,42 @@
     "docs/tasks/FEAT-009.json",
     "docs/tasks/README.md",
     "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
+    "docs/decisions/ADR-0006-official-qa-foundation.md",
+    "docs/decisions/README.md",
+    "docs/interfaces/README.md",
+    "docs/interfaces/data_contract.md",
+    "docs/interfaces/model_contract.md",
+    "docs/plans/评价指标与基线对照方案（MOE与MOP）.md",
+    "docs/plans/roadmap_overall.md",
+    "docs/plans/roadmap.md",
+    "docs/plans/task2-roadmap.md",
+    "docs/plans/model-route-proposal.md",
+    "docs/modules/README.md",
+    "docs/cleaning/数据清洗版本与规则总说明.md",
     "docs/plans/feat-009-feature-modeling-proposal.md",
     "docs/plans/README.md",
     "docs/DEVELOPMENT_STATUS.md",
     "docs/worklog/2026-09-23-official-qa-freeze.md",
+    "docs/worklog/2026-09-23-official-qa-foundation-alignment.md",
     "docs/worklog/README.md",
+    "docs/report/task1/README.md",
+    "docs/report/task1/main.tex",
     "feature_engineering/experiments/task1_feature_modeling/README.md",
     "feature_engineering/experiments/task1_feature_modeling/run.py"
   ],
   "dependencies": [],
   "acceptance": [
     "旧标签与旧折分下的新拟合、OOF 判优、FEAT-009 S1 主判定已显式冻结，旧产物保留原版本身份",
-    "调整方案区分答疑明确口径与仍待确认的未遂计数单位和评测右端，覆盖画像时间穿越、7/31 隔离、夜间时段、任务二与提交格式",
-    "新版标签、折分、特征和评估重跑须经新 ADR 与版本化验收，不把旧效果自动转为新协议结论",
+    "ADR-0006 与公共契约、评价基座、顶层路线、任务二交付和报告入口统一官方标签、61 天历史、夜间定义及提交口径",
+    "未遂计数单位与评测右端保持待确认；旧效果不转为新协议结论，不安排叶安线或王健祺线的具体算法和重跑顺序",
     "公开文档不含真实逐车值、真实图表或本机绝对数据路径；治理和相关检查通过"
   ],
   "evidence": [
     "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
-    "docs/worklog/2026-09-23-official-qa-freeze.md"
+    "docs/decisions/ADR-0006-official-qa-foundation.md",
+    "docs/worklog/2026-09-23-official-qa-freeze.md",
+    "docs/worklog/2026-09-23-official-qa-foundation-alignment.md"
   ],
-  "handoff": "docs/worklog/2026-09-23-official-qa-freeze.md",
-  "notes": "叶安要求先冻结旧口径执行，再形成调整方案。此任务只落实冻结与待复核方案；新标签/折分协议尚未获 ADR 接受，真实新版模型未运行。0923 答疑原件在本机受控位置，未入公开仓库。"
+  "handoff": "docs/worklog/2026-09-23-official-qa-foundation-alignment.md",
+  "notes": "叶安先要求冻结旧效果，随后明确将后续调整收窄为全项目公共口径，不规定两条算法线如何优化。ADR-0006 接受官方已明确规则；未遂计数单位、精确右端和新标签／折分产物仍待确认。真实新版模型未运行；答疑原件不入公开仓库。"
 }
