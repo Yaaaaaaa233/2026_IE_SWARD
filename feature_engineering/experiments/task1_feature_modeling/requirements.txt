@@ -1,0 +1,8 @@
+# Task-scoped environment for FEAT-009 candidate runs and its acceptance figures.
+# Version set matches the audited local EBM stack; LightGBM remains in the registered pool.
+interpret==0.7.8
+lightgbm==4.7.0
+matplotlib==3.11.2
+numpy==2.4.6
+pandas==3.0.6
+scikit-learn==1.9.1

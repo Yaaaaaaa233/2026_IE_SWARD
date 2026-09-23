@@ -1,0 +1,4 @@
+channels:
+  - conda-forge
+dependencies:
+  - llvm-openmp=23.1.1=hdb3d66b_0

@@ -20,4 +20,19 @@ python feature_engineering/experiments/task1_feature_modeling/audit.py --config 
 
 ### 当前边界
 
-S0 只审计输入与数据拟合范围，不运行候选模型或计算 FEAT-009 主效果判定。每次输出的本地 `acceptance.md` 会单列机器检查、实验效果、证据状态和环境状态。进入 S1 还须满足 [方案](../../../docs/plans/feat-009-feature-modeling-proposal.md) 中的放行条件。
+S0 只审计输入与数据拟合范围，不运行候选模型或计算 FEAT-009 主效果判定。每次输出的本地 `acceptance.md` 会单列机器检查、实验效果、证据状态和环境状态。进入 S1 还须满足[方案](../../../docs/plans/feat-009-feature-modeling-proposal.md)中的放行条件。
+
+## S1 隔离环境
+
+四个 EBM／LightGBM 候选和图表生成依赖按[任务专用 requirements](requirements.txt)固定，避免改动项目共享测试环境。版本与当前本机已核对的 EBM 技术栈一致，LightGBM 固定为 `4.7.0`；真实运行 manifest 仍须登记实际 Python、完整包版本、硬件、种子与配置。
+
+在 Git checkout 外创建独立环境，然后执行：
+
+```sh
+uv venv --python 3.11 <env>
+uv pip install --python <env>/bin/python -r feature_engineering/experiments/task1_feature_modeling/requirements.txt
+```
+
+macOS 上的 PyPI LightGBM wheel 还需要 OpenMP。此 Apple Silicon 主机使用 conda-forge 的 `llvm-openmp=23.1.1`，运行库定义见[平台依赖文件](environment-macos-arm64.yml)；调用任务环境中的 Python 时，将该运行库的 `lib` 目录加入 `DYLD_LIBRARY_PATH`。其他 macOS 主机可按 [LightGBM 安装指南](https://lightgbm.readthedocs.io/en/stable/Installation-Guide.html)使用 Homebrew 的 `libomp`。
+
+当前环境已用编造数据对四个候选完成冒烟拟合，只验证依赖加载和参数接口，不是 S1 实验。FEAT-008、MODEL-005、EVAL-002 的具名复核完成，并通过 S1 代码与无泄漏测试前，不运行真实候选。

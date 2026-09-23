@@ -17,10 +17,11 @@ S1 固定外层车辆五折，在每个外层训练集内以三折分层验证�
 - [FEAT-009 执行方案](../plans/feat-009-feature-modeling-proposal.md) 已展开 S1 每一步的操作、机器验收、图表内容、人工通过标准与放行条件。
 - [合成验收图](../plans/figures/feat-009-s1-acceptance-preview.png) 只展示布局与读图方式；所有数值均为编造示例，不是比赛数据或模型结果。
 - [图样生成脚本](../plans/examples/generate_feat009_s1_acceptance_preview.py) 可重新生成该合成图。治理策略按用户已确认的图样，为该文件登记精确哈希例外；仓库中不允许其他未登记图片。
+- FEAT-009 隔离依赖固定在 [requirements.txt](../../feature_engineering/experiments/task1_feature_modeling/requirements.txt)；macOS arm64 的 OpenMP 运行库单独记录在 [environment-macos-arm64.yml](../../feature_engineering/experiments/task1_feature_modeling/environment-macos-arm64.yml)，使用 `llvm-openmp=23.1.1`。
 - 本 worklog 不记录真实数据统计、数据指纹、逐车值或本机数据路径；此前只读结构预检与环境细节仍留在受控本地目录。
 
 ## 验证与当前状态
 
-本次工作仅修改评估文档和合成样图，没有训练候选、拟合特征变换或计算真实效果。候选运行仍为 `not_run`。入库前检查结果：治理检查 `working-tree` 通过；通用单测 28 项通过；FEAT-009 审计合成测试 2 项通过；任务 JSON 解析和 `git diff --check` 通过。该生成脚本在本地成功重建样图。
+本次工作仅修改评估文档、合成样图和任务环境记录，没有用比赛数据训练候选、拟合特征变换或计算真实效果。候选运行仍为 `not_run`。隔离环境用 CPython 3.11.6 安装清单中固定的 Python 包；macOS arm64 的 OpenMP 运行库单独由 conda-forge 提供。四个候选均通过编造数据上的环境冒烟拟合；LightGBM 原生参数名与 sklearn wrapper 参数别名在合成输入上的预测一致。该检查只验证依赖加载和 API 行为，不是 S1 实验。入库前检查结果：治理检查 `working-tree` 通过；通用单测 28 项通过；FEAT-009 审计合成测试 2 项通过；任务 JSON 解析和 `git diff --check` 通过。图样生成脚本在本地成功重建样图。
 
-S1 仍未放行：FEAT-008、MODEL-005、EVAL-002 的具名复核记录尚缺，且本地隔离环境尚未具备已登记的 LightGBM 候选依赖。满足依赖复核、候选环境与 S1 代码／负向测试要求后，再开始实际候选运行。
+S1 仍未放行：FEAT-008、MODEL-005、EVAL-002 的具名复核记录尚缺。LightGBM 及 OpenMP 环境现已就绪；满足前置复核、S1 代码／负向测试要求后，再开始实际候选运行。
