@@ -67,6 +67,10 @@
     ".ipynb"
   ],
   "existing_assets": {
+    "docs/plans/figures/feat-009-s1-acceptance-preview.png": {
+      "sha256": "c6efdb3256677b8196195ee6ebfce354ab74ab4474c7392b97e94766e8b221c2",
+      "reason": "Synthetic-only FEAT-009 S1 layout sample; all values are fabricated and the owner confirmed this chart and its reading standards on 2026-09-23. Reproducible source: docs/plans/examples/generate_feat009_s1_acceptance_preview.py."
+    },
     "赛题资料/2026清华Agent大赛《驾驶安全》数据集说明.pdf": {
       "sha256": "25053ef9d263f1cd56aa9bae61eedb05ad92c8def8baff29fa682f0c07d047fc",
       "reason": "Pre-existing official document; no new publication authorization inferred."
