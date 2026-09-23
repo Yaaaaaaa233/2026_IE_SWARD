@@ -1,6 +1,6 @@
 # FEAT-009 叶安线：已有特征的建模优化方案
 
-状态：**旧协议执行已冻结／FEAT-009 blocked**。版本 v1.0，2026-09-23；叶安曾确认本方案及旧协议 S0，但 0923 官方答疑改变标签并明确画像统计期后，本文件只保留为旧协议历史设计，不能放行 S1。新版重置顺序见[0923 调整方案](2026-09-23-official-qa-adjustment-plan.md)；新 ADR、数据与评估证据未齐前不运行真实候选。
+状态：**旧协议执行已冻结／FEAT-009 blocked**。版本 v1.0，2026-09-23；叶安曾确认本方案及旧协议 S0，但 0923 官方答疑改变标签并明确画像统计期后，本文件只保留为旧协议历史设计，不能放行 S1。新版叶安线执行基线见[适配方案 v1.0](feat-009-protocol-v2-adaptation-plan.md)及 [ADR-0008](../decisions/ADR-0008-feat-009-protocol-v2-route.md)；方案已确认，数据与评估证据未齐前仍不运行真实候选。
 
 任务：[FEAT-009](../tasks/FEAT-009.json)。上位方案：[任务一双线优化方案](task1-optimization-plan-v1.md)阶段 1；评估与验收遵循 [ADR-0004](../decisions/ADR-0004-baseline-freeze.md)、[ADR-0005](../decisions/ADR-0005-task1-dual-track-and-task2-split.md)、[任务一验收规程](task1-optimization-acceptance-v1.md)及 [roadmap 编写要求](roadmap_requirements.md)。本文件把“r5 后不再做特征提取迭代”和“继续优化现有特征的学习算法”分开：不登记 r6，不改变冻结评估器、标签、折分或上游特征语义。
 

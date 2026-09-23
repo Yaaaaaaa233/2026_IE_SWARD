@@ -10,7 +10,8 @@
 - [特征工程当前工作、接口状态与路线图 v0.1](feature-engineering-roadmap.md)（任务 [FEAT-001](../tasks/FEAT-001.json)，待复核）：特征线本地实现盘点、A/B/C 三段接口状态、问题边界及 F-R0～F-R4 执行路线；不含真实数据派生统计和模型产物。
 - [任务二执行路线图 v0.2](task2-roadmap.md)：行为大类→扣分规则→可运营/动态微调→白盒黑盒融合→MOE（不冻结）；0923 已校正夜间命名及无固定 CSV 模板的交付口径，执行=任务二三组（ADR-0005）
 - [模型路线提案 v0.1](model-route-proposal.md)（任务 [MODEL-002](../tasks/MODEL-002.json)，评审中）：方案 A 八种组合方案库 C1–C8 与方案 B 分群集成设计、E-B 实验矩阵与择优规则、待决策问题清单。不含本地实验数值。
-- [FEAT-009 叶安线已有特征建模优化方案](feat-009-feature-modeling-proposal.md)（`blocked`，旧协议设计存档）：真实 S1 未运行；后续由该线按公共规则处理。
+- [FEAT-009 新口径下叶安线特征与模型适配执行方案](feat-009-protocol-v2-adaptation-plan.md)（v1.0，[ADR-0008](../decisions/ADR-0008-feat-009-protocol-v2-route.md) 仅接受方案）：Y0–Y4 的操作、机器与可视化验收及放行门已定；FEAT-009 仍 `blocked`，真实新版模型未运行。
+- [FEAT-009 叶安线已有特征建模优化方案](feat-009-feature-modeling-proposal.md)（旧协议设计存档）：旧 S0 复核只保留历史身份，不能放行新版 S1。
 - [评价指标与基线对照方案 v1.2](评价指标与基线对照方案（MOE与MOP）.md)：公共规则按 0923 答疑及团队记录计次裁定校正；v1.0 旧基线身份及效果仅作历史登记，新版数据绑定尚未发布。
 
 各线细化 roadmap（DATACON 线等）陆续按上述要求补齐后在此登记。历史路线草案（v1，M0–M4 工程视角）已并入路线图 v2 与本入口，原文见 Git 历史。

@@ -12,3 +12,4 @@
 - [2026-09-23 官方答疑公共口径对齐与范围收窄](2026-09-23-official-qa-foundation-alignment.md)
 - [2026-09-23 未遂计数单位裁定](2026-09-23-near-miss-count-unit.md)
 - [2026-09-23 任务一代理标签 v2 与车辆折分生成](2026-09-23-task1-proxy-label-v2.md)
+- [2026-09-24 FEAT-009 新协议特征与模型适配方案入库](2026-09-24-feat-009-protocol-v2-plan.md)

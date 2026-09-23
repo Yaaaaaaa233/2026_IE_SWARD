@@ -3,14 +3,19 @@
   "title": "叶安线已有特征建模优化方案：折内模型选择与互补性诊断（非 r6）",
   "status": "blocked",
   "owner": "叶安",
-  "actor": "Codex（执行 FEAT-009-S0 输入审计与工具实现）",
-  "reviewer": "叶安（S0 审计结论与严格嵌套方向）",
-  "reviewed_at": "2026-09-23",
+  "actor": "Codex（新版适配方案入库；阶段执行待认领）",
+  "reviewer": "叶安（仅新版适配方案入库确认）",
+  "reviewed_at": "2026-09-24",
   "branch": "main（ADR-0003 无 PR 直接提交模式）",
-  "base_commit": "34025373e2c522de204a93fd51eedb6bbb164a49",
+  "base_commit": "edbd29a",
   "write_scope": [
     "feature_engineering/experiments/task1_feature_modeling/",
     "docs/plans/feat-009-feature-modeling-proposal.md",
+    "docs/plans/feat-009-protocol-v2-adaptation-plan.md",
+    "docs/plans/README.md",
+    "docs/decisions/ADR-0008-feat-009-protocol-v2-route.md",
+    "docs/decisions/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
     "docs/plans/examples/generate_feat009_s1_acceptance_preview.py",
     "docs/plans/figures/feat-009-s1-acceptance-preview.png",
     "tools/governance_policy.json",
@@ -18,31 +23,37 @@
     "docs/worklog/2026-09-23-feat-009-plan-draft.md",
     "docs/worklog/2026-09-23-feat-009-s0-audit.md",
     "docs/worklog/2026-09-23-feat-009-s1-acceptance-freeze.md",
+    "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md",
+    "docs/worklog/README.md",
     "outputs/feat-009/",
     "outputs/acceptance/FEAT-009.md"
   ],
   "dependencies": [
     "FEAT-008",
     "MODEL-005",
-    "EVAL-002"
+    "EVAL-002",
+    "EVAL-003"
   ],
   "acceptance": [
-    "叶安已确认本方案入库；S0-S3 各步按已写明的具体操作、机器验收、可视化验收和放行条件执行，真实实验尚未开始",
-    "S1 的严格嵌套执行要求、机器负向测试、一次主判定规则、图表读法与人工验收标准已确认并入库；示例图为可复现的合成样例，不含真实数据或真实实验结论",
-    "S0 对 F1/F3/V5/原 RF 同车标签折号与输入指纹进行只读核对；泄漏和上游全量筛列边界有明确记录",
-    "S1 冻结外层五折、折内三折选型，主候选仅一次对 V5 配对裁决；辅助指标容差按 ADR-0004，不以多种子或诊断替代主判定",
-    "四个预登记候选的依赖以任务专用版本清单安装，macOS OpenMP 运行库单独登记；缺依赖时不可删候选或声称完成 S1",
-    "S2 只做特征族与预测互补性诊断；新的组合或融合候选须另任务预登记",
-    "相关合成负向测试、治理检查、单测、受控 L2/L3 图表与真实复核记录齐备；真实数据数字与逐车预测不入公开 Git"
+    "叶安已确认新协议适配方案 v1.0 入库；本次只接受 Y0–Y4 路线及机器／可视化验收规则，真实实验尚未开始",
+    "Y0 建立 F0/F1/F3 逐列来源、统计截止及派生链，未来画像和未知来源禁止直接放行；Y1 重建时间可见的 F0/F1/F3 新标签同折输入",
+    "公共代理标签／折分人工复核、EVAL-001 升版、新版 RF 锚点及主对照同口径证据齐备后，才可解除 S1 阻塞",
+    "Y2 在本线新版主效果前冻结候选池、主对照与门槛；Y3 外层五折、内层三折严格嵌套，一次完整 OOF 配对判定，不以多种子或诊断替代主判定",
+    "四个原候选是待复核提案，缺依赖或类数／成本不适合时须在主运行前修订预登记，不得事后删选后称同一实验通过",
+    "Y4 只作特征族与预测互补性诊断及 L1/L2/L3 人工交接；新的组合、融合或 61 天训练方案另任务预登记",
+    "合成负向测试、治理检查、单测、受控图表与真实复核记录齐备；真实数据数字、指纹与逐车预测不入公开 Git"
   ],
   "evidence": [
     "docs/plans/feat-009-feature-modeling-proposal.md",
+    "docs/plans/feat-009-protocol-v2-adaptation-plan.md",
+    "docs/decisions/ADR-0008-feat-009-protocol-v2-route.md",
     "feature_engineering/experiments/task1_feature_modeling/README.md",
     "docs/worklog/2026-09-23-feat-009-s0-audit.md",
     "docs/worklog/2026-09-23-feat-009-s1-acceptance-freeze.md",
     "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
-    "docs/worklog/2026-09-23-official-qa-freeze.md"
+    "docs/worklog/2026-09-23-official-qa-freeze.md",
+    "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md"
   ],
-  "handoff": "docs/worklog/2026-09-23-official-qa-freeze.md",
-  "notes": "S0 输入对账、指纹核验和合成负向测试已由 Codex 执行，叶安于 2026-09-23 确认当时的审计结论与严格嵌套 S1 方向。V5 已基于旧版清单输入受控复跑；该证据只证明旧版产物与实现一致。原 V5 manifest 未登记 OOF 输出校验和的限制保留。S1 前置样张和候选环境的合成冒烟记录保留，但真实候选未运行。FEAT-008、MODEL-005、EVAL-002 的复核状态以各自已同步任务文件为准；2026-09-23 官方答疑改变正类定义并明确画像统计期后，旧标签、旧折分和旧 S0 不再放行 S1。叶安要求先冻结并形成调整方案，本任务置 blocked；解除前需新 ADR、版本化标签/折分、画像可见性审计、新版 S0 与新基线证据。真实产物继续留在受控 outputs/feat-009。"
+  "handoff": "docs/worklog/2026-09-24-feat-009-protocol-v2-plan.md",
+  "notes": "旧协议 S0 输入对账与合成负向测试曾由 Codex 完成，叶安于 2026-09-23 复核当时的审计结论；旧 V5 复跑仅证明旧产物与旧实现相符。0923 答疑后这些证据不放行新版 S1。叶安于 2026-09-24 指示完整新版方案入库，ADR-0008 仅接受 Y0–Y4 路线与验收规则；公共新版代理标签／折分仍待数据评估复核，F0/F1/F3 画像可见性、新版 RF／V5 与 EVAL-001 升版均待完成，任务继续 blocked。当前未提交的建模草稿和其他任务复核改动未纳入本次方案提交。阶段实际执行前补写具体源码 write_scope 并按前置样张门进行人工核查。真实产物只留受控 outputs/feat-009。"
 }

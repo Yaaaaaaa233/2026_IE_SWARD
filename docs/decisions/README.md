@@ -7,6 +7,7 @@
 - [ADR-0005：任务一执行重组——双人并行竞优，另外三人转任务二](ADR-0005-task1-dual-track-and-task2-split.md)（Accepted，2026-09-22）
 - [ADR-0006：按 0923 官方答疑校正公共赛题口径](ADR-0006-official-qa-foundation.md)（Accepted，2026-09-23；旧效果结论冻结）
 - [ADR-0007：任务一未遂“次数”按有效事件记录逐条计数](ADR-0007-near-miss-count-unit.md)（Accepted，2026-09-23；团队内部计数约定）
+- [ADR-0008：叶安线按新版赛题口径重启特征与模型适配路线](ADR-0008-feat-009-protocol-v2-route.md)（Accepted，2026-09-24；仅方案，执行仍冻结）
 
 重大决策按编号新增：背景、提议、备选、影响、状态、真实决策人、日期、证据和迁移方式。状态为 `Proposed / Accepted / Superseded / Rejected`。
 
