@@ -123,23 +123,26 @@ def main():
         print(f"  fold{k} done", flush=True)
 
     s_out = np.mean([logit(outer[nm]) for nm in MEMBERS], axis=0)
-    inner_avg = {nm: np.nanmean(logit(np.where(np.isnan(inner[nm]), np.nan, inner[nm])), axis=0)
-                 for nm in MEMBERS}
-    s_in = np.mean([inner_avg[nm] for nm in MEMBERS], axis=0)
+    # 校准材料：每外层折自己的 inner 矩阵（训练部分内折外，样本自身标签零接触——
+    # 不能跨折平均：其他折的 inner 模型见过本样本，会引入校准材料自影响）
+    inner_l = {nm: logit(np.nan_to_num(inner[nm], nan=0.5)) for nm in MEMBERS}
 
     # ---- 分群校准（n0 折内按 Brier 选） ----
     p = np.zeros(n)
     for k in range(5):
         tr, va = fold != k, fold == k
+        s_fit = np.mean([inner_l[nm][k][tr] for nm in MEMBERS], axis=0)
         rng = np.random.default_rng(42 + k)
         half = rng.random(tr.sum()) < 0.5
         tr_idx = np.where(tr)[0]
         f_m = np.zeros(n, bool); f_m[tr_idx[~half]] = True
         e_m = np.zeros(n, bool); e_m[tr_idx[half]] = True
+        s_fit_f = np.mean([inner_l[nm][k][f_m] for nm in MEMBERS], axis=0)
+        s_fit_e = np.mean([inner_l[nm][k][e_m] for nm in MEMBERS], axis=0)
         n0b = min(N0_GRID, key=lambda n0: brier(
-            y[e_m], 1 / (1 + np.exp(-cal_group(s_in[f_m], y[f_m], grp[f_m],
-                                               s_in[e_m], grp[e_m], n0)))))
-        z = cal_group(s_in[tr], y[tr], grp[tr], s_out[va], grp[va], n0b)
+            y[e_m], 1 / (1 + np.exp(-cal_group(s_fit_f, y[f_m], grp[f_m],
+                                               s_fit_e, grp[e_m], n0)))))
+        z = cal_group(s_fit, y[tr], grp[tr], s_out[va], grp[va], n0b)
         p[va] = 1 / (1 + np.exp(-z))
         print(f"  fold{k} n0={n0b}", flush=True)
 
