@@ -1,0 +1,33 @@
+{
+  "id": "MODEL-008",
+  "title": "任务一冲刺：多方案组特征工程与算法选择推倒重来（协议 v2，目标 0.9，30 版熔断）",
+  "status": "review",
+  "owner": "王健祺",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/MODEL-008-sprint",
+  "base_commit": "db937b8",
+  "write_scope": [
+    "docs/tasks/MODEL-008.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-25-model-008-sprint.md"
+  ],
+  "dependencies": [
+    "MODEL-007",
+    "EVAL-003",
+    "FEAT-009"
+  ],
+  "acceptance": [
+    "组长工作流七步执行：学习叶安线→三分类经验清单→五方案组路线图（对齐 roadmap_overall 结构）→E 盘原始数据全新特征工程→并行实现与归因→多轮迭代→四件套交付",
+    "E 盘现有文件零删除零修改，新产物只写入新建目录；真实数字与特征产物留受控目录",
+    "一个特征工程+算法=一个版本（gXvY），写完即保存验证；失败版本保留；结果诚实不虚假填报",
+    "累计 30 版无『过叶安线对照锚配对区间下界>0』结果时熔断停止并报告",
+    "旧版本在 git 与受控目录保持历史身份不改动；治理检查与单测通过后推送"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-25-model-008-sprint.md"
+  ],
+  "handoff": "docs/worklog/2026-09-25-model-008-sprint.md",
+  "notes": "受控工作目录：任务1工作冲刺/（经验清单、路线图、五组版本档案、台账、总报告——均含真实数字，不入公开仓库）。冲刺内对照锚：本线 RF@F0v2 与叶安线 FEAT-009 公布口径的引用值；主线采纳仍走 ADR-0004。"
+}
