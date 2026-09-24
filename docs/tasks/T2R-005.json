@@ -1,0 +1,36 @@
+{
+  "id": "T2R-005",
+  "title": "任务二 R3 融合实验无数据部分：D18 对照机械、D19 α网格协议、D20 话术与分歧清单",
+  "status": "review",
+  "owner": "娄澜",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2R-005-r3-fusion-datafree",
+  "base_commit": "eca84d6fe4dbfbd0d2a3b642ed4a1de0b7f0f8f74",
+  "write_scope": [
+    "task2/fusion/",
+    "tests/test_task2_fusion.py",
+    "docs/tasks/T2R-005.json",
+    "docs/worklog/2026-09-25-t2-r3-fusion-datafree.md"
+  ],
+  "dependencies": [
+    "T2R-002",
+    "T2R-004"
+  ],
+  "acceptance": [
+    "融合公式 S=alpha_q0·Q0+(1−alpha_q0)·Q1 带值域与车辆集合一致性强制；纯规则臂不携带任务一概率列",
+    "α 网格 {1.0,0.7,0.5,0.3,0.0} 每臂经同一 T2-R4 合同与 manifest 打分；概率列挂接与声明一致（错配被评价硬检查拒绝，有负向测试）",
+    "机械选择器只读五分位门与 ROC AUC（任务一概率不判优）；平手取更大 alpha_q0（解释性优先）",
+    "D18 正反论证、D19 路线图 α 记号歧义澄清、D20 话术格式与红线全部落笔于章程",
+    "三元排名分歧清单可输出 Top-K（人工复核弹药）；合成验收通过",
+    "治理检查与仓库全量单测通过"
+  ],
+  "evidence": [
+    "task2/fusion/fusion-charter-v1.md",
+    "task2/fusion/fusion.py",
+    "tests/test_task2_fusion.py"
+  ],
+  "handoff": "docs/worklog/2026-09-25-t2-r3-fusion-datafree.md",
+  "notes": "R3 无数据封闭工作包：只读消费 T2-R4 评价合同；Q0 来自 T2R-004 数据阶段产物、Q1 来自任务一当前采纳版本 OOF 概率（版本指纹按 ADR-0005 登记）。纯模型臂（alpha_q0=0）无论数字均为参照而非候选公开分。D18 裁决权=实验数据+组长终审。"
+}
