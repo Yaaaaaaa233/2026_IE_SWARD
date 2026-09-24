@@ -1,0 +1,39 @@
+{
+  "id": "EVAL-003",
+  "title": "按 ADR-0007 生成新版任务一代理标签与车辆折分",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "Codex（按叶安指令实现公共标签与评估输入）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "231dfa0",
+  "write_scope": [
+    "tools/build_task1_proxy_labels.py",
+    "tools/README.md",
+    "tests/test_task1_proxy_labels.py",
+    "docs/tasks/EVAL-003.json",
+    "docs/tasks/README.md",
+    "docs/evidence/task1-proxy-label-v2.md",
+    "docs/evidence/README.md",
+    "docs/interfaces/data_contract.md",
+    "docs/plans/2026-09-23-official-qa-adjustment-plan.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/modules/README.md",
+    "docs/worklog/2026-09-23-task1-proxy-label-v2.md",
+    "docs/worklog/README.md"
+  ],
+  "dependencies": [],
+  "acceptance": [
+    "有效 11804 记录逐条计次，同日不同记录计两次，精确重复行只算一次；11803 至少一次也为正类",
+    "对既有代理 40 天标签窗另存新版 labels、车辆分层五折与受控 manifest，不覆盖旧标签或折分",
+    "500 车键对齐，新正类是旧正类子集，五折均含双类；合成边界测试、治理检查和仓库单测通过",
+    "公开仓库不含真实标签、正类数、逐车差异和数据指纹；未运行模型或宣称新 AUC"
+  ],
+  "evidence": [
+    "docs/evidence/task1-proxy-label-v2.md",
+    "docs/worklog/2026-09-23-task1-proxy-label-v2.md"
+  ],
+  "handoff": "docs/worklog/2026-09-23-task1-proxy-label-v2.md",
+  "notes": "只落实 ADR-0007 的公共代理标签与评估折分。受控真实产物在 Git 忽略目录，数据／评估负责人复核和特征可见性审计仍待进行。叶安线与王健祺线的模型调整不在本任务范围。"
+}

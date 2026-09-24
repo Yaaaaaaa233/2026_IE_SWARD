@@ -1,4 +1,4 @@
 channels:
   - conda-forge
 dependencies:
-  - llvm-openmp=23.1.1=hdb3d66b_0
+  - llvm-openmp=19.1.6=hdb05f8b_0
