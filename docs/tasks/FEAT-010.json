@@ -1,0 +1,40 @@
+{
+  "id": "FEAT-010",
+  "title": "叶安线最终历史窗口适配与观测量依赖检验方案",
+  "status": "blocked",
+  "owner": "叶安",
+  "actor": "Codex（按叶安 2026-09-24 指令将方案入库；尚未执行真实数据或模型）",
+  "reviewer": "叶安（仅方案确认）",
+  "reviewed_at": "2026-09-24",
+  "branch": "main（ADR-0003 无 PR 直接提交模式）",
+  "base_commit": "5a299a6",
+  "write_scope": [
+    "docs/plans/feat-010-final-window-and-observation-audit-plan.md",
+    "docs/tasks/FEAT-010.json",
+    "docs/tasks/README.md",
+    "docs/decisions/ADR-0009-feat-010-final-window-and-observation-audit.md",
+    "docs/decisions/README.md",
+    "docs/plans/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/worklog/2026-09-24-feat-010-plan-acceptance.md",
+    "docs/worklog/README.md"
+  ],
+  "dependencies": [
+    "FEAT-009",
+    "EVAL-001",
+    "EVAL-003"
+  ],
+  "acceptance": [
+    "叶安仅确认 FEAT-010 v1.0 的 A0 新口径和字段来源复核、A1 最终 61 天无标签输入语义核查、B0 单项预登记及 B1 同折 OOF 对照的操作、机器验收、人工可视化验收和放行门；实际步骤仍未开始",
+    "20 天特征＋40 天代理标签与最终 61 天历史严格分开，不以 61 天输入计算现有代理 AUC 或宣称官方成绩",
+    "现有直接观测量列的去除是唯一新增候选；前轮 EBM-C 探索、新版 V5 未就绪与公共基线未正式冻结均正确标注",
+    "真实数据、指标、图表和指纹只存受控目录，公开方案不含真实数值；各步真实人工复核前不标记任务 accepted"
+  ],
+  "evidence": [
+    "docs/plans/feat-010-final-window-and-observation-audit-plan.md",
+    "docs/decisions/ADR-0009-feat-010-final-window-and-observation-audit.md",
+    "docs/worklog/2026-09-24-feat-010-plan-acceptance.md"
+  ],
+  "handoff": "docs/worklog/2026-09-24-feat-010-plan-acceptance.md",
+  "notes": "叶安已确认方案入库，未授权把方案确认等同 A0–B1 实验验收。正式开工前须补齐前置合成样张与实际复核记录，并更新 write_scope 为精确脚本、受控产物和交接文件；B 的真实效果判定还须公共标签／评估责任人的实际复核记录。王健祺线新版 V5 不作为本任务依赖。"
+}
