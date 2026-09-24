@@ -1,0 +1,38 @@
+{
+  "id": "T2R-003",
+  "title": "任务二 T2-R2：动态运营修正骨架与 R1 对接合同",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-R2-operational-dynamics",
+  "base_commit": "c95ec047123fa2c2bc149cf3e38ba7a514eed5c8",
+  "write_scope": [
+    "task2/operations/",
+    "tests/test_task2_operational_dynamics.py",
+    "docs/tasks/T2R-003.json",
+    "docs/worklog/2026-09-24-t2-r2-operational-scaffold.md"
+  ],
+  "dependencies": [
+    "T2R-001",
+    "T2R-002"
+  ],
+  "acceptance": [
+    "以独立接口消费 R1 将来输出的基础扣分，不修改或复制 R1 的分箱、权重与聚合逻辑",
+    "D12-D17 均有可复算实现：时段钩子、EWMA、持续性、暴露安全恢复、停驶冻结、低暴露收缩和核查挂起",
+    "默认时段系数保持中性，未验证的系数明确标为候选，不作为已冻结业务规则",
+    "合成测试证明无暴露不自动回满分、低暴露不产生虚假高分、待核事件到期前不扣分且到期后可转扣",
+    "不使用真实数据、不写入真实指标，治理检查与仓库全量单测通过"
+  ],
+  "evidence": [
+    "task2/operations/operational-dynamics-charter-v1.md",
+    "task2/operations/r1-adapter-contract.md",
+    "task2/operations/operational_policy_v1.json",
+    "task2/operations/dynamic_score.py",
+    "task2/operations/input.example.json",
+    "tests/test_task2_operational_dynamics.py"
+  ],
+  "handoff": "docs/worklog/2026-09-24-t2-r2-operational-scaffold.md",
+  "notes": "已完成不依赖 R1 内部细节的动态层和对接合同。默认时段与持续性系数保持中性；真实联调、系数学习与 MOE 判定等待娄澜的 R1 产物。"
+}

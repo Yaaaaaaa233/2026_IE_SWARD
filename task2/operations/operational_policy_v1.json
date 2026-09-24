@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "T2-R2-scaffold-v1",
+  "status": "draft_waiting_for_R1_integration_and_foldwise_tuning",
+  "values_are_placeholders": true,
+  "upstream_contract": {
+    "required_event_fields": [
+      "event_id",
+      "event_time",
+      "base_deduction",
+      "review_status"
+    ],
+    "base_deduction_owner": "T2-R1",
+    "rule": "R2 only adjusts an R1-provided base deduction and must not recreate bins, weights or group aggregation."
+  },
+  "dynamics": {
+    "time_band_definition": {
+      "night": "21:00-06:00",
+      "morning": "06:00-09:00",
+      "day": "09:00-18:00",
+      "dusk": "18:00-21:00"
+    },
+    "time_coefficients": {
+      "night": 1.0,
+      "morning": 1.0,
+      "day": 1.0,
+      "dusk": 1.0
+    },
+    "time_coefficient_status": "neutral_until_learned_in_training_folds",
+    "half_life_exposure_days": 7,
+    "half_life_candidates": [
+      5,
+      7,
+      14
+    ],
+    "persistence_window_days": 14,
+    "persistence_step": 0.0,
+    "persistence_multiplier_cap": 1.0,
+    "persistence_status": "neutral_until_learned_in_training_folds",
+    "low_exposure_prior_score": 50.0,
+    "prior_strength_exposure": 5.0,
+    "minimum_observed_exposure": 5.0,
+    "recovery_cap_per_exposure_day": 5.0,
+    "pending_review_days": 3
+  },
+  "decisions": [
+    {
+      "id": "D12",
+      "topic": "时段系数",
+      "status": "interface_ready_value_pending",
+      "rule": "官方时段边界已实现；默认系数全部为1，真实系数只在训练折学习。"
+    },
+    {
+      "id": "D13",
+      "topic": "EWMA半衰期",
+      "status": "candidate_set_ready",
+      "rule": "候选5、7、14个有效暴露日；停驶日不造成自然恢复。"
+    },
+    {
+      "id": "D14",
+      "topic": "持续性加重",
+      "status": "interface_ready_value_pending",
+      "rule": "14日内风险日数量驱动可配置倍率；默认保持1。"
+    },
+    {
+      "id": "D15",
+      "topic": "恢复机制",
+      "status": "implemented_for_review",
+      "rule": "只有存在有效暴露且当日无风险时允许有限回分；风险日不得因平滑反而加分。"
+    },
+    {
+      "id": "D16",
+      "topic": "低暴露与停驶",
+      "status": "implemented_for_review",
+      "rule": "低暴露向50分先验收缩并标记；零暴露冻结上一有效分。"
+    },
+    {
+      "id": "D17",
+      "topic": "核查豁免",
+      "status": "implemented_for_review",
+      "rule": "待核事件在3日内挂起不扣，达到期限仍未核则转有效；确认豁免永不扣。"
+    }
+  ]
+}

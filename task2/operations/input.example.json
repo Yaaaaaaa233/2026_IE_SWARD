@@ -1,0 +1,39 @@
+{
+  "as_of_date": "2026-09-10",
+  "vehicles": [
+    {
+      "gpsno": "synthetic-vehicle-001",
+      "initial_score": 72.0,
+      "initial_score_is_previous_valid": true,
+      "upstream_score_version": "synthetic-r1-example",
+      "days": [
+        {
+          "date": "2026-09-08",
+          "exposure": 8.0
+        },
+        {
+          "date": "2026-09-09",
+          "exposure": 0.0
+        },
+        {
+          "date": "2026-09-10",
+          "exposure": 6.0
+        }
+      ],
+      "events": [
+        {
+          "event_id": "synthetic-event-001",
+          "event_time": "2026-09-08T22:15:00",
+          "base_deduction": 8.0,
+          "review_status": "valid"
+        },
+        {
+          "event_id": "synthetic-event-002",
+          "event_time": "2026-09-10T07:30:00",
+          "base_deduction": 4.0,
+          "review_status": "pending"
+        }
+      ]
+    }
+  ]
+}
