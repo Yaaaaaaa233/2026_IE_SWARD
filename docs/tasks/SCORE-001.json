@@ -1,27 +1,28 @@
 {
   "id": "SCORE-001",
-  "title": "任务二总体执行路线图 v0.2（行为大类→扣分规则→可运营/动态微调→白盒黑盒融合→MOE与基线）",
+  "title": "任务二总体执行路线图 v0.3（分派落位：R0周航正→R1娄澜∥R4周航正→R2周航正∥R3娄澜→R5；25决策点嵌入）",
   "status": "review",
   "owner": "王健祺",
   "actor": "ZCode agent",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "work/SCORE-001-task2-roadmap",
-  "base_commit": "7b473d9",
+  "base_commit": "ba929d9",
   "write_scope": [
-    "docs/plans/task2-roadmap.md",
     "docs/plans/README.md",
-    "docs/tasks/SCORE-001.json",
+    "docs/plans/task2-roadmap.md",
     "docs/tasks/README.md",
-    "docs/worklog/2026-09-23-task2-roadmap.md"
+    "docs/tasks/SCORE-001.json",
+    "docs/worklog/2026-09-23-task2-roadmap.md",
+    "docs/worklog/2026-09-24-task2-roadmap-v03.md"
   ],
   "dependencies": [
     "MODEL-005"
   ],
   "acceptance": [
-    "路线图与 0922 会议口径一致：大类→扣分→可运营/动态微调→MOE（独立任务）",
-    "组长批示落实：待拍板 1–3 项保留为执行期决策点；Q1 持续跟进任务一最新版本；MOE 不冻结",
-    "对齐 ADR-0005 写入域（task2/ 与 docs/plans/task2-*）与 ADR-0004 判据引用",
+    "路线图与组长分派一致：R0 周航正先行 → R1 娄澜 ∥ R4 周航正 → R2 周航正 ∥ R3 娄澜 → R5 全员",
+    "25 个决策点（D1–D25）逐一带备选/证据/建议嵌入对应环节",
+    "三份调研择优融合定位明确；答疑会口径对齐；硬依赖显式标注",
     "不含真实数据统计，可入公开仓库；治理检查与单测通过"
   ],
   "evidence": [
@@ -29,5 +30,5 @@
     "docs/worklog/2026-09-23-task2-roadmap.md"
   ],
   "handoff": "docs/worklog/2026-09-23-task2-roadmap.md",
-  "notes": "任务前缀 SCORE 为任务二评分线新起编号（ADR-0005 后任务二三人组沿用或另定，待确认）。执行期决策点 3 项见路线图 §7；Q1 消费任务一版本按 manifest 指纹登记。｜治理依据：ADR-0004（基线冻结与判据）、ADR-0005（重组与写入域）。"
+  "notes": "v0.3 更新：组长分派落位（周航正 R0→R4→R2，娄澜 R1→R3）；三份调研（task2/ 本地）定位为择优融合输入（①目录层/②实现骨架含R1引擎/③框架与运营机制）；25 个决策点 D1–D25 嵌入各环节；0923 答疑会对齐（自由形式报告/线上初评只看任务一AUC/官方夜间21–6点）；硬依赖=叶安标签口径ADR（卡R1数字与R4主标签）。v0.2 备份于本地。MOE 不冻结（组长批示）不变。"
 }
