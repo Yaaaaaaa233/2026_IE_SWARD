@@ -1,0 +1,38 @@
+{
+  "id": "T2R-004",
+  "title": "任务二 R1 扣分引擎无数据部分：D7 管道骨架、D8-D11 参数接口与三份输出契约",
+  "status": "review",
+  "owner": "娄澜",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2R-004-r1-deduction-datafree",
+  "base_commit": "ea70501ea4db1ef415be4604bff37105feb0fd12",
+  "write_scope": [
+    "task2/deduction/",
+    "tests/test_task2_deduction.py",
+    "docs/tasks/T2R-004.json",
+    "docs/worklog/2026-09-25-t2-r1-deduction-datafree.md"
+  ],
+  "dependencies": [
+    "T2R-001",
+    "T2R-002",
+    "T2R-003"
+  ],
+  "acceptance": [
+    "D7 管道七阶段（事件段/暴露归一/折内分档/EB 平滑/PAVA 单调/规则压缩/组内边际递减）全部为确定性纯函数并带合成测试",
+    "三个不变量由测试断言：单调性（减少危险证据分数不降）、精确复算（台账聚合=发布分）、值域 [0,100]",
+    "T2-R4 接口：评分行通过 evaluate_scores 合成端到端且 primary_gate_pass 为真",
+    "T2-R2 接口：适配器载荷通过 r1-adapter-contract 校验并可实际运行 dynamic_score，合同违反被拒绝",
+    "D8-D11 建议与备选落笔于章程；不含真实数据统计、真实权重或效果数字",
+    "治理检查与仓库全量单测通过"
+  ],
+  "evidence": [
+    "task2/deduction/deduction-charter-v1.md",
+    "task2/deduction/engine.py",
+    "task2/deduction/writers.py",
+    "tests/test_task2_deduction.py"
+  ],
+  "handoff": "docs/worklog/2026-09-25-t2-r1-deduction-datafree.md",
+  "notes": "R1 无数据封闭工作包：只读消费 T2-R0 分类契约与 T2-R4/T2-R2 公开合同；D9 首版分母为总里程代理、G6 预算置零（证据质量角色不参与行为扣分）；事件级扣分采用等分摊约定。数据阶段清单（②引擎对照、label_v2 重学、分母切换、EXP-002、受控报告数字）见章程第 6 节。另提请对齐 Q0 命名：建议 T2-R4 章程的等存在弱基线更名 B0。"
+}

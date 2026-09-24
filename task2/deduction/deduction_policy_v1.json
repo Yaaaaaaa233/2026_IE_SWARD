@@ -1,0 +1,12 @@
+{
+  "policy_version": "deduction-policy-v1",
+  "rule_version": "T2R-004-synthetic-v1",
+  "denominator_kind": "proxy_total_distance",
+  "n_bins": 4,
+  "group_agg_fraction": 0.25,
+  "min_exposure": 0.0,
+  "eb_prior_strength": 10.0,
+  "speed_neighbor_window_seconds": 60,
+  "group_budgets": {"G1": 10.0, "G2": 10.0, "G3": 10.0, "G4": 10.0, "G5": 10.0, "G6": 0.0},
+  "notes": "D10 默认 4 档与最大单项+0.25x其余均值；D9 首版分母为总里程代理；G6 设备配合当前不参与行为扣分（T2-R0 证据质量角色），预算置零；全部数值为占位候选，数据阶段在训练折内重学后升版。"
+}
