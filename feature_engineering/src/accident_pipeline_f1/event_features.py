@@ -44,7 +44,8 @@ def build_event_features(config: F1Config, events_path: Path | None = None) -> p
         (family, window): np.zeros(n, dtype=np.int64)
         for family in EVENT_FAMILIES for window in windows
     }
-    device_issue_20d = np.zeros(n, dtype=np.int64)
+    period_days = max(windows)
+    device_issue_count = np.zeros(n, dtype=np.int64)
     accident_count = np.zeros(n, dtype=np.int64)
     nearmiss_count = np.zeros(n, dtype=np.int64)
     last_accident_ns = np.full(n, np.iinfo(np.int64).min, dtype=np.int64)
@@ -77,11 +78,11 @@ def build_event_features(config: F1Config, events_path: Path | None = None) -> p
                 within = family_mask & (delta_ns <= np.timedelta64(window, "D").astype("timedelta64[ns]").astype(np.int64))
                 counts[(family, window)] += np.bincount(idx[within], minlength=n)
 
-        within_20 = delta_ns <= np.timedelta64(max(windows), "D").astype("timedelta64[ns]").astype(np.int64)
-        device = within_20 & np.isin(et, list(DEVICE_ISSUE_TYPES))
-        device_issue_20d += np.bincount(idx[device], minlength=n)
-        accident = within_20 & (et == ACCIDENT_TYPE)
-        nearmiss = within_20 & (et == NEARMISS_TYPE)
+        within_period = delta_ns <= np.timedelta64(period_days, "D").astype("timedelta64[ns]").astype(np.int64)
+        device = within_period & np.isin(et, list(DEVICE_ISSUE_TYPES))
+        device_issue_count += np.bincount(idx[device], minlength=n)
+        accident = within_period & (et == ACCIDENT_TYPE)
+        nearmiss = within_period & (et == NEARMISS_TYPE)
         accident_count += np.bincount(idx[accident], minlength=n)
         nearmiss_count += np.bincount(idx[nearmiss], minlength=n)
         if accident.any():
@@ -93,12 +94,12 @@ def build_event_features(config: F1Config, events_path: Path | None = None) -> p
     result = samples[["sample_id", "gpsno"]].copy()
     for (family, window), value in counts.items():
         result[f"f1_evt_{family}_count_{window}d"] = value
-    result["f1_evt_device_issue_count_20d"] = device_issue_20d
-    result["f1_prior_accident_count_20d"] = accident_count
-    result["f1_prior_nearmiss_count_20d"] = nearmiss_count
-    result["f1_prior_incident_count_20d"] = accident_count + nearmiss_count
-    result["f1_never_accident_20d"] = (accident_count == 0).astype(int)
-    result["f1_never_incident_20d"] = ((accident_count + nearmiss_count) == 0).astype(int)
+    result[f"f1_evt_device_issue_count_{period_days}d"] = device_issue_count
+    result[f"f1_prior_accident_count_{period_days}d"] = accident_count
+    result[f"f1_prior_nearmiss_count_{period_days}d"] = nearmiss_count
+    result[f"f1_prior_incident_count_{period_days}d"] = accident_count + nearmiss_count
+    result[f"f1_never_accident_{period_days}d"] = (accident_count == 0).astype(int)
+    result[f"f1_never_incident_{period_days}d"] = ((accident_count + nearmiss_count) == 0).astype(int)
 
     day_ns = float(np.timedelta64(1, "D").astype("timedelta64[ns]").astype(np.int64))
     has_accident = last_accident_ns != np.iinfo(np.int64).min

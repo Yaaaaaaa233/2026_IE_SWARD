@@ -34,6 +34,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from time import perf_counter
 
 import numpy as np
 import pandas as pd
@@ -181,7 +182,10 @@ def _scan_trajectory_shards(cfg: F3Config,
     """
     buffers: dict[str, dict[str, list]] = {}
     w0, w1 = cfg.as_of_s - cfg.lookback_s, cfg.as_of_s
-    for shard in sorted(cfg.trajectory_dir.glob("part-*")):
+    shards = sorted(cfg.trajectory_dir.glob("part-*"))
+    started = perf_counter()
+    print(f"[F3] trajectory scan: {len(shards)} shards", flush=True)
+    for shard_i, shard in enumerate(shards, start=1):
         if cfg.shard_has_header:
             reader = pd.read_csv(shard, sep=cfg.shard_delimiter, chunksize=cfg.chunk_rows,
                                  dtype={"gpsno": str})
@@ -205,11 +209,18 @@ def _scan_trajectory_shards(cfg: F3Config,
                 data[c] = (pd.to_numeric(chunk[c], errors="coerce").to_numpy(dtype=float)
                            if c in chunk.columns else np.full(n, np.nan))
             gps = chunk["gpsno"].astype(str).to_numpy()
-            for g in dict.fromkeys(gps.tolist()):
-                sel = gps == g
+            order = np.argsort(gps, kind="stable")
+            sorted_gps = gps[order]
+            boundaries = np.r_[0, np.flatnonzero(sorted_gps[1:] != sorted_gps[:-1]) + 1,
+                               sorted_gps.size]
+            for lo, hi in zip(boundaries[:-1], boundaries[1:]):
+                g = sorted_gps[lo]
+                indices = order[lo:hi]
                 buf = buffers.setdefault(g, {c: [] for c in data})
                 for c, arr in data.items():
-                    buf[c].append(arr[sel])
+                    buf[c].append(arr[indices])
+        print(f"[F3] trajectory shard {shard_i}/{len(shards)} complete; "
+              f"elapsed={perf_counter()-started:.1f}s", flush=True)
     return {g: {c: np.concatenate(v) for c, v in d.items()} for g, d in buffers.items()}
 
 
@@ -242,7 +253,9 @@ def _hist_p95_midpoint(diff: np.ndarray,
 
 
 def _scan_imu_speed_pairs(cfg: F3Config,
-                          vehicles: set[str]) -> dict[str, dict[str, float]]:
+                          vehicles: set[str],
+                          observation_row_counts: dict[str, int] | None = None
+                          ) -> dict[str, dict[str, float]]:
     """IMU 双速度源轻量扫描（可选输入，分块流式读分片，参照 IMU 大表设计）。
 
     IMU 分片为无表头 TSV，12 列固定列序（cfg.imu_column_order 按文件列序声明 canonical
@@ -263,7 +276,11 @@ def _scan_imu_speed_pairs(cfg: F3Config,
     usecols = [order.index(c) for c in IMU_REQUIRED_COLS]      # 对应位置列（文件列序）
     w0, w1 = cfg.as_of_s - cfg.lookback_s, cfg.as_of_s
     buffers: dict[str, list] = {}
-    for shard in sorted(cfg.imu_dir.glob("part-*")):
+    row_counts: dict[str, int] = {}
+    shards = sorted(cfg.imu_dir.glob("part-*"))
+    started = perf_counter()
+    print(f"[F3] IMU scan: {len(shards)} shards", flush=True)
+    for shard_i, shard in enumerate(shards, start=1):
         reader = pd.read_csv(shard, sep=cfg.imu_delimiter, chunksize=cfg.chunk_rows,
                              header=(0 if cfg.imu_has_header else None),
                              names=(None if cfg.imu_has_header else order),
@@ -274,18 +291,33 @@ def _scan_imu_speed_pairs(cfg: F3Config,
             e = pd.to_numeric(chunk["ems_speed"], errors="coerce").to_numpy(dtype=float)
             g = pd.to_numeric(chunk["gps_speed"], errors="coerce").to_numpy(dtype=float)
             gps = chunk["gpsno"].astype(str).to_numpy()
-            sel = ((t >= w0) & (t < w1) & np.isfinite(e) & np.isfinite(g)
-                   & np.isin(gps, list(vehicles)))
+            in_window = ((t >= w0) & (t < w1) & np.isin(gps, list(vehicles)))
+            if in_window.any():
+                window_gps = gps[in_window]
+                keys, counts = np.unique(window_gps, return_counts=True)
+                for g_no, count in zip(keys, counts):
+                    row_counts[g_no] = row_counts.get(g_no, 0) + int(count)
+            sel = in_window & np.isfinite(e) & np.isfinite(g)
             if not sel.any():
                 continue
             diff = np.abs(e[sel] - g[sel])
             gps = gps[sel]
-            for g_no in dict.fromkeys(gps.tolist()):
-                buffers.setdefault(g_no, []).append(diff[gps == g_no])
-    return {g_no: {"n": int(sum(len(p) for p in parts)),
-                   "mean": float(np.concatenate(parts).mean()),
-                   "p95": _hist_p95_midpoint(np.concatenate(parts))}
-            for g_no, parts in buffers.items()}
+            row_order = np.argsort(gps, kind="stable")
+            sorted_gps = gps[row_order]
+            boundaries = np.r_[0, np.flatnonzero(sorted_gps[1:] != sorted_gps[:-1]) + 1,
+                               sorted_gps.size]
+            for lo, hi in zip(boundaries[:-1], boundaries[1:]):
+                buffers.setdefault(sorted_gps[lo], []).append(diff[row_order[lo:hi]])
+        print(f"[F3] IMU shard {shard_i}/{len(shards)} complete; "
+              f"elapsed={perf_counter()-started:.1f}s", flush=True)
+    if observation_row_counts is not None:
+        observation_row_counts.update(row_counts)
+    result = {}
+    for g_no, parts in buffers.items():
+        values = np.concatenate(parts)
+        result[g_no] = {"n": int(values.size), "mean": float(values.mean()),
+                        "p95": _hist_p95_midpoint(values)}
+    return result
 
 
 # ------------------------------------------------------------- 单车特征（Tier 1/2/3）
@@ -491,13 +523,20 @@ def run_scan(cfg: F3Config) -> Path:
     vehicles = set(roster["gpsno"])
 
     buffers = _scan_trajectory_shards(cfg, vehicles)
-    imu_stats = _scan_imu_speed_pairs(cfg, vehicles)   # imu_dir 未配置时为空（特征按缺失）
+    print(f"[F3] trajectory scan complete; buffered_vehicles={len(buffers)}", flush=True)
+    imu_observation_counts: dict[str, int] = {}
+    imu_stats = _scan_imu_speed_pairs(cfg, vehicles, imu_observation_counts)   # optional audit sidecar
+    print(f"[F3] IMU scan complete; observed_vehicles={len(imu_stats)}", flush=True)
     ev_groups = {g: sub for g, sub in events.groupby(events["gpsno"].astype(str))}
     prof_idx = profile.assign(gpsno=profile["gpsno"].astype(str)).set_index("gpsno")
 
     as_of_s, lookback_s = cfg.as_of_s, cfg.lookback_s
     rows = []
-    for rec in roster.itertuples(index=False):
+    exposures = []
+    aggregate_started = perf_counter()
+    for vehicle_i, rec in enumerate(roster.itertuples(index=False), start=1):
+        if vehicle_i == 1 or vehicle_i % 25 == 0:
+            print(f"[F3] feature aggregation {vehicle_i}/{len(roster)}", flush=True)
         gps = str(rec.gpsno)
         buf = buffers.get(gps)
         if buf is None:
@@ -534,6 +573,21 @@ def run_scan(cfg: F3Config) -> Path:
             imu_absdiff_mean=float(imu_stats.get(gps, {}).get("mean", float("nan"))),
             imu_absdiff_p95=float(imu_stats.get(gps, {}).get("p95", float("nan"))))
         rows.append({"sample_id": rec.sample_id, "gpsno": gps, **feats})
+        exposure_row = {"sample_id": rec.sample_id, "gpsno": gps,
+                        "traj_km_window": km, "traj_hours_window": hours}
+        exposure_windows = sorted(set((5, 10, 20, int(round(cfg.lookback_days)))))
+        for days in exposure_windows:
+            if days <= 0 or days > cfg.lookback_days:
+                continue
+            km_days, hours_days = window_exposure(
+                buf["t"], buf["lat"], buf["lon"], as_of_s - days * DAY_S, as_of_s
+            )
+            exposure_row[f"traj_km_{days}d"] = km_days
+            exposure_row[f"traj_hours_{days}d"] = hours_days
+        exposures.append(exposure_row)
+        if vehicle_i == 1 or vehicle_i % 25 == 0 or vehicle_i == len(roster):
+            print(f"[F3] feature aggregation completed {vehicle_i}/{len(roster)}; "
+                  f"elapsed={perf_counter()-aggregate_started:.1f}s", flush=True)
 
     new_df = pd.DataFrame(rows)
     # 同群相对化（既有强特征，统计量折内拟合）→ 新增列
@@ -565,6 +619,14 @@ def run_scan(cfg: F3Config) -> Path:
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     out = cfg.output_dir / NEW_FEATURES_FILE
     new_df.to_csv(out, index=False)
+    pd.DataFrame(exposures).to_csv(cfg.output_dir / "f3_window_exposure.csv", index=False)
+    observation_rows = [{
+        "sample_id": rec.sample_id,
+        "gpsno": str(rec.gpsno),
+        "imu_rows_window": int(imu_observation_counts.get(str(rec.gpsno), 0)),
+        "ems_gps_speed_pair_rows_window": int(imu_stats.get(str(rec.gpsno), {}).get("n", 0)),
+    } for rec in roster.itertuples(index=False)]
+    pd.DataFrame(observation_rows).to_csv(cfg.output_dir / "f3_window_observation.csv", index=False)
     print(f"OK F3 新增特征：{len(new_df)} 行 × {len(new_df.columns) - 2} 列 -> {out}", flush=True)
     return out
 

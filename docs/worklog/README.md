@@ -15,3 +15,4 @@
 - [2026-09-24 FEAT-009 新协议特征与模型适配方案入库](2026-09-24-feat-009-protocol-v2-plan.md)
 - [2026-09-24 FEAT-009 新协议执行与复核交接](2026-09-24-feat-009-protocol-v2-execution.md)
 - [2026-09-24 FEAT-010 最终窗口与观测量检验方案入库](2026-09-24-feat-010-plan-acceptance.md)
+- [2026-09-24 FEAT-010 A0/A1 执行与复核交接](2026-09-24-feat-010-a0-a1-execution.md)

@@ -37,7 +37,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 from sklearn.cluster import DBSCAN
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import BallTree
 
 EPS = 1e-9
 EARTH_R_M = 6_371_000.0          # 地球平均半径（米），Haversine 用
@@ -514,19 +514,25 @@ def route_repeat_distance_m(lat: np.ndarray, lon: np.ndarray, t_epoch: np.ndarra
     if t.size < MIN_MAIN_ROWS:
         return float("nan")
     day = (t + TZ_OFFSET_S) // 86400
-    groups = {int(d): np.flatnonzero(day == d) for d in np.unique(day)}
+    unique_days, starts = np.unique(day, return_index=True)
+    ends = np.r_[starts[1:], day.size]
+    # _window_sorted 返回按时间排序的行，因此同一本地日的点连续。
+    # 只为达到门槛的日子建树，并让相邻日对复用同一棵树。
+    points_by_day = {}
+    trees_by_day = {}
+    for d, start, end in zip(unique_days, starts, ends):
+        if end - start < min_day_rows:
+            continue
+        points = np.radians(np.column_stack([la[start:end], lo[start:end]]))
+        points_by_day[int(d)] = points
+        trees_by_day[int(d)] = BallTree(points, metric="haversine")
     pair_vals: list[float] = []
-    for d in sorted(groups):
-        ib = groups.get(d + 1)
-        if ib is None:
+    for d in sorted(points_by_day):
+        if d + 1 not in points_by_day:
             continue
-        ia = groups[d]
-        if ia.size < min_day_rows or ib.size < min_day_rows:
-            continue
-        a = np.radians(np.column_stack([la[ia], lo[ia]]))
-        b = np.radians(np.column_stack([la[ib], lo[ib]]))
-        nn_ab = NearestNeighbors(n_neighbors=1, metric="haversine").fit(a).kneighbors(b)[0][:, 0]
-        nn_ba = NearestNeighbors(n_neighbors=1, metric="haversine").fit(b).kneighbors(a)[0][:, 0]
+        a, b = points_by_day[d], points_by_day[d + 1]
+        nn_ab = trees_by_day[d].query(b, k=1, return_distance=True)[0][:, 0]
+        nn_ba = trees_by_day[d + 1].query(a, k=1, return_distance=True)[0][:, 0]
         pair_vals.append(float(np.mean(np.concatenate([nn_ab, nn_ba])) * EARTH_R_M))
     return float(np.mean(pair_vals)) if pair_vals else float("nan")
 

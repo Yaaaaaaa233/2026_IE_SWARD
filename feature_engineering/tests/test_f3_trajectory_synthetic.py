@@ -7,6 +7,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.neighbors import NearestNeighbors
 
 from accident_pipeline_f3.trajectory import (
     CALIBER_GAP, CALIBER_TRIP, activity_radius_m, daily_rhythm_features,
@@ -172,6 +173,35 @@ def test_route_repeat_monotonic_same_vs_different():
     assert same == pytest.approx(0.0, abs=1e-6)
     assert same < diff                          # 单调性：相同路线 < 完全不同路线
     assert diff > 1000.0
+
+
+def test_route_repeat_cached_balltrees_match_previous_two_way_reference():
+    """缓存日级 BallTree 后，双向 haversine 最近邻定义与原实现数值一致。"""
+    rng = np.random.default_rng(20260924)
+    t0 = _epoch("2026-06-01 00:00:00")
+    per_day, days = 180, 4
+    local_i = np.tile(np.arange(per_day), days)
+    day_i = np.repeat(np.arange(days), per_day)
+    t = t0 + day_i * 86400 + local_i * 60
+    lat = 30.0 + local_i * 1e-4 + day_i * 0.01 + rng.normal(0, 1e-5, t.size)
+    lon = 120.0 + np.sin(local_i / 30) * 0.01 + day_i * 0.02 + rng.normal(0, 1e-5, t.size)
+    start, end = t0, t0 + days * 86400
+
+    day = (t + 8 * 3600) // 86400
+    pair_values = []
+    earth_radius_m = 6_371_000.0
+    for d in np.unique(day):
+        ia, ib = np.flatnonzero(day == d), np.flatnonzero(day == d + 1)
+        if ia.size < 100 or ib.size < 100:
+            continue
+        a = np.radians(np.column_stack([lat[ia], lon[ia]]))
+        b = np.radians(np.column_stack([lat[ib], lon[ib]]))
+        ab = NearestNeighbors(n_neighbors=1, metric="haversine").fit(a).kneighbors(b)[0][:, 0]
+        ba = NearestNeighbors(n_neighbors=1, metric="haversine").fit(b).kneighbors(a)[0][:, 0]
+        pair_values.append(float(np.mean(np.r_[ab, ba]) * earth_radius_m))
+    expected = float(np.mean(pair_values))
+    actual = route_repeat_distance_m(lat, lon, t, start, end)
+    assert actual == pytest.approx(expected, rel=0, abs=1e-10)
 
 
 def test_activity_radius_and_daynight_centroid_shift():

@@ -1,23 +1,29 @@
 {
   "id": "FEAT-010",
   "title": "叶安线最终历史窗口适配与观测量依赖检验方案",
-  "status": "blocked",
+  "status": "review",
   "owner": "叶安",
-  "actor": "Codex（按叶安 2026-09-24 指令将方案入库；尚未执行真实数据或模型）",
-  "reviewer": "叶安（仅方案确认）",
+  "actor": "Codex（按叶安 2026-09-24 指令完成 A0/A1 技术执行与机器验收；B0/B1 仍待依赖门放行）",
+  "reviewer": "叶安（仅复核 A0/A1/B0 合成验收样张）",
   "reviewed_at": "2026-09-24",
   "branch": "main（ADR-0003 无 PR 直接提交模式）",
-  "base_commit": "5a299a6",
+  "base_commit": "e2c55e3",
   "write_scope": [
-    "docs/plans/feat-010-final-window-and-observation-audit-plan.md",
+    "feature_engineering/experiments/task1_feature_modeling/make_feat010_synthetic_preview.py",
+    "feature_engineering/experiments/task1_feature_modeling/run_feat010_a0.py",
+    "feature_engineering/experiments/task1_feature_modeling/run_feat010_a1.py",
+    "feature_engineering/experiments/task1_feature_modeling/check_feat010_a1.py",
+    "feature_engineering/tests/test_feat010_a1_checker.py",
+    "feature_engineering/tests/test_f3_trajectory_synthetic.py",
+    "feature_engineering/src/accident_pipeline_f1/event_features.py",
+    "feature_engineering/src/accident_pipeline_f3/pipeline.py",
+    "feature_engineering/src/accident_pipeline_f3/trajectory.py",
     "docs/tasks/FEAT-010.json",
-    "docs/tasks/README.md",
-    "docs/decisions/ADR-0009-feat-010-final-window-and-observation-audit.md",
-    "docs/decisions/README.md",
     "docs/plans/README.md",
     "docs/DEVELOPMENT_STATUS.md",
-    "docs/worklog/2026-09-24-feat-010-plan-acceptance.md",
-    "docs/worklog/README.md"
+    "docs/worklog/2026-09-24-feat-010-a0-a1-execution.md",
+    "docs/worklog/README.md",
+    "outputs/feat-010/"
   ],
   "dependencies": [
     "FEAT-009",
@@ -33,8 +39,15 @@
   "evidence": [
     "docs/plans/feat-010-final-window-and-observation-audit-plan.md",
     "docs/decisions/ADR-0009-feat-010-final-window-and-observation-audit.md",
-    "docs/worklog/2026-09-24-feat-010-plan-acceptance.md"
+    "docs/worklog/2026-09-24-feat-010-plan-acceptance.md",
+    "feature_engineering/experiments/task1_feature_modeling/make_feat010_synthetic_preview.py",
+    "feature_engineering/experiments/task1_feature_modeling/run_feat010_a0.py",
+    "feature_engineering/experiments/task1_feature_modeling/run_feat010_a1.py",
+    "docs/worklog/2026-09-24-feat-010-a0-a1-execution.md",
+    "feature_engineering/experiments/task1_feature_modeling/check_feat010_a1.py",
+    "feature_engineering/tests/test_feat010_a1_checker.py",
+    "feature_engineering/tests/test_f3_trajectory_synthetic.py"
   ],
-  "handoff": "docs/worklog/2026-09-24-feat-010-plan-acceptance.md",
-  "notes": "叶安已确认方案入库，未授权把方案确认等同 A0–B1 实验验收。正式开工前须补齐前置合成样张与实际复核记录，并更新 write_scope 为精确脚本、受控产物和交接文件；B 的真实效果判定还须公共标签／评估责任人的实际复核记录。王健祺线新版 V5 不作为本任务依赖。"
+  "handoff": "docs/worklog/2026-09-24-feat-010-a0-a1-execution.md",
+  "notes": "叶安确认 A0 标签构成、A1 时间窗分隔、B0 消融流程三张合成验收样张均通过；此记录只证明样张验收，不代表真实 A0/A1 数据图已复核或 FEAT-010 accepted。A0 机器审计通过；A1 已生成 61 天无标签候选、字段合同、分布图和 manifest，独立机器验收通过；A0/A1 真实来源抽查和图表人工复核仍待叶安记录。A1 第一次运行在 F3 全车聚合完成后遇绘图 API 错误，保留错误记录并从已生成 F3 输出续跑；更早的 r1 手动中断也单独保留。EVAL-001/EVAL-003 与 FEAT-009 实际责任人复核未完成前，B0/B1 真实效果判定继续 blocked。公开文档不记录真实指标、样本明细或数据指纹。"
 }
