@@ -1,0 +1,35 @@
+{
+  "id": "T2R-001",
+  "title": "任务二分类总纲 v1：三层目录、24 编码映射与 D1-D6 裁决",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-R0-classification-charter",
+  "base_commit": "7bc97c700fc91fff8d47c03b8973c1eb2984b96e",
+  "write_scope": [
+    "task2/classification/",
+    "tests/test_task2_classification_contract.py",
+    "docs/tasks/T2R-001.json",
+    "docs/worklog/2026-09-24-t2-r0-classification-charter.md"
+  ],
+  "dependencies": [],
+  "acceptance": [
+    "24 个编码唯一映射到五个公开维度、六个内部语义组和 32 个小类目录，事故与未遂明确为结果证据而非普通行为",
+    "32 个小类均包含证据来源、证据状态和一句话边界；预留项在质量门通过前保持关闭",
+    "D1-D6、M1-M8、十条跨事件裁决规则和五条风险链均可由机器校验",
+    "提供一页三层结构与 M1-M8 组长勾选表，不含真实数据统计或本地路径",
+    "治理检查、分类契约测试和仓库全量单测通过"
+  ],
+  "evidence": [
+    "task2/classification/classification-charter-v1.md",
+    "task2/classification/three-layer-one-page.md",
+    "task2/classification/leader-review-sheet.md",
+    "task2/classification/classification_v1.json",
+    "task2/classification/validate_classification.py",
+    "tests/test_task2_classification_contract.py"
+  ],
+  "handoff": "docs/worklog/2026-09-24-t2-r0-classification-charter.md",
+  "notes": "已完成 task2-roadmap 中周航正先行的 T2-R0 草案并进入人工复核；未修改娄澜负责的 R1/R3，未学习扣分权重，未使用或提交真实数据。路线图所引①原件不在公开仓库，C25-C32 已标记为待原件对照的重建项。"
+}

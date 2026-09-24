@@ -1,0 +1,1105 @@
+{
+  "schema_version": "1.0.0",
+  "charter_version": "T2-R0-v1",
+  "status": "draft_for_leader_review",
+  "scope": "公开规则资产；不含真实车辆数据、统计、权重或评分结果",
+  "source_refs": [
+    "docs/plans/task2-roadmap.md",
+    "docs/decisions/ADR-0006-official-qa-foundation.md",
+    "docs/decisions/ADR-0007-near-miss-count-unit.md"
+  ],
+  "public_dimensions": [
+    {
+      "id": "P1",
+      "name": "清醒与疲劳管理",
+      "purpose": "判断驾驶人是否保持清醒并避免持续疲劳驾驶"
+    },
+    {
+      "id": "P2",
+      "name": "注意力管理",
+      "purpose": "判断驾驶注意力是否持续指向道路与驾驶任务"
+    },
+    {
+      "id": "P3",
+      "name": "操控稳定性",
+      "purpose": "判断车辆横向控制与车道保持是否稳定"
+    },
+    {
+      "id": "P4",
+      "name": "安全空间管理",
+      "purpose": "判断前后侧向安全空间和碰撞余量是否充足"
+    },
+    {
+      "id": "P5",
+      "name": "规则与安全配合",
+      "purpose": "判断速度规则、安全设备与运营要求是否得到配合"
+    }
+  ],
+  "semantic_groups": [
+    {
+      "id": "G1",
+      "name": "疲劳状态",
+      "public_dimension": "P1",
+      "boundary": "只收纳直接表明清醒度下降的行为证据。"
+    },
+    {
+      "id": "G2",
+      "name": "分心行为",
+      "public_dimension": "P2",
+      "boundary": "收纳注意力离开道路或驾驶任务的直接行为证据。"
+    },
+    {
+      "id": "G3",
+      "name": "车道与操控稳定",
+      "public_dimension": "P3",
+      "boundary": "收纳横向控制、压线和车道保持异常。"
+    },
+    {
+      "id": "G4",
+      "name": "碰撞与安全空间",
+      "public_dimension": "P4",
+      "boundary": "收纳碰撞预警、跟车空间与侧后方空间警示。"
+    },
+    {
+      "id": "G5",
+      "name": "速度与道路规则",
+      "public_dimension": "P5",
+      "boundary": "收纳特定道路场景下的超速和规则违反。"
+    },
+    {
+      "id": "G6",
+      "name": "设备与安全配合",
+      "public_dimension": "P5",
+      "boundary": "收纳设备可用性、观测质量和安全系统配合问题。"
+    }
+  ],
+  "catalog_classes": [
+    {
+      "id": "C01",
+      "name": "路口超速",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11401",
+      "boundary": "路口范围内超过适用速度阈值的事件；不替代其他道路场景的超速证据。",
+      "enabled": true
+    },
+    {
+      "id": "C02",
+      "name": "主路弯道超速",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11402",
+      "boundary": "主路弯道场景中的超速；与普通直线路段超速分开解释。",
+      "enabled": true
+    },
+    {
+      "id": "C03",
+      "name": "危险路段超速报警",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11403",
+      "boundary": "被标记为危险路段时的超速报警；未知道路场景不自动归入。",
+      "enabled": true
+    },
+    {
+      "id": "C04",
+      "name": "匝道超速",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11405",
+      "boundary": "匝道范围内的超速；主路弯道事件不重复归入。",
+      "enabled": true
+    },
+    {
+      "id": "C05",
+      "name": "高速长下坡超速",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11406",
+      "boundary": "高速长下坡场景中的超速；需要可靠道路场景标识。",
+      "enabled": true
+    },
+    {
+      "id": "C06",
+      "name": "前碰撞预警",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "condition",
+      "evidence_source": "清洗后事件表中的编码 30000",
+      "boundary": "表示前向碰撞余量不足的预警结果，不直接等同于已发生碰撞。",
+      "enabled": true
+    },
+    {
+      "id": "C07",
+      "name": "左车道偏移",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 30002",
+      "boundary": "未合理变道时的左侧车道偏移；有有效转向或变道证据时需降权或排除。",
+      "enabled": true
+    },
+    {
+      "id": "C08",
+      "name": "右车道偏移",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 30003",
+      "boundary": "未合理变道时的右侧车道偏移；有有效转向或变道证据时需降权或排除。",
+      "enabled": true
+    },
+    {
+      "id": "C09",
+      "name": "车距过近",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 30005",
+      "boundary": "车辆处于可观测跟车状态时安全间距不足；空旷路段不构成该分母。",
+      "enabled": true
+    },
+    {
+      "id": "C10",
+      "name": "长时间压线",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 30017",
+      "boundary": "持续占压车道线的横向控制异常；一次短暂偏移不归入本类。",
+      "enabled": true
+    },
+    {
+      "id": "C11",
+      "name": "疲劳闭眼",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41001",
+      "boundary": "摄像头有效时检测到的闭眼疲劳证据；遮挡或角度异常时不直接计罚。",
+      "enabled": true
+    },
+    {
+      "id": "C12",
+      "name": "打哈欠",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41002",
+      "boundary": "摄像头有效时的打哈欠证据；单次证据弱于闭眼和持续困倦。",
+      "enabled": true
+    },
+    {
+      "id": "C13",
+      "name": "注意力分散",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41003",
+      "boundary": "无更具体分心行为时使用的通用注意力分散证据。",
+      "enabled": true
+    },
+    {
+      "id": "C14",
+      "name": "打电话",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41004",
+      "boundary": "驾驶中手持或使用电话的可识别行为；设备不可见时不作无证据推断。",
+      "enabled": true
+    },
+    {
+      "id": "C15",
+      "name": "吸烟",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41005",
+      "boundary": "驾驶中的吸烟动作，主要表示手眼资源被占用，不等同于疲劳。",
+      "enabled": true
+    },
+    {
+      "id": "C16",
+      "name": "摄像头遮挡",
+      "semantic_group": "G6",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "evidence_source": "清洗后事件表中的编码 41006",
+      "boundary": "首先表示驾驶舱行为证据不可观测；只有持续或经人工确认的规避行为才进入配合评价。",
+      "enabled": true
+    },
+    {
+      "id": "C17",
+      "name": "频繁低头",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41009",
+      "boundary": "频繁低头首先归入注意力管理；只有闭眼、困倦等独立证据才建立疲劳次级关联。",
+      "enabled": true
+    },
+    {
+      "id": "C18",
+      "name": "摄像头角度扭转",
+      "semantic_group": "G6",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "evidence_source": "清洗后事件表中的编码 41021",
+      "boundary": "表示摄像头视角失效或偏移；未确认人为操作时不直接视为驾驶违规。",
+      "enabled": true
+    },
+    {
+      "id": "C19",
+      "name": "看手机",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41023",
+      "boundary": "驾驶中视线和注意力指向手机的具体行为。",
+      "enabled": true
+    },
+    {
+      "id": "C20",
+      "name": "困倦",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 41029",
+      "boundary": "摄像头有效时检测到的持续困倦状态；不以单次低头替代。",
+      "enabled": true
+    },
+    {
+      "id": "C21",
+      "name": "后盲区报警",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "condition",
+      "evidence_source": "清洗后事件表中的编码 60292",
+      "boundary": "仅在装有且正常工作的系统、发生可观测变道时评价，属于情境警示而非直接违规。",
+      "enabled": true
+    },
+    {
+      "id": "C22",
+      "name": "右盲区报警",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "condition",
+      "evidence_source": "清洗后事件表中的编码 60294",
+      "boundary": "仅在装有且正常工作的系统、发生可观测变道时评价，属于情境警示而非直接违规。",
+      "enabled": true
+    },
+    {
+      "id": "C23",
+      "name": "事故",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11803",
+      "boundary": "事故是结果证据；历史事故可用于降级，未来窗口仅按ADR-0006作为标签。",
+      "enabled": true
+    },
+    {
+      "id": "C24",
+      "name": "未遂",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "event",
+      "evidence_source": "清洗后事件表中的编码 11804",
+      "boundary": "未遂是结果证据；历史窗可用于降级，未来窗口两条及以上才构成正类标签。",
+      "enabled": true
+    },
+    {
+      "id": "C25",
+      "name": "连续驾驶疲劳暴露",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "condition",
+      "evidence_source": "轨迹或可靠驾驶状态重建",
+      "boundary": "只在时间边界审计通过后计算连续驾驶时长，画像中的事后月均时长不能替代。",
+      "enabled": false
+    },
+    {
+      "id": "C26",
+      "name": "夜间与时段暴露",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "evidence_source": "轨迹时间戳与统一时区",
+      "boundary": "夜间固定为21:00至06:00，时间戳与时区未核实时保持关闭。",
+      "enabled": false
+    },
+    {
+      "id": "C27",
+      "name": "道路场景暴露",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "evidence_source": "轨迹地图匹配或可靠场景字段",
+      "boundary": "仅在道路类型和场景识别质量过门后用于修正分母。",
+      "enabled": false
+    },
+    {
+      "id": "C28",
+      "name": "轨迹操控上下文",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "reserved",
+      "evidence_source": "轨迹转向、曲率与变道重建",
+      "boundary": "只作车道事件的上下文修正，不从位置噪声直接推断违规。",
+      "enabled": false
+    },
+    {
+      "id": "C29",
+      "name": "IMU纵向动作强度",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "reserved",
+      "evidence_source": "质量通过的IMU纵向加速度",
+      "boundary": "仅在对齐、采样率和设备质量过门后修正急加减速强度。",
+      "enabled": false
+    },
+    {
+      "id": "C30",
+      "name": "IMU横向动作强度",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "reserved",
+      "evidence_source": "质量通过的IMU横向加速度或角速度",
+      "boundary": "仅在坐标系和安装方向可比较时修正横向操控强度。",
+      "enabled": false
+    },
+    {
+      "id": "C31",
+      "name": "IMU垂向振动与稳定",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "reserved",
+      "evidence_source": "质量通过的IMU垂向信号",
+      "boundary": "必须排除路况和设备安装差异后才能解释为操控证据。",
+      "enabled": false
+    },
+    {
+      "id": "C32",
+      "name": "证据质量与覆盖置信",
+      "semantic_group": "G6",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "evidence_source": "各数据源覆盖率与设备健康记录",
+      "boundary": "只控制置信度和评分上限，不把数据缺失直接解释为安全。",
+      "enabled": false
+    }
+  ],
+  "event_mappings": [
+    {
+      "code": "11401",
+      "name": "路口超速",
+      "catalog_class": "C01",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "intersection_passages",
+      "deduplication": "同一路口通过过程内重复报警合并为一段，跨路口分别保留。",
+      "applicability_conditions": [],
+      "operational_action": "路口限速提示、路线培训与重点路口复盘",
+      "boundary": "路口范围内超过适用速度阈值的事件；不替代其他道路场景的超速证据。"
+    },
+    {
+      "code": "11402",
+      "name": "主路弯道超速",
+      "catalog_class": "C02",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "main_road_curve_passages",
+      "deduplication": "同一弯道通过过程内合并，跨弯道分别保留。",
+      "applicability_conditions": [],
+      "operational_action": "弯道前减速训练与高风险弯道提醒",
+      "boundary": "主路弯道场景中的超速；与普通直线路段超速分开解释。"
+    },
+    {
+      "code": "11403",
+      "name": "危险路段超速报警",
+      "catalog_class": "C03",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "hazardous_section_passages",
+      "deduplication": "同一危险路段通过过程内合并，保留最具体场景标签。",
+      "applicability_conditions": [],
+      "operational_action": "危险路段限速复训与线路风险提示",
+      "boundary": "被标记为危险路段时的超速报警；未知道路场景不自动归入。"
+    },
+    {
+      "code": "11405",
+      "name": "匝道超速",
+      "catalog_class": "C04",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "ramp_passages",
+      "deduplication": "同一匝道进出过程内合并，跨匝道分别保留。",
+      "applicability_conditions": [],
+      "operational_action": "匝道进出速度训练",
+      "boundary": "匝道范围内的超速；主路弯道事件不重复归入。"
+    },
+    {
+      "code": "11406",
+      "name": "高速长下坡超速",
+      "catalog_class": "C05",
+      "semantic_group": "G5",
+      "public_dimension": "P5",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "long_downhill_passages",
+      "deduplication": "同一长下坡连续过程内合并，持续时间另作强度证据。",
+      "applicability_conditions": [],
+      "operational_action": "长下坡制动与挡位使用培训",
+      "boundary": "高速长下坡场景中的超速；需要可靠道路场景标识。"
+    },
+    {
+      "code": "30000",
+      "name": "前碰撞预警",
+      "catalog_class": "C06",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "condition",
+      "scoring_role": "context_warning",
+      "secondary_links": [
+        "G5"
+      ],
+      "exposure_denominator": "driving_hours_or_mileage_km",
+      "deduplication": "与车距过近或同一速度链在120秒内合并解释，保留预警本身。",
+      "applicability_conditions": [],
+      "operational_action": "复盘跟车、速度与制动时机",
+      "boundary": "表示前向碰撞余量不足的预警结果，不直接等同于已发生碰撞。"
+    },
+    {
+      "code": "30002",
+      "name": "左车道偏移",
+      "catalog_class": "C07",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [
+        "G1",
+        "G2"
+      ],
+      "exposure_denominator": "lane_observable_km",
+      "deduplication": "与右偏移、长时间压线在120秒内合并为一个车道风险段。",
+      "applicability_conditions": [],
+      "operational_action": "车道保持与变道操作训练",
+      "boundary": "未合理变道时的左侧车道偏移；有有效转向或变道证据时需降权或排除。"
+    },
+    {
+      "code": "30003",
+      "name": "右车道偏移",
+      "catalog_class": "C08",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [
+        "G1",
+        "G2"
+      ],
+      "exposure_denominator": "lane_observable_km",
+      "deduplication": "与左偏移、长时间压线在120秒内合并为一个车道风险段。",
+      "applicability_conditions": [],
+      "operational_action": "车道保持与变道操作训练",
+      "boundary": "未合理变道时的右侧车道偏移；有有效转向或变道证据时需降权或排除。"
+    },
+    {
+      "code": "30005",
+      "name": "车距过近",
+      "catalog_class": "C09",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [
+        "G5"
+      ],
+      "exposure_denominator": "following_observable_hours",
+      "deduplication": "与前碰撞预警在120秒内合并为一个跟车风险段。",
+      "applicability_conditions": [],
+      "operational_action": "跟车时距与提前制动训练",
+      "boundary": "车辆处于可观测跟车状态时安全间距不足；空旷路段不构成该分母。"
+    },
+    {
+      "code": "30017",
+      "name": "长时间压线",
+      "catalog_class": "C10",
+      "semantic_group": "G3",
+      "public_dimension": "P3",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [
+        "G1",
+        "G2"
+      ],
+      "exposure_denominator": "lane_observable_km",
+      "deduplication": "连续压线只计一个事件段，并记录持续时长。",
+      "applicability_conditions": [],
+      "operational_action": "车道保持训练与线路复盘",
+      "boundary": "持续占压车道线的横向控制异常；一次短暂偏移不归入本类。"
+    },
+    {
+      "code": "41001",
+      "name": "疲劳闭眼",
+      "catalog_class": "C11",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与打哈欠、困倦在120秒内合并，保留最强证据及伴随证据。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "休息、换驾与连续驾驶时长管控",
+      "boundary": "摄像头有效时检测到的闭眼疲劳证据；遮挡或角度异常时不直接计罚。"
+    },
+    {
+      "code": "41002",
+      "name": "打哈欠",
+      "catalog_class": "C12",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与闭眼、困倦在120秒内合并，重复打哈欠保留频次强度。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "疲劳提醒与休息安排",
+      "boundary": "摄像头有效时的打哈欠证据；单次证据弱于闭眼和持续困倦。"
+    },
+    {
+      "code": "41003",
+      "name": "注意力分散",
+      "catalog_class": "C13",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "同窗出现打电话、看手机或频繁低头时由具体事件主解释。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "注意力管理培训与事件回放",
+      "boundary": "无更具体分心行为时使用的通用注意力分散证据。"
+    },
+    {
+      "code": "41004",
+      "name": "打电话",
+      "catalog_class": "C14",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与通用分心、看手机在120秒内合并，由具体行为主解释。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "驾驶中禁用电话与合规提醒",
+      "boundary": "驾驶中手持或使用电话的可识别行为；设备不可见时不作无证据推断。"
+    },
+    {
+      "code": "41005",
+      "name": "吸烟",
+      "catalog_class": "C15",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与同窗通用分心合并为一个注意力风险段。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "驾驶行为规范与注意力提醒",
+      "boundary": "驾驶中的吸烟动作，主要表示手眼资源被占用，不等同于疲劳。"
+    },
+    {
+      "code": "41006",
+      "name": "摄像头遮挡",
+      "catalog_class": "C16",
+      "semantic_group": "G6",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "scoring_role": "evidence_quality",
+      "secondary_links": [],
+      "exposure_denominator": "scheduled_camera_online_hours",
+      "deduplication": "连续遮挡在600秒内合并，持续时长作为主要强度。",
+      "applicability_conditions": [],
+      "operational_action": "检查遮挡原因、恢复设备并核查人为规避",
+      "boundary": "首先表示驾驶舱行为证据不可观测；只有持续或经人工确认的规避行为才进入配合评价。"
+    },
+    {
+      "code": "41009",
+      "name": "频繁低头",
+      "catalog_class": "C17",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [
+        "G1"
+      ],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与通用分心或看手机在120秒内合并，具体证据优先。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "复盘低头原因并减少驾驶中操作",
+      "boundary": "频繁低头首先归入注意力管理；只有闭眼、困倦等独立证据才建立疲劳次级关联。"
+    },
+    {
+      "code": "41021",
+      "name": "摄像头角度扭转",
+      "catalog_class": "C18",
+      "semantic_group": "G6",
+      "public_dimension": "P5",
+      "evidence_status": "condition",
+      "scoring_role": "evidence_quality",
+      "secondary_links": [],
+      "exposure_denominator": "scheduled_camera_online_hours",
+      "deduplication": "与遮挡在600秒内合并为一个设备异常段。",
+      "applicability_conditions": [],
+      "operational_action": "校准摄像头并排查人为移动",
+      "boundary": "表示摄像头视角失效或偏移；未确认人为操作时不直接视为驾驶违规。"
+    },
+    {
+      "code": "41023",
+      "name": "看手机",
+      "catalog_class": "C19",
+      "semantic_group": "G2",
+      "public_dimension": "P2",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与通用分心、打电话或低头在120秒内合并，由看手机主解释。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "手机隔离与驾驶中禁用提醒",
+      "boundary": "驾驶中视线和注意力指向手机的具体行为。"
+    },
+    {
+      "code": "41029",
+      "name": "困倦",
+      "catalog_class": "C20",
+      "semantic_group": "G1",
+      "public_dimension": "P1",
+      "evidence_status": "event",
+      "scoring_role": "behavior",
+      "secondary_links": [],
+      "exposure_denominator": "camera_valid_driving_hours",
+      "deduplication": "与闭眼、打哈欠在120秒内合并，保留持续性信息。",
+      "applicability_conditions": [
+        "camera_valid"
+      ],
+      "operational_action": "立即休息、换驾并复核排班",
+      "boundary": "摄像头有效时检测到的持续困倦状态；不以单次低头替代。"
+    },
+    {
+      "code": "60292",
+      "name": "后盲区报警",
+      "catalog_class": "C21",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "condition",
+      "scoring_role": "context_warning",
+      "secondary_links": [],
+      "exposure_denominator": "equipped_observable_lane_change_count",
+      "deduplication": "与右盲区或车道事件在120秒内合并为一个变道风险段。",
+      "applicability_conditions": [
+        "equipped",
+        "blind_spot_observable"
+      ],
+      "operational_action": "变道观察与盲区确认训练",
+      "boundary": "仅在装有且正常工作的系统、发生可观测变道时评价，属于情境警示而非直接违规。"
+    },
+    {
+      "code": "60294",
+      "name": "右盲区报警",
+      "catalog_class": "C22",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "condition",
+      "scoring_role": "context_warning",
+      "secondary_links": [],
+      "exposure_denominator": "equipped_observable_lane_change_count",
+      "deduplication": "与后盲区或车道事件在120秒内合并为一个变道风险段。",
+      "applicability_conditions": [
+        "equipped",
+        "blind_spot_observable"
+      ],
+      "operational_action": "右侧变道观察与盲区确认训练",
+      "boundary": "仅在装有且正常工作的系统、发生可观测变道时评价，属于情境警示而非直接违规。"
+    },
+    {
+      "code": "11803",
+      "name": "事故",
+      "catalog_class": "C23",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "event",
+      "scoring_role": "outcome_gate",
+      "secondary_links": [],
+      "exposure_denominator": "valid_observation_days",
+      "deduplication": "仅精确去重；历史窗可触发结果门槛，标签窗绝不进入评分特征。",
+      "applicability_conditions": [],
+      "operational_action": "事故复盘、专项整改与管理升级",
+      "boundary": "事故是结果证据；历史事故可用于降级，未来窗口仅按ADR-0006作为标签。"
+    },
+    {
+      "code": "11804",
+      "name": "未遂",
+      "catalog_class": "C24",
+      "semantic_group": "G4",
+      "public_dimension": "P4",
+      "evidence_status": "event",
+      "scoring_role": "outcome_gate",
+      "secondary_links": [],
+      "exposure_denominator": "valid_observation_days",
+      "deduplication": "按ADR-0007对有效记录精确去重后逐条计次，不作30秒并段。",
+      "applicability_conditions": [],
+      "operational_action": "未遂复盘与高风险过程整改",
+      "boundary": "未遂是结果证据；历史窗可用于降级，未来窗口两条及以上才构成正类标签。"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "topic": "三层结构",
+      "recommendation": "采用公开五维、内部六组、目录32小类；每个事件只有一个主要计分归属。",
+      "status": "recommended"
+    },
+    {
+      "id": "D2",
+      "topic": "事故与未遂",
+      "recommendation": "历史结果采用一票降级门槛并单列说明，不作为普通行为叠加扣分；未来窗口只作验证标签。",
+      "status": "recommended"
+    },
+    {
+      "id": "D3",
+      "topic": "歧义事件",
+      "recommendation": "按M1-M8固定主归属、次级解释和合并规则，次级关联不重复扣分。",
+      "status": "recommended"
+    },
+    {
+      "id": "D4",
+      "topic": "盲区机制",
+      "recommendation": "只在设备装配且可观测车群评价，优先用有效变道次数作分母。",
+      "status": "recommended"
+    },
+    {
+      "id": "D5",
+      "topic": "IMU条件项",
+      "recommendation": "保留目录占位，质量门通过前关闭；通过后只修正动作强度，不直接输入原始波形。",
+      "status": "recommended"
+    },
+    {
+      "id": "D6",
+      "topic": "连续驾驶疲劳暴露",
+      "recommendation": "与轨迹批次一并实现；可见性和时间边界审计前不得用事后画像统计替代。",
+      "status": "recommended"
+    }
+  ],
+  "ambiguity_decisions": [
+    {
+      "id": "M1",
+      "topic": "前碰撞预警是行为还是结果",
+      "codes": [
+        "30000"
+      ],
+      "recommendation": "主归安全空间，角色为情境预警；和车距、速度链合并解释，不称为已碰撞。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M2",
+      "topic": "偏移与压线是否重复",
+      "codes": [
+        "30002",
+        "30003",
+        "30017"
+      ],
+      "recommendation": "主归操控稳定；120秒内合并为同一车道风险段，疲劳和分心仅作次级解释。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M3",
+      "topic": "频繁低头属于疲劳还是分心",
+      "codes": [
+        "41009"
+      ],
+      "recommendation": "主归注意力；只有闭眼、困倦等独立证据同时出现时才建立疲劳风险链。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M4",
+      "topic": "摄像头异常是否直接扣违规分",
+      "codes": [
+        "41006",
+        "41021"
+      ],
+      "recommendation": "先作为证据质量；持续或人工确认规避时才进入安全配合，不能替代驾驶行为证据。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M5",
+      "topic": "五种超速是否合并",
+      "codes": [
+        "11401",
+        "11402",
+        "11403",
+        "11405",
+        "11406"
+      ],
+      "recommendation": "共同归入速度规则组，但保留场景小类；同一次通过只保留最具体场景。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M6",
+      "topic": "通用分心与具体动作是否重复",
+      "codes": [
+        "41003",
+        "41004",
+        "41005",
+        "41023"
+      ],
+      "recommendation": "120秒内具体动作主解释，通用分心不再重复计罚；吸烟保留可运营原因。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M7",
+      "topic": "盲区报警对未装设备车辆是否公平",
+      "codes": [
+        "60292",
+        "60294"
+      ],
+      "recommendation": "只在装配且在线可观测车群评价；分母首选有效变道次数，缺少分母时不横向排名。",
+      "leader_choice": "pending"
+    },
+    {
+      "id": "M8",
+      "topic": "事故与未遂如何进入评分",
+      "codes": [
+        "11803",
+        "11804"
+      ],
+      "recommendation": "历史窗用一票降级并单列原因；标签窗完全隔离，正类阈值遵循ADR-0006/0007。",
+      "leader_choice": "pending"
+    }
+  ],
+  "risk_chains": [
+    {
+      "id": "RC1",
+      "name": "疲劳风险链",
+      "codes": [
+        "41001",
+        "41002",
+        "41029"
+      ],
+      "merge_window_seconds": 120,
+      "representative_rule": "保留最强证据并记录伴随类型与持续性"
+    },
+    {
+      "id": "RC2",
+      "name": "分心风险链",
+      "codes": [
+        "41003",
+        "41004",
+        "41005",
+        "41009",
+        "41023"
+      ],
+      "merge_window_seconds": 120,
+      "representative_rule": "具体行为优先于通用分心"
+    },
+    {
+      "id": "RC3",
+      "name": "车道风险链",
+      "codes": [
+        "30002",
+        "30003",
+        "30017"
+      ],
+      "merge_window_seconds": 120,
+      "representative_rule": "合并为一个车道风险段并保留方向和持续时长"
+    },
+    {
+      "id": "RC4",
+      "name": "安全空间风险链",
+      "codes": [
+        "30000",
+        "30005",
+        "60292",
+        "60294"
+      ],
+      "merge_window_seconds": 120,
+      "representative_rule": "按前向跟车与侧后变道两个子场景解释，不跨不可比暴露合并分母"
+    },
+    {
+      "id": "RC5",
+      "name": "设备证据质量链",
+      "codes": [
+        "41006",
+        "41021"
+      ],
+      "merge_window_seconds": 600,
+      "representative_rule": "合并连续设备异常并记录不可观测时长"
+    }
+  ],
+  "cross_event_rules": [
+    {
+      "id": "CR01",
+      "name": "疲劳同链去重",
+      "codes": [
+        "41001",
+        "41002",
+        "41029"
+      ],
+      "window_seconds": 120,
+      "rule": "同窗一个事件段，保留最强证据和伴随证据。"
+    },
+    {
+      "id": "CR02",
+      "name": "具体分心覆盖通用分心",
+      "codes": [
+        "41003",
+        "41004",
+        "41009",
+        "41023"
+      ],
+      "window_seconds": 120,
+      "rule": "具体动作主解释，通用分心不重复计罚。"
+    },
+    {
+      "id": "CR03",
+      "name": "吸烟与分心同段",
+      "codes": [
+        "41003",
+        "41005"
+      ],
+      "window_seconds": 120,
+      "rule": "合并计一次注意力风险，保留吸烟作为运营原因。"
+    },
+    {
+      "id": "CR04",
+      "name": "车道异常同段",
+      "codes": [
+        "30002",
+        "30003",
+        "30017"
+      ],
+      "window_seconds": 120,
+      "rule": "左右偏移与压线合并，保留方向和持续时长。"
+    },
+    {
+      "id": "CR05",
+      "name": "前向空间同段",
+      "codes": [
+        "30000",
+        "30005"
+      ],
+      "window_seconds": 120,
+      "rule": "合并为跟车风险段，分别保留预警和距离证据。"
+    },
+    {
+      "id": "CR06",
+      "name": "场景超速优先",
+      "codes": [
+        "11401",
+        "11402",
+        "11403",
+        "11405",
+        "11406"
+      ],
+      "window_seconds": 60,
+      "rule": "同一次道路过程只保留最具体且可信的场景编码。"
+    },
+    {
+      "id": "CR07",
+      "name": "速度与碰撞链联动",
+      "codes": [
+        "11401",
+        "11402",
+        "11403",
+        "11405",
+        "11406",
+        "30000",
+        "30005"
+      ],
+      "window_seconds": 120,
+      "rule": "允许联合解释风险升级，但组间汇总使用边际递减，不把同一过程全额重复扣分。"
+    },
+    {
+      "id": "CR08",
+      "name": "盲区与变道链",
+      "codes": [
+        "60292",
+        "60294",
+        "30002",
+        "30003"
+      ],
+      "window_seconds": 120,
+      "rule": "装配且可观测时合并为变道风险段；不满足条件则盲区事件不参与横向评价。"
+    },
+    {
+      "id": "CR09",
+      "name": "设备异常同段",
+      "codes": [
+        "41006",
+        "41021"
+      ],
+      "window_seconds": 600,
+      "rule": "合并连续设备异常，优先影响证据置信度。"
+    },
+    {
+      "id": "CR10",
+      "name": "结果与前兆隔离",
+      "codes": [
+        "11803",
+        "11804"
+      ],
+      "window_seconds": 600,
+      "rule": "结果事件不与前兆行为作普通加法；未来标签窗任何结果不得进入评分特征。"
+    }
+  ],
+  "source_gap": "路线图引用的8大类32小类原件不在公开仓库；C25-C32为待组长与原件复核的可执行重建项",
+  "label_contract": {
+    "accident_code": "11803",
+    "accident_min_count": 1,
+    "near_miss_code": "11804",
+    "near_miss_min_count": 2,
+    "near_miss_count_unit": "deduplicated_valid_record",
+    "future_label_window_is_feature": false
+  }
+}
