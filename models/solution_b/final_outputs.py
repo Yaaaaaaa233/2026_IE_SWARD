@@ -49,7 +49,8 @@ def write_outputs(b12: pd.DataFrame, tier: str = "B1") -> dict:
     # ---- forecast_result.csv（官方三列） ----
     fr = df[["gpsno", "accident", "prob"]].rename(columns={"prob": "risk_prob"})
     fr_path = os.path.join(OUT_DIR, "forecast_result.csv")
-    fr.to_csv(fr_path, index=False, encoding="utf-8", float_format="%.6f")
+    # 提交格式契约：UTF-8 无 BOM + LF 换行（Windows 默认 CRLF 会挂官方格式校验）
+    fr.to_csv(fr_path, index=False, encoding="utf-8", float_format="%.6f", lineterminator="\n")
 
     # ---- model_score.csv（内部溯源版） ----
     ms = df[["gpsno", "prob", "rank_pct", "calib_flag", "group_id" if "group_id" in df else "group",

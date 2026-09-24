@@ -172,7 +172,8 @@ def main():
     out["rank_pct"] = out.prob.rank(pct=True, method="average")
     out["calib_flag"] = grp
     out[["gpsno", "accident", "prob"]].to_csv(
-        os.path.join(OUT_DIR, "forecast_result.csv"), index=False, float_format="%.6f")
+        os.path.join(OUT_DIR, "forecast_result.csv"), index=False, float_format="%.6f",
+        encoding="utf-8", lineterminator="\n")  # 提交契约：UTF-8 无 BOM + LF
     out[["gpsno", "prob", "rank_pct", "calib_flag"]].assign(
         group_id=grp, model=VERSIONS["model_version"],
         feature_version=VERSIONS["feature_version"]).to_csv(
