@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0.0",
+  "contract_version": "T2-R4-v1",
+  "status": "draft_for_leader_review",
+  "scope": "公开评价方法与合成验收；不含真实车辆、真实指标、OOF预测或学习权重",
+  "dependencies": {
+    "classification_contract": "T2-R0-v1",
+    "label_version": "label_v2_record_count_20260923",
+    "split_version": "split_v2_record_strat5_seed42",
+    "timezone": "Asia/Shanghai",
+    "task1_probability_role": "reference_only_not_a_selection_gate"
+  },
+  "decisions": [
+    {
+      "id": "D21",
+      "topic": "首要判据组合",
+      "recommendation": "先过时间、覆盖、可复算和低证据检查，再以低分到高分五分位未来出险率总体单调为首要门槛；AUC、AP、Top20% Lift、公平性和稳定性作次级证据。"
+    },
+    {
+      "id": "D22",
+      "topic": "人因复核",
+      "recommendation": "5名成员复核10个固定案例和5个问题；总均分不低于4，任何单项评分不低于3。"
+    },
+    {
+      "id": "D23",
+      "topic": "双基线",
+      "recommendation": "Q0使用等存在透明弱基线，Q1使用100乘以1减任务一折外风险概率；二者只作参照，不自动成为公开总分。"
+    }
+  ],
+  "evaluation": {
+    "minimum_rows": 10,
+    "minimum_fold_count": 5,
+    "recomputation_tolerance": 1e-09,
+    "max_low_evidence_score": 60.0,
+    "top_fraction": 0.2,
+    "quintile_rate_tolerance": 0.0,
+    "minimum_subgroup_rows": 10,
+    "subgroup_fields": [
+      "vehicle_type",
+      "energy_type",
+      "coverage_group"
+    ],
+    "selection_order": [
+      "hard_checks",
+      "quintile_monotonicity",
+      "roc_auc_and_average_precision",
+      "top20_lift",
+      "cross_fold_direction_stability",
+      "rule_recomputation",
+      "low_evidence_protection",
+      "subgroup_diagnostics",
+      "task1_consistency_reference"
+    ],
+    "required_protocol_fields": [
+      "as_of_time",
+      "feature_window",
+      "label_window",
+      "timezone",
+      "label_version",
+      "split_version",
+      "score_version"
+    ]
+  },
+  "baselines": {
+    "Q0": {
+      "name": "equal_presence_transparent_baseline",
+      "formula": "维度分=100*(1-已出现且可评价编码数/可评价编码数)，总分为至少3个可评价维度的等权平均",
+      "insufficient_evidence_prior": 50.0,
+      "min_observed_dimensions": 3,
+      "historical_outcome_cap": null,
+      "limitations": "仅作可复算下界，不使用频次、暴露强度或学习权重，不替代R1。"
+    },
+    "Q1": {
+      "name": "task1_probability_conversion",
+      "formula": "safety_score=100*(1-risk_probability)",
+      "input_requirement": "必须是与任务二验证同车辆、同折、同标签协议的折外风险概率",
+      "role": "reference_only_not_a_selection_gate"
+    }
+  },
+  "human_review": {
+    "reviewer_count": 5,
+    "case_count": 10,
+    "questions": [
+      "reason_is_understandable",
+      "deduction_matches_evidence",
+      "improvement_action_is_clear",
+      "manager_action_is_available",
+      "missing_duplicate_stopped_handling_is_reasonable"
+    ],
+    "case_type_quotas": {
+      "low_score_future_event": 2,
+      "high_score_no_event": 2,
+      "high_score_future_event": 2,
+      "low_exposure_or_missing": 2,
+      "trend_improve_or_worsen": 2
+    },
+    "minimum_mean": 4.0,
+    "minimum_single_rating": 3.0
+  },
+  "reporting_rules": [
+    "真实车辆数据、OOF预测、指标数值和图表底表只保存在受控目录，不进入公开仓库。",
+    "五分位单调是首要方向门，不以单个AUC点估计覆盖解释、缺失或时间泄漏问题。",
+    "任务一概率只用于Spearman、Kendall和Top-K重合参照，不作为任务二方案有效性的唯一证据。",
+    "子群样本不足时报告insufficient_rows，不补值也不宣称公平性通过。",
+    "开发期代理回测不称为官方未来40天独立验证。"
+  ]
+}

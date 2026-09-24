@@ -1,0 +1,19 @@
+{
+  "as_of_time": "2026-06-21T00:00:00",
+  "feature_window": {
+    "start": "2026-06-01T00:00:00",
+    "end": "2026-06-21T00:00:00"
+  },
+  "label_window": {
+    "start": "2026-06-21T00:00:00",
+    "end": "2026-07-31T00:00:00"
+  },
+  "timezone": "Asia/Shanghai",
+  "label_version": "label_v2_record_count_20260923",
+  "split_version": "split_v2_record_strat5_seed42",
+  "score_version": "replace_with_candidate_version",
+  "all_fit_operations_train_fold_only": true,
+  "uses_task1_probability": false,
+  "task1_predictions_are_oof": false,
+  "target_count": 500
+}

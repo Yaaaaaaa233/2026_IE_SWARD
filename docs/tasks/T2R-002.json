@@ -1,0 +1,39 @@
+{
+  "id": "T2R-002",
+  "title": "任务二 T2-R4：MOE 评价合同、双基线与人因验收器",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-R4-moe-baselines",
+  "base_commit": "6dd943dcb0a14b63ac4415daa12cf21e158391b6",
+  "write_scope": [
+    "task2/evaluation/",
+    "tests/test_task2_evaluation.py",
+    "docs/tasks/T2R-002.json",
+    "docs/worklog/2026-09-24-t2-r4-moe-baselines.md"
+  ],
+  "dependencies": [
+    "T2R-001"
+  ],
+  "acceptance": [
+    "D21 主次评价顺序可由标准库脚本复算：五分位单调、AUC、AP、Top20% Lift、可复算性、公平性与任务一一致性",
+    "D22 人因复核器验证 5 人、10 个固定案例、5 个问题，平均分不低于 4 且任何评分不低于 3",
+    "D23 同时提供透明 Q0 基线和 Q1 概率转换基线，低证据车辆不得获得虚假高分",
+    "坏输入测试覆盖重复车辆、非法标签、复算不一致、低证据高分和不完整人因复核",
+    "不使用真实数据、不写入真实指标，治理检查与仓库全量单测通过"
+  ],
+  "evidence": [
+    "task2/evaluation/moe-baseline-charter-v1.md",
+    "task2/evaluation/evaluation_contract_v1.json",
+    "task2/evaluation/protocol_manifest.example.json",
+    "task2/evaluation/evaluate_scores.py",
+    "task2/evaluation/baselines.py",
+    "task2/evaluation/human_review.py",
+    "task2/evaluation/human-review-template.md",
+    "tests/test_task2_evaluation.py"
+  ],
+  "handoff": "docs/worklog/2026-09-24-t2-r4-moe-baselines.md",
+  "notes": "已完成周航正负责的 T2-R4 无数据实现并进入人工复核。Q0 是可解释的弱基线，不替代娄澜负责的 R1；Q1 只作参照；未实现 R3 融合，未修改现有 EVAL-001 公共文件。"
+}
