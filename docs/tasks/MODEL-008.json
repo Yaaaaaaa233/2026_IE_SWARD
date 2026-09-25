@@ -11,7 +11,9 @@
   "write_scope": [
     "docs/tasks/MODEL-008.json",
     "docs/tasks/README.md",
-    "docs/worklog/2026-09-25-model-008-sprint.md"
+    "docs/worklog/2026-09-25-model-008-sprint.md",
+    "docs/experience/task1/",
+    "models/sprint_champion_v2/"
   ],
   "dependencies": [
     "MODEL-007",
@@ -29,5 +31,5 @@
     "docs/worklog/2026-09-25-model-008-sprint.md"
   ],
   "handoff": "docs/worklog/2026-09-25-model-008-sprint.md",
-  "notes": "受控工作目录：任务1工作冲刺/（经验清单、路线图、五组版本档案、台账、总报告——均含真实数字，不入公开仓库）。冲刺内对照锚：本线 RF@F0v2 与叶安线 FEAT-009 公布口径的引用值；主线采纳仍走 ADR-0004。"
+  "notes": "受控工作目录：任务1工作冲刺/（经验清单、路线图、五组版本档案、台账、总报告——均含真实数字，不入公开仓库）。冲刺内对照锚：本线 RF@F0v2 与叶安线 FEAT-009 公布口径的引用值；主线采纳仍走 ADR-0004。 2026-09-26 收口补充：经验材料集中目录 docs/experience/task1/（三分类清单/叶安线学习报告/35版总表/最优版成果说明+在库材料索引）与最优版成果随组长授权入库；数字为内部代理回测口径。"
 }
