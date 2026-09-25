@@ -45,7 +45,7 @@ flowchart LR
 | 数据线 | 清洗、契约、折分 | 数据契约 v0.1、五版数据 v0–v4、冻结 splits | [interfaces/data_contract.md](../interfaces/data_contract.md)、[cleaning/](../cleaning/) |
 | 特征线 | 特征工程与降维 | F00–F04 / T / I / X / D 实验矩阵、特征字典 | 特征线受控目录 + 实验登记 |
 | 模型线 | 基线、组合选型、方案 A/B | 模型契约、组合方案库、A/B 对照结论 | [plans/model-route-proposal.md](model-route-proposal.md)、[interfaces/model_contract.md](../interfaces/model_contract.md) |
-| 评分线（任务二） | 评分体系与运营包 | 双基线 Q0/Q1、五维子分、运营四件套 | 待登记 |
+| 评分线（任务二） | 评分体系与运营包 | 双基线 B0/Q1、五维子分、运营四件套 | 待登记 |
 | 治理线 | 协作、边界、检查 | AGENTS 体系、检查器、CI | [AGENTS.md](../../AGENTS.md)、[tools/](../../tools/) |
 
 ## 4. 阶段门槛（Stage Gates）

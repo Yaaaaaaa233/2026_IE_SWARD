@@ -1,0 +1,36 @@
+{
+  "id": "T2R-007",
+  "title": "周航正文档 B0/Q0 命名收口",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-B0-doc-alignment",
+  "base_commit": "922919c4c013de54968a37293c3dc51def612fc7",
+  "write_scope": [
+    "docs/modules/README.md",
+    "docs/plans/roadmap.md",
+    "docs/plans/roadmap_overall.md",
+    "docs/worklog/2026-09-20-model-route-and-governance.md",
+    "docs/tasks/T2R-007.json",
+    "docs/worklog/2026-09-25-t2-b0-doc-alignment.md"
+  ],
+  "dependencies": [
+    "T2R-006"
+  ],
+  "acceptance": [
+    "周航正文档中代表三维等权或透明弱基线的 Q0 全部更名为 B0",
+    "R1 学习规则分继续使用 Q0，Q1 继续表示任务一概率转换分",
+    "不修改娄澜负责的 deduction/ 与 fusion/ 文件",
+    "仓库全量单测、治理检查和命名定向检查通过"
+  ],
+  "evidence": [
+    "docs/modules/README.md",
+    "docs/plans/roadmap.md",
+    "docs/plans/roadmap_overall.md",
+    "docs/worklog/2026-09-20-model-route-and-governance.md"
+  ],
+  "handoff": "docs/worklog/2026-09-25-t2-b0-doc-alignment.md",
+  "notes": "按团队建议清理早期文档中的旧命名；只修改明确表示透明弱基线的 Q0，不替换 R1、R2、R3 语境中的正式 Q0。"
+}
