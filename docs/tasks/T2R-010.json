@@ -1,0 +1,33 @@
+{
+  "id": "T2R-010",
+  "title": "R1 数据阶段执行记录：五方案对比、改进批次与规则定型（独立路线，方法与决策登记；数字留受控台账）",
+  "status": "review",
+  "owner": "娄澜",
+  "actor": "ZCode agent",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2R-010-r1-datarun-registration",
+  "base_commit": "5a481a7",
+  "write_scope": [
+    "docs/tasks/T2R-010.json",
+    "docs/worklog/2026-09-26-t2-r1-datarun.md"
+  ],
+  "dependencies": [
+    "T2R-004",
+    "T2R-005",
+    "T2R-006",
+    "EVAL-003"
+  ],
+  "acceptance": [
+    "run1/run2/run3 三轮实验的方法、纪律与定性结论可追溯；全部真实数字仅存本机受控台账，不入公开仓库",
+    "三项执行期决策（发布层低暴露收缩、A 网格第三因子由夜间系数改为档型、尾部严格单调容差提请）逐条登记留痕，其中发布层决策与 T2R-006 的 R4 侧发布保护相互衔接",
+    "规则定型结论（定性）：先验+档内连续化方案为发布骨架首选；迭代搜索与全学习预算方案因跨截点不稳定撤销挑战者地位",
+    "人因复核案例包（R4 模板口径 10 案例）与正式规则表已产出于受控目录；R2 适配器联调完成并附两项待办观察",
+    "治理检查与仓库全量单测通过"
+  ],
+  "evidence": [
+    "docs/worklog/2026-09-26-t2-r1-datarun.md"
+  ],
+  "handoff": "docs/worklog/2026-09-26-t2-r1-datarun.md",
+  "notes": "独立路线（不借助任务一特征与模型输出），标签按 ADR-0006/0007 由官方工具重生成 label_v2、折分 split_v2。与 T2R-008/009（借助任务一 OOF 的蒸馏与反推路线）构成双线对照，按其验收项约定统一走 R4 比较。"
+}
