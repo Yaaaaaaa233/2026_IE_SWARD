@@ -28,5 +28,9 @@
   "真实数字与逐车分数只存受控目录，公开仓库仅方法与边界声明"
  ],
  "notes": "组长 2026-09-26 指令：任务二接手周航正交接后做多套扣分方案；双线与任务一互不干扰，仅通过接口（model_score+特征底座）传递。首版结果见受控 任务2工作冲刺/ 各 s*_记录.md。",
- "created_at": "2026-09-26"
+ "created_at": "2026-09-26",
+ "evidence": [
+  "docs/worklog/2026-09-26-model-008-erratum-adaptation.md"
+ ],
+ "handoff": null
 }
