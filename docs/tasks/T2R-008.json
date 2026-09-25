@@ -1,0 +1,39 @@
+{
+  "id": "T2R-008",
+  "title": "D0：基于任务一 OOF 概率的独立可解释扣分蒸馏路线",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-D0-teacher-distillation",
+  "base_commit": "bb81bdc03f751a58bfb4cdc2e1e1152e4b03db04",
+  "write_scope": [
+    "task2/teacher_distillation/",
+    "tests/test_task2_teacher_distillation.py",
+    "docs/tasks/T2R-008.json",
+    "docs/worklog/2026-09-25-t2-d0-teacher-distillation.md"
+  ],
+  "dependencies": [
+    "T2R-001",
+    "T2R-002",
+    "MODEL-008"
+  ],
+  "acceptance": [
+    "建立与 R1/R2/R3/R4 文件隔离的 D0 独立目录，不覆盖其他成员成果",
+    "只接受有版本和 OOF 声明的任务一概率，车辆集合、值域与唯一性严格校验",
+    "20 个可计分事件率在训练折内学习单调曲线，并按五个语义组递减融合后学习非负扣分预算",
+    "输出可精确复算的基础扣分、组扣分、行为分摊和前三条原因，危险行为增加时安全分不升",
+    "交叉拟合报告教师一致性；真实标签效果与教师一致性分开标识，禁止循环论证",
+    "公开仓库只提交代码、示例配置、说明和合成测试，不提交真实概率、权重、车辆分数或指标",
+    "仓库全量单测、治理检查和索引检查通过"
+  ],
+  "evidence": [
+    "task2/teacher_distillation/model.py",
+    "task2/teacher_distillation/run.py",
+    "task2/teacher_distillation/distillation-charter-v1.md",
+    "tests/test_task2_teacher_distillation.py"
+  ],
+  "handoff": "docs/worklog/2026-09-25-t2-d0-teacher-distillation.md",
+  "notes": "最新版公开说明指向 sprint-g8v5-seedmean，但实际 model_score.csv 不在 Git 历史且本机未找到；本次完成可运行管线和输入就绪检查，不以合成概率冒充正式结果。"
+}

@@ -1,0 +1,13 @@
+{
+  "route_name": "D0_task1_probability_distillation",
+  "teacher_model_version": "sprint-g8v5-seedmean",
+  "teacher_score_kind": "out_of_fold_probability",
+  "rule_version": "D0-task1-distilled-v1",
+  "n_bins": 4,
+  "ridge": 0.05,
+  "group_agg_fraction": 0.25,
+  "min_exposure": 0.0,
+  "low_evidence_prior": 50.0,
+  "feature_column_pattern": "rate_{event_code}_per_1000km",
+  "notes": "示例配置不含真实概率、权重、阈值或车辆结果；正式值只在训练折内学习。"
+}
