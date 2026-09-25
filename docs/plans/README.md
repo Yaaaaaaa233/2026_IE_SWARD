@@ -13,6 +13,8 @@
 - [FEAT-009 新口径下叶安线特征与模型适配执行方案](feat-009-protocol-v2-adaptation-plan.md)（v1.0，[ADR-0008](../decisions/ADR-0008-feat-009-protocol-v2-route.md) 接受方案）：Y0–Y4 技术运行已完成，[FEAT-009](../tasks/FEAT-009.json) 处于 `review`，真实人工复核待完成。
 - [FEAT-010 最终历史窗口适配与观测量依赖检验方案](feat-010-final-window-and-observation-audit-plan.md)（v1.0，[ADR-0009](../decisions/ADR-0009-feat-010-final-window-and-observation-audit.md) 仅接受方案）：A0/A1 技术运行和机器检查完成，真实来源／图表复核待完成；B0/B1 仍待前置责任人复核，不依赖王健祺线新版 V5。
 - [FEAT-011 既有 F3 特征的小规模建模适配方案](feat-011-small-attribution-model-adaptation-plan.md)（v1.0，[ADR-0010](../decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md) 仅接受方案）：S0 只读审计和机器检查已完成，人工来源／图表复核待完成；S1–S3 未运行，真实 OOF 仍待前置复核门。
+- [FEAT-012 新版 F3 特征与算法多轮迭代优化](feat-012-iterative-feature-model-optimization.md)：叶安线任务内开发期探索；按用户授权直接启动，不等待 EVAL-001 全项目统一复核；上限 19 个版本，结果不改变公共评价基座。
+- [FEAT-013 FEAT-012 后续 EBM 稳定性与融合小迭代](feat-013-ebm-stability-and-fusion-followup.md)：补做三种子、EBM 平滑与固定权重融合对照；上限 17 版，结果仍为开发期探索。
 - [FEAT-009 叶安线已有特征建模优化方案](feat-009-feature-modeling-proposal.md)（旧协议设计存档）：旧 S0 复核只保留历史身份，不能放行新版 S1。
 - [评价指标与基线对照方案 v1.3](评价指标与基线对照方案（MOE与MOP）.md)：公共规则按 0923 答疑及团队记录计次裁定校正；v1.3 已登记 FEAT-009 新协议技术锚点，但全项目正式评价基座仍待责任人复核。
 

@@ -1,0 +1,38 @@
+{
+  "id": "FEAT-013",
+  "title": "FEAT-012 后续 EBM 稳定性与固定融合探索",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "Codex（完成 17 版受控补充探索与独立复算；人工复核待进行）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/feat-012-iterative-optimization",
+  "base_commit": "9ef67d6e72edad1abf4f5cfffa33435388c25d4a",
+  "write_scope": [
+    "docs/plans/feat-013-ebm-stability-and-fusion-followup.md",
+    "docs/plans/README.md",
+    "docs/tasks/FEAT-013.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-25-feat-013-ebm-followup.md",
+    "docs/worklog/README.md",
+    "feature_engineering/experiments/feat013/",
+    "outputs/feat-013/"
+  ],
+  "dependencies": [
+    "FEAT-012"
+  ],
+  "acceptance": [
+    "真实运行前锁定 FEAT-009 输入和 FEAT-012 所有被复用 OOF 的 SHA-256、官方标签／折分标识、种子／算法参数与最多 17 版矩阵",
+    "新增 9 个训练 OOF，生成 8 个预登记的确定性种子平均／固定融合；折内拟合范围和每车一次 OOF 覆盖可审计",
+    "受控目录保留逐版本 OOF、指标、区间、折级审计、运行环境、输入／代码／输出哈希及图表；公开仓库不写真实数值或预测",
+    "明确多轮择优与权重选择造成的偏差，不把点估计当作独立增益，不改全项目评价规则或正式模型",
+    "治理检查、单测及独立结果复算通过；实现后登记 review，人工复核信息待补"
+  ],
+  "evidence": [
+    "docs/plans/feat-013-ebm-stability-and-fusion-followup.md",
+    "feature_engineering/experiments/feat013/run_followup.py",
+    "docs/worklog/2026-09-25-feat-013-ebm-followup.md"
+  ],
+  "handoff": "docs/worklog/2026-09-25-feat-013-ebm-followup.md",
+  "notes": "本任务是 FEAT-012 两轮筛选后的补充探索，直接承接用户授权的多轮优化；仍只在同一批协议 v2 开发期代理车辆和折分上运行，结果不能视为独立确认。"
+}

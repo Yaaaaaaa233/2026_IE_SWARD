@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-012",
+  "title": "叶安线新版 F3 特征与算法多轮迭代优化（开发期探索）",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "Codex（完成两轮 19 版受控探索、OOF 锚复现和交接；实际复核待进行）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/feat-012-iterative-optimization",
+  "base_commit": "9ef67d6e72edad1abf4f5cfffa33435388c25d4a",
+  "write_scope": [
+    "docs/plans/feat-012-iterative-feature-model-optimization.md",
+    "docs/plans/README.md",
+    "docs/tasks/FEAT-012.json",
+    "docs/tasks/README.md",
+    "docs/worklog/2026-09-25-feat-012-iterative-optimization.md",
+    "docs/worklog/README.md",
+    "feature_engineering/experiments/feat012/",
+    "outputs/feat-012/"
+  ],
+  "dependencies": [
+    "FEAT-009",
+    "EVAL-003"
+  ],
+  "acceptance": [
+    "在任何候选 OOF 前，任务内预登记锁定新版标签／折分、F3 输入哈希、特征来源台账、视角列哈希、候选参数、两轮规则和最多 19 版预算；真实数值及产物仅写受控 outputs",
+    "第一轮最多 13 个特征视角与固定算法版本，第二轮最多 6 个预登记规则生成的等权 logit 融合；保留失败版本，不改 FEAT-009/011 与王健祺线文件",
+    "逐折训练拟合预处理和模型，保存逐车 OOF、折审计、配对指标、复现锚差异、运行环境、输入／代码／输出指纹及受控可视化",
+    "报告显式标注同批车辆多轮自适应选择偏差；不宣布独立测试成绩、跨线胜负、全项目基线接受或 61 天训练结果",
+    "治理检查和单测通过；实现完成后登记 review，真实复核人和日期待叶安实际查看结果后补录"
+  ],
+  "evidence": [
+    "docs/plans/feat-012-iterative-feature-model-optimization.md",
+    "feature_engineering/experiments/feat012/run_exploration.py",
+    "docs/worklog/2026-09-25-feat-012-iterative-optimization.md"
+  ],
+  "handoff": "docs/worklog/2026-09-25-feat-012-iterative-optimization.md",
+  "notes": "用户明确授权赶时间先按叶安线独立开发期任务直接迭代，不等待 EVAL-001 全项目统一复核；只接受 FEAT-012 的任务内探索口径，不改变其他线的评价规则或公共基线。正式口径以官方 label_v2_record_count_20260923、split_v2_record_strat5_seed42 为准。"
+}
