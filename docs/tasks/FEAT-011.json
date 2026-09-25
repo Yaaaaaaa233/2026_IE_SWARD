@@ -3,11 +3,11 @@
   "title": "叶安线既有 F3 特征的小规模建模适配与归因检验方案",
   "status": "blocked",
   "owner": "叶安",
-  "actor": "Codex（方案入库；S0–S3 尚未执行）",
+  "actor": "Codex（已完成 S0 只读审计、合成坏例检查与样张；S1–S3 未运行）",
   "reviewer": "叶安（仅确认方案入库）",
   "reviewed_at": "2026-09-25",
-  "branch": "main（ADR-0003 无 PR 直接提交模式；独立检出整理）",
-  "base_commit": "373b5f35cf7095973bdb2218fb5de68d52d79db4",
+  "branch": "main（ADR-0003 无 PR 直接提交模式；独立检出执行）",
+  "base_commit": "a0abad5eeaca2bf0e258df776d7eaf5b1bfbdc8f",
   "write_scope": [
     "docs/plans/feat-011-small-attribution-model-adaptation-plan.md",
     "docs/plans/README.md",
@@ -20,7 +20,12 @@
     "docs/worklog/README.md",
     "docs/DEVELOPMENT_STATUS.md",
     "feature_engineering/experiments/feat011/",
-    "outputs/feat-011/"
+    "outputs/feat-011/",
+    "feature_engineering/experiments/feat011/audit_s0.py",
+    "feature_engineering/experiments/feat011/make_s0_synthetic_preview.py",
+    "feature_engineering/experiments/feat011/test_audit_s0.py",
+    "feature_engineering/experiments/feat011/README.md",
+    "docs/worklog/2026-09-25-feat-011-s0-execution.md"
   ],
   "dependencies": [
     "FEAT-009",
@@ -39,8 +44,12 @@
     "docs/plans/feat-011-small-attribution-model-adaptation-plan.md",
     "docs/decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md",
     "docs/worklog/2026-09-25-feat-011-plan-draft.md",
-    "docs/worklog/2026-09-25-feat-011-plan-acceptance.md"
+    "docs/worklog/2026-09-25-feat-011-plan-acceptance.md",
+    "feature_engineering/experiments/feat011/audit_s0.py",
+    "feature_engineering/experiments/feat011/make_s0_synthetic_preview.py",
+    "feature_engineering/experiments/feat011/test_audit_s0.py",
+    "docs/worklog/2026-09-25-feat-011-s0-execution.md"
   ],
-  "handoff": "docs/worklog/2026-09-25-feat-011-plan-acceptance.md",
-  "notes": "2026-09-25 叶安指示“入库”，仅接受方案 v1.0；S0–S3 均未运行，未锁定预登记、未生成新 OOF、未宣称新增益。真实效果运行仍被 EVAL-001/EVAL-003/FEAT-009 所需实际复核阻塞。FEAT-009 受控 Y1 输入与主跑只读；FEAT-010 B0/B1 可并行，若改变正式输入须另建版本。此提交在独立检出完成，本机原有其他未提交改动不纳入。"
+  "handoff": "docs/worklog/2026-09-25-feat-011-s0-execution.md",
+  "notes": "2026-09-25 叶安确认仅接受方案 v1.0。S0 已完成 F3 输入只读审计、按固定规则生成列集台账与特征族图、合成坏例检查和样张；S0 机器检查通过，真实字段来源／图表及新合成样张的叶安人工复核待完成。S1–S3 未运行，无新预登记、OOF 或效果结论。EVAL-001/EVAL-003 实际复核和 FEAT-009 真实来源／标签／图表复核仍未完成，故真实候选运行保持 blocked。受控证据在 outputs/feat-011/s0/，公开仓库不记录真实指标、指纹或数据派生图。"
 }

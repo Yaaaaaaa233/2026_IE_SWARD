@@ -12,7 +12,7 @@
 - [模型路线提案 v0.1](model-route-proposal.md)（任务 [MODEL-002](../tasks/MODEL-002.json)，评审中）：方案 A 八种组合方案库 C1–C8 与方案 B 分群集成设计、E-B 实验矩阵与择优规则、待决策问题清单。不含本地实验数值。
 - [FEAT-009 新口径下叶安线特征与模型适配执行方案](feat-009-protocol-v2-adaptation-plan.md)（v1.0，[ADR-0008](../decisions/ADR-0008-feat-009-protocol-v2-route.md) 接受方案）：Y0–Y4 技术运行已完成，[FEAT-009](../tasks/FEAT-009.json) 处于 `review`，真实人工复核待完成。
 - [FEAT-010 最终历史窗口适配与观测量依赖检验方案](feat-010-final-window-and-observation-audit-plan.md)（v1.0，[ADR-0009](../decisions/ADR-0009-feat-010-final-window-and-observation-audit.md) 仅接受方案）：A0/A1 技术运行和机器检查完成，真实来源／图表复核待完成；B0/B1 仍待前置责任人复核，不依赖王健祺线新版 V5。
-- [FEAT-011 既有 F3 特征的小规模建模适配方案](feat-011-small-attribution-model-adaptation-plan.md)（v1.0，[ADR-0010](../decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md) 仅接受方案）：固定两种特征视角 × 两种 EBM 配方和一个等权融合主候选；S0–S3 未运行，真实 OOF 仍待前置复核门。
+- [FEAT-011 既有 F3 特征的小规模建模适配方案](feat-011-small-attribution-model-adaptation-plan.md)（v1.0，[ADR-0010](../decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md) 仅接受方案）：S0 只读审计和机器检查已完成，人工来源／图表复核待完成；S1–S3 未运行，真实 OOF 仍待前置复核门。
 - [FEAT-009 叶安线已有特征建模优化方案](feat-009-feature-modeling-proposal.md)（旧协议设计存档）：旧 S0 复核只保留历史身份，不能放行新版 S1。
 - [评价指标与基线对照方案 v1.3](评价指标与基线对照方案（MOE与MOP）.md)：公共规则按 0923 答疑及团队记录计次裁定校正；v1.3 已登记 FEAT-009 新协议技术锚点，但全项目正式评价基座仍待责任人复核。
 
