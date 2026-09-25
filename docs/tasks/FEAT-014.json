@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-014",
+  "title": "叶安线特征与模型持续迭代探索方案",
+  "status": "proposed",
+  "owner": "叶安",
+  "actor": "Codex（仅代拟方案；未启动新实验）",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/feat-014-exploration-plan",
+  "base_commit": "e8caaf49e77703aa57ed80f0787650cb3ed0e750",
+  "write_scope": [
+    "docs/plans/feat-014-adaptive-feature-model-exploration.md",
+    "docs/tasks/FEAT-014.json",
+    "docs/worklog/2026-09-26-feat-014-plan-draft.md",
+    "feature_engineering/experiments/feat014/",
+    "tests/test_feat014_*.py",
+    "outputs/feat-014/"
+  ],
+  "dependencies": ["FEAT-009", "FEAT-011", "FEAT-012", "FEAT-013"],
+  "acceptance": [
+    "方案完整列明既有标签、折分、开发窗口、主辅指标及配对门槛；RF 原始基线、F3 固定优化对照和父版本不混用",
+    "按 E0、E1、E2、E3 分别规定操作、机器断言和负向案例、可视化验收及连续执行边界；新增 CLI 明确标为尚未实现",
+    "允许既有特征重表达、新特征、模型适配、误差驱动与互补融合，按反馈逐批预登记而非锁死全部组合",
+    "最多 30 个新评估版本和 24 小时首轮预算，包含失败留痕、稳定性预留、停止条件、61 天最终窗口交接及回退",
+    "本次只交付待复核草案；治理检查和单测通过，不运行新训练、不虚构真实复核、不发布真实成绩"
+  ],
+  "evidence": ["docs/plans/feat-014-adaptive-feature-model-exploration.md"],
+  "handoff": "docs/worklog/2026-09-26-feat-014-plan-draft.md",
+  "notes": "依赖表示复用产物，不新增 EVAL-001 全项目正式采纳前置；本次按用户要求先形成方案。后续获执行授权后在已接受方案预算内连续探索，实际结果最终由叶安复核。"
+}
