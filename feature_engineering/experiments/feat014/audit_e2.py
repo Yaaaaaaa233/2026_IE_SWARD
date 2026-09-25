@@ -31,6 +31,18 @@ def changed(y: np.ndarray, candidate: set[int], reference: set[int]) -> dict:
     }
 
 
+def resolve_oof(run_dir: Path, current_batch: str, reference: str,
+                frame: pd.DataFrame) -> tuple[np.ndarray, Path]:
+    if "/" in reference:
+        batch_name, version_name = reference.split("/", 1)
+    else:
+        batch_name, version_name = current_batch, reference
+    path = run_dir / "batches" / batch_name / version_name / "oof.csv"
+    if not path.is_file():
+        raise ValueError(f"focus OOF does not exist: {reference}")
+    return e.read_oof(path, frame, "probability"), path
+
+
 def audit(run_dir: Path, batch: str, focus: list[str]) -> dict:
     lock, frame, _, _, _, y, folds, p_rf, p_f3 = e.load_run_inputs(run_dir)
     directory = run_dir / "batches" / batch
@@ -84,26 +96,98 @@ def audit(run_dir: Path, batch: str, focus: list[str]) -> dict:
     expected_changes = {name: changed(y, selected[name], base_top) for name in selected}
     if expected_changes != doc.get("top100_vs_f3"):
         errors.append("Top100 error changes do not reproduce")
-    if any(name not in selected for name in focus) or len(focus) != 2:
-        errors.append("focus versions are not present in the batch")
+    names = sorted(preds)
+    for i, left in enumerate(names):
+        for right in names[i + 1:]:
+            saved = doc.get("pairwise_auc", {}).get(f"{left}_minus_{right}", {})
+            expected = e.compute_pair(y, preds[left], preds[right])
+            if (not np.isclose(saved.get("point", np.nan), expected["point"], atol=1e-12, rtol=0)
+                    or not np.allclose(saved.get("ci95", [np.nan, np.nan]), expected["ci95"], atol=1e-12, rtol=0)):
+                errors.append(f"within-batch paired interval mismatch: {left}_minus_{right}")
+    expected_direct = {}
+    for item in plan["versions"]:
+        name = item["version"]
+        raw_refs = item.get("comparison", {}).get("compare_to", "")
+        refs = [x.strip() for x in raw_refs.split(" and ") if x.strip()]
+        if not refs:
+            continue
+        expected_direct[name] = {}
+        for reference in refs:
+            try:
+                parent_p, parent_path = resolve_oof(run_dir, batch, reference, frame)
+            except Exception as exc:
+                errors.append(f"registered comparison OOF unavailable: {name}/{reference}: {exc}")
+                continue
+            parent_top = rank(y, parent_p, ids)
+            expected_direct[name][reference] = {
+                "delta_auc_candidate_minus_reference": e.compute_pair(y, preds[name], parent_p),
+                "delta_recall_at_100_candidate_minus_reference": float(
+                    y[list(selected[name])].sum() / y.sum() - y[list(parent_top)].sum() / y.sum()),
+                "delta_brier_candidate_minus_reference": float(
+                    brier_score_loss(y, preds[name]) - brier_score_loss(y, parent_p)),
+                "top100_change": changed(y, selected[name], parent_top),
+                "reference_oof_sha256": e.sha(parent_path),
+            }
+    actual_direct = doc.get("direct_comparisons", {})
+    if set(expected_direct) != set(actual_direct):
+        errors.append("registered direct comparison set mismatch")
+    for name, refs in expected_direct.items():
+        for reference, expected in refs.items():
+            actual = actual_direct.get(name, {}).get(reference, {})
+            if expected["top100_change"] != actual.get("top100_change"):
+                errors.append(f"direct comparison Top100 mismatch: {name}/{reference}")
+            if expected["reference_oof_sha256"] != actual.get("reference_oof_sha256"):
+                errors.append(f"direct comparison OOF fingerprint mismatch: {name}/{reference}")
+            if not np.isclose(expected["delta_recall_at_100_candidate_minus_reference"],
+                              actual.get("delta_recall_at_100_candidate_minus_reference", np.nan), atol=1e-12, rtol=0):
+                errors.append(f"direct comparison recall mismatch: {name}/{reference}")
+            if not np.isclose(expected["delta_brier_candidate_minus_reference"],
+                              actual.get("delta_brier_candidate_minus_reference", np.nan), atol=1e-12, rtol=0):
+                errors.append(f"direct comparison Brier mismatch: {name}/{reference}")
+            actual_auc = actual.get("delta_auc_candidate_minus_reference", {})
+            expected_auc = expected["delta_auc_candidate_minus_reference"]
+            if (not np.isclose(expected_auc["point"], actual_auc.get("point", np.nan), atol=1e-12, rtol=0)
+                    or not np.allclose(expected_auc["ci95"], actual_auc.get("ci95", [np.nan, np.nan]), atol=1e-12, rtol=0)):
+                errors.append(f"direct comparison AUC mismatch: {name}/{reference}")
+    focus_predictions, focus_selected, focus_paths = {}, {}, {}
+    if len(focus) != 2:
+        errors.append("focus must contain exactly two OOF references")
+    for reference in focus:
+        try:
+            p, path = resolve_oof(run_dir, batch, reference, frame)
+            focus_predictions[reference] = p
+            focus_selected[reference] = rank(y, p, ids)
+            focus_paths[reference] = path
+            if doc.get("focus_oof_sha256", {}).get(reference) != e.sha(path):
+                errors.append(f"focus OOF fingerprint mismatch: {reference}")
+        except Exception as exc:
+            errors.append(f"focus OOF unavailable: {reference}: {exc}")
+    if len(focus_predictions) != 2:
         pair = {}
     else:
         a, b = focus
-        both, only_a, only_b = selected[a] & selected[b], selected[a] - selected[b], selected[b] - selected[a]
-        neither = set(range(len(y))) - (selected[a] | selected[b])
+        both, only_a, only_b = focus_selected[a] & focus_selected[b], focus_selected[a] - focus_selected[b], focus_selected[b] - focus_selected[a]
+        neither = set(range(len(y))) - (focus_selected[a] | focus_selected[b])
         pair = {
             "both_true_positives": int(sum(y[i] == 1 for i in both)),
             "first_only_true_positives": int(sum(y[i] == 1 for i in only_a)),
             "second_only_true_positives": int(sum(y[i] == 1 for i in only_b)),
             "neither_true_positives": int(sum(y[i] == 1 for i in neither)),
-            "first_false_positives": int(sum(y[i] == 0 for i in selected[a])),
-            "second_false_positives": int(sum(y[i] == 0 for i in selected[b])),
-            "top100_intersection": int(len(selected[a] & selected[b])),
-            "probability_pearson_correlation": float(np.corrcoef(preds[a], preds[b])[0, 1]),
+            "first_false_positives": int(sum(y[i] == 0 for i in focus_selected[a])),
+            "second_false_positives": int(sum(y[i] == 0 for i in focus_selected[b])),
+            "top100_intersection": int(len(focus_selected[a] & focus_selected[b])),
+            "probability_pearson_correlation": float(np.corrcoef(focus_predictions[a], focus_predictions[b])[0, 1]),
+            "delta_auc_first_minus_second": e.compute_pair(y, focus_predictions[a], focus_predictions[b]),
             "fold_ids": sorted(map(int, np.unique(folds))),
         }
         saved_pair = doc.get("pair_complementarity", {})
         for key, value in pair.items():
+            if key == "delta_auc_first_minus_second":
+                saved_delta = saved_pair.get(key, {})
+                if (not np.isclose(saved_delta.get("point", np.nan), value["point"], atol=1e-12, rtol=0)
+                        or not np.allclose(saved_delta.get("ci95", [np.nan, np.nan]), value["ci95"], atol=1e-12, rtol=0)):
+                    errors.append(f"pair comparison mismatch: {key}")
+                continue
             if isinstance(value, float):
                 if not np.isclose(saved_pair.get(key, np.nan), value, atol=1e-12, rtol=0): errors.append(f"pair comparison mismatch: {key}")
             elif saved_pair.get(key) != value:

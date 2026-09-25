@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import unittest
 
+import numpy as np
 import pandas as pd
 
 from feature_engineering.experiments.feat014.run import G1_COLUMNS, extract_g1_features, read_oof
 from feature_engineering.experiments.feat014.diagnose import top100_change
+from feature_engineering.experiments.feat014.fusion import logit_mean
 
 
 class Feat014ContractTests(unittest.TestCase):
@@ -74,6 +76,12 @@ class Feat014ContractTests(unittest.TestCase):
         self.assertEqual(got["new_true_positives_in_top100"], 2)
         self.assertEqual(got["true_positives_dropped_from_top100"], 0)
         self.assertEqual(got["top100_overlap"], 1)
+
+    def test_fixed_logit_mean_is_deterministic_and_rejects_invalid_weights(self):
+        got = logit_mean([np.array([0.25]), np.array([0.75])], [0.5, 0.5])
+        self.assertAlmostEqual(float(got[0]), 0.5)
+        with self.assertRaisesRegex(ValueError, "sum to one"):
+            logit_mean([np.array([0.25]), np.array([0.75])], [0.2, 0.2])
 
 
 if __name__ == "__main__": unittest.main()

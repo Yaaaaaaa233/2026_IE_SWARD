@@ -32,6 +32,18 @@ def top100_change(y: np.ndarray, candidate: set[int], reference: set[int]) -> di
     }
 
 
+def resolve_oof(run_dir: Path, current_batch: str, reference: str,
+                frame: pd.DataFrame) -> tuple[np.ndarray, Path]:
+    if "/" in reference:
+        batch_name, version_name = reference.split("/", 1)
+    else:
+        batch_name, version_name = current_batch, reference
+    path = run_dir / "batches" / batch_name / version_name / "oof.csv"
+    if not path.is_file():
+        raise ValueError(f"focus OOF does not exist: {reference}")
+    return e.read_oof(path, frame, "probability"), path
+
+
 def metric_row(y: np.ndarray, p: np.ndarray, ids: np.ndarray, p_rf: np.ndarray, p_f3: np.ndarray,
                fit_seconds: float) -> dict:
     auc = float(roc_auc_score(y, p))
@@ -135,8 +147,8 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
     batch_dir = run_dir / "batches" / batch_name
     plan = json.loads((batch_dir / "plan.json").read_text(encoding="utf-8"))
     metrics_doc = json.loads((batch_dir / "metrics.json").read_text(encoding="utf-8"))
-    if metrics_doc.get("status") != "complete":
-        raise ValueError("E2 requires a complete batch")
+    if not set(item["version"] for item in plan["versions"]).issubset(metrics_doc.get("versions", {})):
+        raise ValueError("E2 requires OOF results for every registered version")
     ids = frame.sample_id.astype(str).to_numpy()
     probs = {}
     metrics = {}
@@ -157,21 +169,27 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
         }
     reference_top = top_k(y, p_f3, ids)
     changes = {n: top100_change(y, top[n], reference_top) for n in probs}
-    if len(focus) != 2 or any(name not in probs for name in focus):
-        raise ValueError("focus must identify two completed versions in this batch")
+    if len(focus) != 2:
+        raise ValueError("focus must identify exactly two completed versions")
+    focus_probs, focus_paths, focus_top = {}, {}, {}
+    for name in focus:
+        p, path = resolve_oof(run_dir, batch_name, name, frame)
+        focus_probs[name], focus_paths[name] = p, path
+        focus_top[name] = top_k(y, p, ids)
     aa, bb = focus
-    both = top[aa] & top[bb]
-    only_a, only_b = top[aa] - top[bb], top[bb] - top[aa]
-    neither = set(range(len(y))) - (top[aa] | top[bb])
+    both = focus_top[aa] & focus_top[bb]
+    only_a, only_b = focus_top[aa] - focus_top[bb], focus_top[bb] - focus_top[aa]
+    neither = set(range(len(y))) - (focus_top[aa] | focus_top[bb])
     pair = {
         "both_true_positives": int(sum(y[i] == 1 for i in both)),
         "first_only_true_positives": int(sum(y[i] == 1 for i in only_a)),
         "second_only_true_positives": int(sum(y[i] == 1 for i in only_b)),
         "neither_true_positives": int(sum(y[i] == 1 for i in neither)),
-        "first_false_positives": int(sum(y[i] == 0 for i in top[aa])),
-        "second_false_positives": int(sum(y[i] == 0 for i in top[bb])),
+        "first_false_positives": int(sum(y[i] == 0 for i in focus_top[aa])),
+        "second_false_positives": int(sum(y[i] == 0 for i in focus_top[bb])),
         "top100_intersection": int(len(both)),
-        "probability_pearson_correlation": float(np.corrcoef(probs[aa], probs[bb])[0, 1]),
+        "probability_pearson_correlation": float(np.corrcoef(focus_probs[aa], focus_probs[bb])[0, 1]),
+        "delta_auc_first_minus_second": e.compute_pair(y, focus_probs[aa], focus_probs[bb]),
         "fold_ids": sorted(map(int, np.unique(folds))),
     }
     pairwise_auc = {}
@@ -179,6 +197,26 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
     for i, left in enumerate(names):
         for right in names[i + 1:]:
             pairwise_auc[f"{left}_minus_{right}"] = e.compute_pair(y, probs[left], probs[right])
+    direct_comparisons = {}
+    for item in plan["versions"]:
+        name = item["version"]
+        raw_refs = item.get("comparison", {}).get("compare_to", "")
+        refs = [x.strip() for x in raw_refs.split(" and ") if x.strip()]
+        if not refs:
+            continue
+        direct_comparisons[name] = {}
+        for reference in refs:
+            parent_p, parent_path = resolve_oof(run_dir, batch_name, reference, frame)
+            parent_top = top_k(y, parent_p, ids)
+            direct_comparisons[name][reference] = {
+                "delta_auc_candidate_minus_reference": e.compute_pair(y, probs[name], parent_p),
+                "delta_recall_at_100_candidate_minus_reference": float(
+                    y[list(top[name])].sum() / y.sum() - y[list(parent_top)].sum() / y.sum()),
+                "delta_brier_candidate_minus_reference": float(
+                    brier_score_loss(y, probs[name]) - brier_score_loss(y, parent_p)),
+                "top100_change": top100_change(y, top[name], parent_top),
+                "reference_oof_sha256": e.sha(parent_path),
+            }
     report = {
         "task": "FEAT-014", "stage": "E2", "batch": batch_name,
         "input_lock_sha256": e.sha(run_dir / "input_lock.json"),
@@ -188,8 +226,10 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
         "top100_vs_f3": changes,
         "pair_complementarity": pair,
         "pairwise_auc": pairwise_auc,
+        "direct_comparisons": direct_comparisons,
         "interpretation_boundary": "Repeated development OOF reuse is exploratory. Paired bootstrap intervals do not remove adaptive selection bias.",
         "oof_sha256": {name: e.sha(batch_dir / name / "oof.csv") for name in probs},
+        "focus_oof_sha256": {name: e.sha(path) for name, path in focus_paths.items()},
         "diagnose_script_sha256": e.sha(Path(__file__).resolve()),
     }
     e.json_dump(batch_dir / "e2_diagnosis.json", report)
@@ -203,7 +243,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-dir", required=True, type=Path)
     parser.add_argument("--batch", required=True)
-    parser.add_argument("--focus", nargs=2, required=True, help="two versions for the complementarity chart")
+    parser.add_argument("--focus", nargs=2, required=True,
+                        help="two versions; use BATCH/VERSION to compare across batches")
     args = parser.parse_args()
     result = diagnose(args.run_dir.expanduser().resolve(), args.batch, args.focus)
     print(json.dumps({"stage": "E2", "status": result["status"], "batch": args.batch,

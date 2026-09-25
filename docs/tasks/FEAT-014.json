@@ -35,6 +35,7 @@
     "feature_engineering/experiments/feat014/audit.py",
     "feature_engineering/experiments/feat014/diagnose.py",
     "feature_engineering/experiments/feat014/audit_e2.py",
+    "feature_engineering/experiments/feat014/fusion.py",
     "tests/test_feat014_contract.py",
     "docs/worklog/2026-09-26-feat-014-execution.md"
   ],
