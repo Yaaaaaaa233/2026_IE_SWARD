@@ -86,6 +86,10 @@
     "docs/cleaning/数据清洗版本与规则总说明.docx": {
       "sha256": "6efa6041442ad7fd06e311070bec915ebb8af7ad6404bb72e4f3544141988ae0",
       "reason": "Pre-existing TASK-005 asset committed directly to main on 2026-09-19; registered to keep checks green, publication review by coordinator still pending (see MODEL-002 notes)."
+    },
+    "models/sprint_champion_v2/model_score.csv": {
+      "sha256": "74a7ff5c06d2842bad1a6f68c2330cfd8a6ea9c5e26c3b171e829d864f5c1342",
+      "reason": "MODEL-008 champion teacher probabilities for task 2, authorized by team lead Wang Jianqi (2026-09-25 upload instruction; 2026-09-26 corrected version sprint-g8v6-corrected after leak fix, see docs/worklog/2026-09-26-model-008-erratum-adaptation.md). 500 rows, gpsno/prob/rank_pct/calib_flag/model_version only, no labels, no raw-feature derivatives."
     }
   },
   "max_file_bytes": 8000000
