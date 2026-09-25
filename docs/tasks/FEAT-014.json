@@ -1,9 +1,9 @@
 {
   "id": "FEAT-014",
   "title": "叶安线特征与模型持续迭代探索方案",
-  "status": "active",
+  "status": "review",
   "owner": "叶安",
-  "actor": "Codex（执行 E0、B001–B003 及 E2 诊断和固定融合；进入 E3 候选稳定性检查，最终结果待叶安复核）",
+  "actor": "Codex（E0–E3 技术执行和独立机器审计完成；真实图表及候选结论待叶安复核）",
   "reviewer": null,
   "reviewed_at": null,
   "branch": "work/feat-014-execution",
@@ -36,9 +36,12 @@
     "feature_engineering/experiments/feat014/diagnose.py",
     "feature_engineering/experiments/feat014/audit_e2.py",
     "feature_engineering/experiments/feat014/fusion.py",
+    "feature_engineering/experiments/feat014/finalize.py",
+    "feature_engineering/experiments/feat014/audit_e3.py",
     "tests/test_feat014_contract.py",
-    "docs/worklog/2026-09-26-feat-014-execution.md"
+    "docs/worklog/2026-09-26-feat-014-execution.md",
+    "docs/worklog/2026-09-26-feat-014-e3-handoff.md"
   ],
-  "handoff": "docs/worklog/2026-09-26-feat-014-execution.md",
-  "notes": "本次执行授权来自叶安 2026-09-26 明确指示。依赖表示复用产物，不新增 EVAL-001 全项目正式采纳前置；任务内沿用方案锁定的旧评定标准。E0、B001–B003 E1/E2 机器审计通过，真实图表复核待叶安记录；融合结果仍属代理 OOF 探索，当前进入多种子稳定性检查，最终结论由叶安复核。"
+  "handoff": "docs/worklog/2026-09-26-feat-014-e3-handoff.md",
+  "notes": "本次执行授权来自叶安 2026-09-26 明确指示。依赖表示复用产物，不新增 EVAL-001 全项目正式采纳前置；任务内沿用方案锁定的评定标准。E0–E3、25 个新版本和独立机器审计已完成，E3 审计通过；没有候选达到既有 AUC 区间门，故不登记为已确认提升。真实图表与结论待叶安复核后方可 accepted。B002 初始环境失败及恢复过程完整留在受控运行记录；官方 61 天最终窗训练尚未执行，清单及回退指针见受控 E3 报告。"
 }
