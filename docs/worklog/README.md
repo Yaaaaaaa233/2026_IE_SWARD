@@ -20,3 +20,4 @@
 - [2026-09-25 FEAT-011 小规模建模适配方案入库](2026-09-25-feat-011-plan-acceptance.md)
 - [2026-09-25 FEAT-011 S0 只读审计与样张交接](2026-09-25-feat-011-s0-execution.md)
 - [2026-09-25 FEAT-011 S1 合成预检与成本样本交接](2026-09-25-feat-011-s1-synthetic-preflight.md)
+- [2026-09-25 FEAT-011 S1 合成样张复核交接](2026-09-25-feat-011-s1-visual-review.md)

@@ -4,7 +4,7 @@
   "status": "blocked",
   "owner": "叶安",
   "actor": "Codex（完成 S0 机器审计与合成预览；完成 S1 合成预检、负向检查和成本样本；真实 OOF 未运行）",
-  "reviewer": "叶安（确认 S0 三项图表／来源样张；S1 样张待复核）",
+  "reviewer": "叶安（确认 S0 三项图表／来源样张及 S1 两张合成图通过；2026-09-25）",
   "reviewed_at": "2026-09-25",
   "branch": "main（ADR-0003 无 PR 直接提交模式；独立检出执行）",
   "base_commit": "a0abad5eeaca2bf0e258df776d7eaf5b1bfbdc8f",
@@ -28,7 +28,8 @@
     "docs/worklog/2026-09-25-feat-011-s0-execution.md",
     "feature_engineering/experiments/feat011/s1_synthetic_preflight.py",
     "feature_engineering/experiments/feat011/test_s1_synthetic_preflight.py",
-    "docs/worklog/2026-09-25-feat-011-s1-synthetic-preflight.md"
+    "docs/worklog/2026-09-25-feat-011-s1-synthetic-preflight.md",
+    "docs/worklog/2026-09-25-feat-011-s1-visual-review.md"
   ],
   "dependencies": [
     "FEAT-009",
@@ -53,9 +54,10 @@
     "feature_engineering/experiments/feat011/test_audit_s0.py",
     "docs/worklog/2026-09-25-feat-011-s0-execution.md",
     "docs/worklog/2026-09-25-feat-011-s1-synthetic-preflight.md",
+    "docs/worklog/2026-09-25-feat-011-s1-visual-review.md",
     "feature_engineering/experiments/feat011/s1_synthetic_preflight.py",
     "feature_engineering/experiments/feat011/test_s1_synthetic_preflight.py"
   ],
-  "handoff": "docs/worklog/2026-09-25-feat-011-s1-synthetic-preflight.md",
-  "notes": "2026-09-25 叶安确认 FEAT-011 S0 两张合成图及真实特征族图／台账样张通过。S1 已用纯合成输入完成 A–D 各五折 EBM 管线、固定 E 融合、折内拟合范围核对、负向检查和单折成本样本；合成验收图待叶安复核。S1 真实预登记未锁定，S2/S3 未运行，无真实新 OOF 或模型效果结论。EVAL-001/EVAL-003 责任人复核与 FEAT-009 真实来源／标签／图表复核仍未完成，故真实候选运行保持 blocked。真实数值、指纹、预测和数据派生图仅留受控 outputs/feat-011/；公开 Git 只收录合成代码和不含真实结果的交接。"
+  "handoff": "docs/worklog/2026-09-25-feat-011-s1-visual-review.md",
+  "notes": "2026-09-25 叶安确认 FEAT-011 S0 两张合成图及真实特征族图／台账样张、S1 矩阵／融合图和区间图通过。S1 已用纯合成输入完成 A–D 各五折 EBM 管线、固定 E 融合、折内拟合范围核对、负向检查和单折成本样本。S1 真实预登记未锁定，S2/S3 未运行，无真实新 OOF 或模型效果结论。最新 main 上 EVAL-001 owner/reviewer 为空，EVAL-003 reviewer 为空，FEAT-009 实际字段来源／标签／图表复核仍未完成，故真实候选运行保持 blocked。真实数值、指纹、预测和数据派生图仅留受控 outputs/feat-011/；公开 Git 只收录合成代码和不含真实结果的交接。"
 }
