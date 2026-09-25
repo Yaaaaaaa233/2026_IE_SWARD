@@ -5,6 +5,7 @@ import unittest
 import pandas as pd
 
 from feature_engineering.experiments.feat014.run import G1_COLUMNS, extract_g1_features, read_oof
+from feature_engineering.experiments.feat014.diagnose import top100_change
 
 
 class Feat014ContractTests(unittest.TestCase):
@@ -62,6 +63,17 @@ class Feat014ContractTests(unittest.TestCase):
                           "y": [1, 0], "fold": [1, 0], "probability": [.8, .2]}).to_csv(path,index=False)
             with self.assertRaisesRegex(ValueError,"sample order/identity"):
                 read_oof(path,frame)
+
+    def test_top100_change_separates_fixed_positive_gains_and_false_positive_changes(self):
+        y = [1, 0, 1, 0, 1]
+        reference = {0, 1, 3}
+        candidate = {0, 2, 4}
+        got = top100_change(y, candidate, reference)
+        self.assertEqual(got["reference_false_positives_removed"], 2)
+        self.assertEqual(got["candidate_false_positives_added"], 0)
+        self.assertEqual(got["new_true_positives_in_top100"], 2)
+        self.assertEqual(got["true_positives_dropped_from_top100"], 0)
+        self.assertEqual(got["top100_overlap"], 1)
 
 
 if __name__ == "__main__": unittest.main()

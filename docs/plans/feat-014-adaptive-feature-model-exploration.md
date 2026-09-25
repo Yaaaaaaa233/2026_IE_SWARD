@@ -124,7 +124,7 @@ E0 先锁定旧结果和输入，复现 F3 EBM-A；已有合格 OOF 可作为其
 
 - **目的／依赖**：依赖至少一批 E1，回答“下一步试什么”，避免无反馈地穷举。
 - **操作／产物**：检查高风险名单误报、漏报及可解释分群；计算预测相关性和错误重叠，提出下一批假设。保留少量有互补性的单模，用最多三个不同信息成员构造简单融合；新特征或模型继续回 E1，融合也登记独立版号。
-- **机器验收**：拟 `python3 feature_engineering/experiments/feat014/run.py diagnose --config <local-config>`；拟 `python3 feature_engineering/experiments/feat014/audit.py --run-dir <run-dir> --stage E2`。误报／漏报与冻结标签、Top100 定义可复算；分组带人数与正类数；所有融合键、折号相同；权重、logit 截断常数在本版训练／组合前锁定。学习融合器必须有外折训练内部 OOF 证据，不能直接拟合已见全体 OOF 标签。
+- **机器验收**：已实现首轮 OOF 诊断：`python3 feature_engineering/experiments/feat014/diagnose.py --run-dir <run-dir> --batch B001 --focus V005 V006`；独立复算：`python3 feature_engineering/experiments/feat014/audit_e2.py --run-dir <run-dir> --batch B001 --focus V005 V006 --write`。Top100 变化、AUC／AP／Recall@100／Brier、固定对照配对区间及两候选错误互补性均从锁定 OOF 重算，带输入与 OOF 指纹。后续批次按各自锁定的 focus 运行。融合阶段还须满足：所有成员样本键和折号相同；权重、logit 截断常数在组合前锁定。学习融合器必须有外折训练内部 OOF 证据，不能直接拟合已见全体 OOF 标签。
 - **坏例**：成员 OOF 缺车／错位、成员标签不一致、融合读入外折验证标签都应被拒绝。
 - **可视化验收**：C0 错误类型×信息组热图；C1 风险前 100 名的“纠正了多少、又新增多少错误”变化图；C2 单模与融合并排比较。建议通过标准：能讲清继续某方向的理由；小群体只作线索，不能凭少量车辆宣称规律；相关性低不等于融合必然提升。
 - **放行**：第 6 节预算内回 E1 或进入 E3；最多连续三个同一假设的变体无父版本改善、也无已验证组合收益时，暂停该分支。

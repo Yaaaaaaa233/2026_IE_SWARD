@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""Create controlled E2 comparisons from completed FEAT-014 OOF predictions."""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
+
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / "AGENTS.md").is_file())
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from feature_engineering.experiments.feat014 import run as e  # noqa: E402
+
+
+def top_k(y: np.ndarray, p: np.ndarray, ids: np.ndarray, k: int = 100) -> set[int]:
+    return set(np.lexsort((ids.astype(str), -p))[: min(k, len(y))].tolist())
+
+
+def top100_change(y: np.ndarray, candidate: set[int], reference: set[int]) -> dict:
+    added, removed = candidate - reference, reference - candidate
+    return {
+        "reference_false_positives_removed": int(sum(y[i] == 0 for i in removed)),
+        "candidate_false_positives_added": int(sum(y[i] == 0 for i in added)),
+        "new_true_positives_in_top100": int(sum(y[i] == 1 for i in added)),
+        "true_positives_dropped_from_top100": int(sum(y[i] == 1 for i in removed)),
+        "top100_overlap": int(len(candidate & reference)),
+    }
+
+
+def metric_row(y: np.ndarray, p: np.ndarray, ids: np.ndarray, p_rf: np.ndarray, p_f3: np.ndarray,
+               fit_seconds: float) -> dict:
+    auc = float(roc_auc_score(y, p))
+    rf = e.compute_pair(y, p, p_rf)
+    f3 = e.compute_pair(y, p, p_f3)
+    return {
+        "auc": auc,
+        "ap": float(average_precision_score(y, p)),
+        "recall_at_100": float(y[list(top_k(y, p, ids))].sum() / y.sum()),
+        "brier": float(brier_score_loss(y, p)),
+        "fit_seconds": float(fit_seconds),
+        "delta_auc_vs_rf": rf,
+        "delta_auc_vs_f3": f3,
+        "delta_recall_vs_rf": float(y[list(top_k(y, p, ids))].sum() / y.sum() - y[list(top_k(y, p_rf, ids))].sum() / y.sum()),
+        "delta_recall_vs_f3": float(y[list(top_k(y, p, ids))].sum() / y.sum() - y[list(top_k(y, p_f3, ids))].sum() / y.sum()),
+        "delta_brier_vs_rf": float(brier_score_loss(y, p) - brier_score_loss(y, p_rf)),
+        "delta_brier_vs_f3": float(brier_score_loss(y, p) - brier_score_loss(y, p_f3)),
+    }
+
+
+def render(batch_dir: Path, data: dict) -> None:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    names = sorted(data["metrics"], key=lambda n: (data["metrics"][n]["delta_auc_vs_f3"]["point"], n))
+    fig, ax = plt.subplots(figsize=(10, max(4.5, .58 * len(names))))
+    for i, name in enumerate(names):
+        row = data["metrics"][name]
+        point = row["delta_auc_vs_f3"]["point"]
+        low, high = row["delta_auc_vs_f3"]["ci95"]
+        color = "#cf8128" if row["family"] == "ebm" else "#376b8c"
+        ax.errorbar(point, i, xerr=[[point - low], [high - point]], fmt="o", capsize=3, color=color)
+    ax.axvline(0, color="#333", lw=1, label="No change vs fixed F3 EBM-A")
+    ax.axvline(.01, color="#9c5730", ls="--", lw=1, label="+0.01 reference")
+    ax.set_yticks(np.arange(len(names)), names)
+    ax.set_xlabel("Δ pooled OOF AUC vs fixed F3 EBM-A (95% paired vehicle bootstrap)")
+    ax.set_title(f"FEAT-014 {batch_dir.name} | candidate comparison\nDevelopment proxy; adaptive-selection intervals are not independent confirmation")
+    ax.grid(axis="x", alpha=.2)
+    ax.legend(loc="lower right", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(batch_dir / "B1_auc_intervals.png", dpi=160)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for name in names:
+        row = data["metrics"][name]
+        point = row["delta_auc_vs_f3"]["point"]
+        ax.scatter(row["fit_seconds"] / 60, point, s=50)
+        ax.annotate(name, (row["fit_seconds"] / 60, point), xytext=(4, 3), textcoords="offset points", fontsize=8)
+    ax.axhline(0, color="#333", lw=1)
+    ax.axhline(.01, color="#9c5730", ls="--", lw=1)
+    ax.set_xlabel("Five-fold fit time (minutes)")
+    ax.set_ylabel("Δ pooled OOF AUC vs fixed F3 EBM-A")
+    ax.set_title(f"FEAT-014 {batch_dir.name} | effect and fit cost")
+    ax.grid(alpha=.2)
+    fig.tight_layout()
+    fig.savefig(batch_dir / "B2_cost_effect.png", dpi=160)
+    plt.close(fig)
+
+    names = data["focus_versions"]
+    a, b = names
+    pair = data["pair_complementarity"]
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5))
+    labels = ["Both top 100", f"{a} only", f"{b} only", "Neither"]
+    values = [pair["both_true_positives"], pair["first_only_true_positives"],
+              pair["second_only_true_positives"], pair["neither_true_positives"]]
+    axes[0].bar(labels, values, color=["#376b8c", "#83a8bf", "#cf8128", "#d8dde2"])
+    axes[0].set_ylabel("Positive vehicles")
+    axes[0].set_title("Positive capture in each model's Top 100")
+    axes[0].tick_params(axis="x", rotation=22)
+    fp_values = [pair["first_false_positives"], pair["second_false_positives"]]
+    axes[1].bar(names, fp_values, color=["#376b8c", "#cf8128"])
+    axes[1].set_ylabel("False positives in Top 100")
+    axes[1].set_title("False positive count")
+    fig.suptitle("FEAT-014 E2 | model error complementarity", y=1.02)
+    fig.tight_layout()
+    fig.savefig(batch_dir / "C0_error_complementarity.png", dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+    changes = data["top100_vs_f3"]
+    fig, ax = plt.subplots(figsize=(10, 5))
+    x = np.arange(len(changes))
+    gained = [changes[n]["new_true_positives_in_top100"] for n in changes]
+    lost = [-changes[n]["true_positives_dropped_from_top100"] for n in changes]
+    ax.bar(x, gained, label="New positives in Top 100", color="#376b8c")
+    ax.bar(x, lost, label="Positives dropped from Top 100", color="#cf8128")
+    ax.axhline(0, color="#333", lw=.8)
+    ax.set_xticks(x, list(changes))
+    ax.set_ylabel("Vehicles relative to fixed F3 EBM-A")
+    ax.set_title("FEAT-014 E2 | Top 100 positive capture changes")
+    ax.legend()
+    ax.grid(axis="y", alpha=.2)
+    fig.tight_layout()
+    fig.savefig(batch_dir / "C1_top100_change.png", dpi=160)
+    plt.close(fig)
+
+
+def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
+    lock, frame, _, _, _, y, folds, p_rf, p_f3 = e.load_run_inputs(run_dir)
+    batch_dir = run_dir / "batches" / batch_name
+    plan = json.loads((batch_dir / "plan.json").read_text(encoding="utf-8"))
+    metrics_doc = json.loads((batch_dir / "metrics.json").read_text(encoding="utf-8"))
+    if metrics_doc.get("status") != "complete":
+        raise ValueError("E2 requires a complete batch")
+    ids = frame.sample_id.astype(str).to_numpy()
+    probs = {}
+    metrics = {}
+    top = {}
+    for item in plan["versions"]:
+        name = item["version"]
+        result = json.loads((batch_dir / name / "result.json").read_text(encoding="utf-8"))
+        pred_path = batch_dir / name / "oof.csv"
+        if e.sha(pred_path) != result["oof_sha256"]:
+            raise ValueError(f"OOF hash mismatch for {name}")
+        p = e.read_oof(pred_path, frame, "probability")
+        probs[name] = p
+        top[name] = top_k(y, p, ids)
+        metrics[name] = {
+            **metric_row(y, p, ids, p_rf, p_f3, result["fit_seconds"]),
+            "family": result["family"], "view": result["view"],
+            "feature_count": result["feature_count"],
+        }
+    reference_top = top_k(y, p_f3, ids)
+    changes = {n: top100_change(y, top[n], reference_top) for n in probs}
+    if len(focus) != 2 or any(name not in probs for name in focus):
+        raise ValueError("focus must identify two completed versions in this batch")
+    aa, bb = focus
+    both = top[aa] & top[bb]
+    only_a, only_b = top[aa] - top[bb], top[bb] - top[aa]
+    neither = set(range(len(y))) - (top[aa] | top[bb])
+    pair = {
+        "both_true_positives": int(sum(y[i] == 1 for i in both)),
+        "first_only_true_positives": int(sum(y[i] == 1 for i in only_a)),
+        "second_only_true_positives": int(sum(y[i] == 1 for i in only_b)),
+        "neither_true_positives": int(sum(y[i] == 1 for i in neither)),
+        "first_false_positives": int(sum(y[i] == 0 for i in top[aa])),
+        "second_false_positives": int(sum(y[i] == 0 for i in top[bb])),
+        "top100_intersection": int(len(both)),
+        "probability_pearson_correlation": float(np.corrcoef(probs[aa], probs[bb])[0, 1]),
+        "fold_ids": sorted(map(int, np.unique(folds))),
+    }
+    pairwise_auc = {}
+    names = sorted(probs)
+    for i, left in enumerate(names):
+        for right in names[i + 1:]:
+            pairwise_auc[f"{left}_minus_{right}"] = e.compute_pair(y, probs[left], probs[right])
+    report = {
+        "task": "FEAT-014", "stage": "E2", "batch": batch_name,
+        "input_lock_sha256": e.sha(run_dir / "input_lock.json"),
+        "focus_versions": focus,
+        "status": "pass",
+        "metrics": metrics,
+        "top100_vs_f3": changes,
+        "pair_complementarity": pair,
+        "pairwise_auc": pairwise_auc,
+        "interpretation_boundary": "Repeated development OOF reuse is exploratory. Paired bootstrap intervals do not remove adaptive selection bias.",
+        "oof_sha256": {name: e.sha(batch_dir / name / "oof.csv") for name in probs},
+        "diagnose_script_sha256": e.sha(Path(__file__).resolve()),
+    }
+    e.json_dump(batch_dir / "e2_diagnosis.json", report)
+    pd.DataFrame([{"version": name, **row} for name, row in metrics.items()]).to_csv(
+        batch_dir / "e2_comparison.csv", index=False, lineterminator="\n")
+    render(batch_dir, report)
+    return report
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--run-dir", required=True, type=Path)
+    parser.add_argument("--batch", required=True)
+    parser.add_argument("--focus", nargs=2, required=True, help="two versions for the complementarity chart")
+    args = parser.parse_args()
+    result = diagnose(args.run_dir.expanduser().resolve(), args.batch, args.focus)
+    print(json.dumps({"stage": "E2", "status": result["status"], "batch": args.batch,
+                      "focus": args.focus, "output": str(args.run_dir / "batches" / args.batch)},
+                     ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()
