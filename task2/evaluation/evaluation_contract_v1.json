@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "contract_version": "T2-R4-v1",
+  "contract_version": "T2-R4-v1.1",
   "status": "draft_for_leader_review",
   "scope": "公开评价方法与合成验收；不含真实车辆、真实指标、OOF预测或学习权重",
   "dependencies": {
@@ -24,7 +24,7 @@
     {
       "id": "D23",
       "topic": "双基线",
-      "recommendation": "Q0使用等存在透明弱基线，Q1使用100乘以1减任务一折外风险概率；二者只作参照，不自动成为公开总分。"
+      "recommendation": "B0使用等存在透明弱基线，Q0保留给R1学习规则分，Q1使用100乘以1减任务一折外风险概率；B0和Q1只作参照，不自动成为公开总分。"
     }
   ],
   "evaluation": {
@@ -62,7 +62,7 @@
     ]
   },
   "baselines": {
-    "Q0": {
+    "B0": {
       "name": "equal_presence_transparent_baseline",
       "formula": "维度分=100*(1-已出现且可评价编码数/可评价编码数)，总分为至少3个可评价维度的等权平均",
       "insufficient_evidence_prior": 50.0,
@@ -76,6 +76,22 @@
       "input_requirement": "必须是与任务二验证同车辆、同折、同标签协议的折外风险概率",
       "role": "reference_only_not_a_selection_gate"
     }
+  },
+  "r1_publication": {
+    "rule_score_name": "Q0",
+    "low_evidence_prior": 50.0,
+    "required_output_fields": [
+      "gpsno",
+      "y",
+      "fold",
+      "safety_score",
+      "rule_recomputed_score",
+      "raw_rule_score",
+      "observation_status",
+      "publication_policy",
+      "rule_version"
+    ],
+    "rule": "R1标记insufficient_evidence时发布保守先验，保留raw_rule_score供审计；正常车辆发布台账复算分。"
   },
   "human_review": {
     "reviewer_count": 5,

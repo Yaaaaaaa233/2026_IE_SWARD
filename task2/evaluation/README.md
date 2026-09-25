@@ -6,7 +6,8 @@
 - [评价合同](evaluation_contract_v1.json)
 - [协议清单示例](protocol_manifest.example.json)
 - [人因复核模板](human-review-template.md)
-- `baselines.py`：Q0 等存在透明弱基线与 Q1 概率转换基线。
+- `baselines.py`：B0 等存在透明弱基线与 Q1 概率转换基线；Q0 专指 R1 学习规则分。
+- `r1_publication.py`：把 R1 原始规则结果转换成满足低暴露保护的 R4 发布行。
 - `evaluate_scores.py`：硬检查、五分位、AUC、AP、Top20% Lift、分折方向、子群和任务一一致性。
 - `human_review.py`：5 人 × 10 案例 × 5 问题验收。
 
@@ -22,3 +23,5 @@ python task2/evaluation/human_review.py human_review.csv \
 ```
 
 退出码为零只代表输入合法且指标成功计算。是否通过首要门槛读取报告中的 `primary_gate_pass`；是否采用某个评分方案仍需结合规则复算、人因复核和组长裁决。
+
+R1 接入时先调用 `build_r1_publication_rows`，再把结果传给 `evaluate_scores`。这样可以保留原始 Q0 台账分，同时确保低证据车辆使用 B0/R4 共同约定的保守发布口径。

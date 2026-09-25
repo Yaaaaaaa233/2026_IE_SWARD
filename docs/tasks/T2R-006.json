@@ -1,0 +1,40 @@
+{
+  "id": "T2R-006",
+  "title": "任务二跨线对接：B0/Q0 命名对齐与 R1 低暴露发布保护",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-R1-integration",
+  "base_commit": "a80b8c82ace2c80f4c0d114760430ca33bd5bdbf",
+  "write_scope": [
+    "task2/evaluation/",
+    "tests/test_task2_evaluation.py",
+    "tests/test_task2_r1_publication_adapter.py",
+    "docs/tasks/T2R-002.json",
+    "docs/tasks/T2R-006.json",
+    "docs/worklog/2026-09-24-t2-r4-moe-baselines.md",
+    "docs/worklog/2026-09-25-t2-r1-integration.md"
+  ],
+  "dependencies": [
+    "T2R-002",
+    "T2R-003",
+    "T2R-004"
+  ],
+  "acceptance": [
+    "透明弱基线统一更名 B0，Q0 唯一保留给 T2R-004 的 R1 学习规则分，代码、合同与文档无歧义",
+    "评价侧提供 R1 发布适配器：低证据车辆输出保守先验和 observation_status，正常车辆保持台账复算一致",
+    "适配器不修改 T2R-004 的引擎、分箱、权重或输出文件，并拒绝车辆集合、标签、折号或先验非法输入",
+    "新增合成测试覆盖正常与低证据发布路径，仓库全量单测与治理检查通过",
+    "不使用真实数据、不写入真实指标或车辆结果"
+  ],
+  "evidence": [
+    "task2/evaluation/r1_publication.py",
+    "task2/evaluation/evaluation_contract_v1.json",
+    "task2/evaluation/moe-baseline-charter-v1.md",
+    "tests/test_task2_r1_publication_adapter.py"
+  ],
+  "handoff": "docs/worklog/2026-09-25-t2-r1-integration.md",
+  "notes": "已响应 T2R-004 交接中的命名对齐请求，并在周航正负责的 R4 发布侧闭合低暴露保护；娄澜的 deduction/ 与 fusion/ 文件保持不变。"
+}

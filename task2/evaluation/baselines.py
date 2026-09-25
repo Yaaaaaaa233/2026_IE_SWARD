@@ -1,6 +1,6 @@
 """Data-free baseline implementations for task 2.
 
-Q0 is intentionally a weak, fully transparent floor.  It records whether an
+B0 is intentionally a weak, fully transparent floor.  It records whether an
 eligible risk code appeared and does not learn weights, bins, or thresholds.
 Q1 converts an already out-of-fold task-1 probability into a safety score.
 Neither function reads competition data.
@@ -34,11 +34,11 @@ def transparent_presence_baseline(
     min_observed_dimensions: int = 3,
     historical_outcome_cap: float | None = None,
 ) -> dict[str, Any]:
-    """Compute the Q0 equal-presence baseline.
+    """Compute the B0 equal-presence baseline.
 
     A code is eligible only after its exposure and equipment gate has passed.
     Within each observed public dimension, every eligible behavior/context code
-    receives equal weight and only its presence is used.  This makes Q0 a
+    receives equal weight and only its presence is used.  This makes B0 a
     reproducible lower baseline rather than a candidate replacement for R1.
     """
 
@@ -113,7 +113,7 @@ def transparent_presence_baseline(
         confidence = "standard"
 
     return {
-        "baseline": "Q0_equal_presence_v1",
+        "baseline": "B0_equal_presence_v1",
         "safety_score": safety_score,
         "dimension_scores": dimension_scores,
         "dimension_evidence": dimension_evidence,

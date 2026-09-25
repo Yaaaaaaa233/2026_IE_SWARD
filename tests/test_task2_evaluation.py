@@ -93,13 +93,14 @@ class Task2EvaluationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             probability_to_safety_score(1.1)
 
-    def test_q0_is_transparent_and_conservative_for_low_evidence(self):
+    def test_b0_is_transparent_and_conservative_for_low_evidence(self):
         result = transparent_presence_baseline(
             {"41001": 2, "41006": 1, "11804": 2},
             {"41001", "41003", "30002", "30000", "11401"},
             CLASSIFICATION_CONTRACT,
         )
         self.assertEqual("observed", result["observation_status"])
+        self.assertEqual("B0_equal_presence_v1", result["baseline"])
         self.assertEqual("low", result["evidence_confidence"])
         self.assertTrue(result["historical_outcome_triggered"])
         self.assertFalse(result["historical_outcome_cap_applied"])
