@@ -1,6 +1,6 @@
 # 当前开发状态
 
-更新：2026-09-24。维护方式：只在状态、阻塞或可引用结论变化时更新；详细过程见 [交接日志](worklog/README.md)。
+更新：2026-09-25。维护方式：只在状态、阻塞或可引用结论变化时更新；详细过程见 [交接日志](worklog/README.md)。
 
 ## 当前阶段
 
@@ -11,7 +11,7 @@
 | 协作治理 | 检查器与 CI 运行中（GOV-001 accepted）；ADR-0003 无 PR 直推模式生效，协调者以 `tools/supervise.sh` 定期监督；ADR-0005 重组与名册更正已落地（组长=王健祺；叶安=仓库建立与纪律管理；吴钊同=wzt-ai）；三层验收规程 v1 生效 | 剩余纪律条目并入治理文件；任务二按 T2- 前缀登记开工 |
 | 赛题与数据口径 | ADR-0006 已校正官方定义，ADR-0007 已定团队未遂记录计次；新版内部代理回测标签与车辆五折已在受控目录生成并通过 500 车对账，旧产物仍保留 | 数据／评估负责人复核并交付新版代理产物；核对正式窗口右端、时区及 7/31 数据可用性 |
 | 算法路线 | 旧协议 RF、V5、F3 等实现与结果归档，原效果排序／过门结论不向新协议继承；叶安线 [FEAT-009 v2](tasks/FEAT-009.json) 已完成受控 Y0–Y4 技术运行，处于人工复核 | 数据来源与标签复核、EVAL-001 责任人复核、新版 V5 跨线对账；王健祺线自主安排，GOV-008 不替其规定算法 |
-| 执行路线图 | 原[总体执行路线图](plans/roadmap_overall.md)与[优化方案 v1](plans/task1-optimization-plan-v1.md)保留历史设计；0923 [公共调整](plans/2026-09-23-official-qa-adjustment-plan.md)管共同前提，叶安线[FEAT-009 v2](plans/feat-009-protocol-v2-adaptation-plan.md)已有技术运行，[FEAT-010](plans/feat-010-final-window-and-observation-audit-plan.md)的 A0/A1 技术运行已完成、真实人工复核待完成，B0/B1 仍受复核门约束 | 按[执行交接](worklog/2026-09-24-feat-009-protocol-v2-execution.md)完成人工来源／标签与图表复核；复核 FEAT-010 A0/A1 的真实图表、来源和字段合同；前置复核完成后再决定是否放行观测量对照；一次 8 月 1 日推理检查待模型定型后安排 |
+| 执行路线图 | 原[总体执行路线图](plans/roadmap_overall.md)与[优化方案 v1](plans/task1-optimization-plan-v1.md)保留历史设计；0923 [公共调整](plans/2026-09-23-official-qa-adjustment-plan.md)管共同前提，叶安线[FEAT-009 v2](plans/feat-009-protocol-v2-adaptation-plan.md)已有技术运行，[FEAT-010](plans/feat-010-final-window-and-observation-audit-plan.md)的 A0/A1 技术运行已完成、真实人工复核待完成，B0/B1 仍受复核门约束；[FEAT-011 v1.0](plans/feat-011-small-attribution-model-adaptation-plan.md)已接受方案，S0–S3 未运行 | 按[执行交接](worklog/2026-09-24-feat-009-protocol-v2-execution.md)完成人工来源／标签与图表复核；复核 FEAT-010 A0/A1 的真实图表、来源和字段合同；前置复核完成后再决定是否放行观测量对照；FEAT-011 可先做 S0 合成与只读审计，真实 OOF 待复核门；一次 8 月 1 日推理检查待模型定型后安排 |
 | M1—M3 | 评估指标库与配对 bootstrap 方法可复用；新版代理标签／折分已生成，旧 OOF 和基线产物按旧版本封存 | 特征可见性审核通过后，才能用同一新版标签与折分形成可比 OOF 证据 |
 | 任务二评分 | 三人已转入（ADR-0005）；既有 F3 底座可用于方法设计，但旧标签下效果证据不可沿用 | 按答疑同步准备自定义评分结果 CSV 与模型／分析文档，无固定 CSV 模板 |
 | 说明文档 | 任务一 LaTeX 框架入库（TASK-006），数据清洗章节完稿，其余章节为待填模板 | 随实验收口回填章节；任务二说明文档（权重 65%）M4 前启动 |

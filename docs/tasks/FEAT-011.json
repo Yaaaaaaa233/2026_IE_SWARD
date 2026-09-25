@@ -1,0 +1,46 @@
+{
+  "id": "FEAT-011",
+  "title": "叶安线既有 F3 特征的小规模建模适配与归因检验方案",
+  "status": "blocked",
+  "owner": "叶安",
+  "actor": "Codex（方案入库；S0–S3 尚未执行）",
+  "reviewer": "叶安（仅确认方案入库）",
+  "reviewed_at": "2026-09-25",
+  "branch": "main（ADR-0003 无 PR 直接提交模式；独立检出整理）",
+  "base_commit": "373b5f35cf7095973bdb2218fb5de68d52d79db4",
+  "write_scope": [
+    "docs/plans/feat-011-small-attribution-model-adaptation-plan.md",
+    "docs/plans/README.md",
+    "docs/tasks/FEAT-011.json",
+    "docs/tasks/README.md",
+    "docs/decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md",
+    "docs/decisions/README.md",
+    "docs/worklog/2026-09-25-feat-011-plan-draft.md",
+    "docs/worklog/2026-09-25-feat-011-plan-acceptance.md",
+    "docs/worklog/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "feature_engineering/experiments/feat011/",
+    "outputs/feat-011/"
+  ],
+  "dependencies": [
+    "FEAT-009",
+    "EVAL-001",
+    "EVAL-003"
+  ],
+  "acceptance": [
+    "方案阶段：叶安确认 v1.0 的 S0–S3 操作、机器验收、人工可视化验收与放行条件；方案入库不等于实际步骤或模型效果通过",
+    "真实效果运行前完成 EVAL-001/EVAL-003 与 FEAT-009 所需实际复核，锁定同一 v2 标签、折分、时间可见 F3 输入、四个固定训练臂及唯一主比较 E−A",
+    "S0/S1 的输入与列集守恒、禁止字段、泄漏边界、合成坏例、样张及成本验收通过后，四臂各最多一套完整有效五折 OOF；E 仅按预登记等权 logit 计算",
+    "A 能在相同输入和配置下复现 FEAT-009 F3 OOF；独立审计核对逐车 OOF、拟合范围、输入输出哈希、配对 AUC、辅助指标与同 run 图表",
+    "负结果、失败运行、条件性结论和 61 天最终窗口限制完整留痕；跨线只在逐车及来源对账后作互补诊断，不自动采纳或改写公共基线",
+    "公开仓库不保存真实数值、指纹、逐车预测和数据图；实现后标 review，真实复核者和日期齐备才可 accepted"
+  ],
+  "evidence": [
+    "docs/plans/feat-011-small-attribution-model-adaptation-plan.md",
+    "docs/decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md",
+    "docs/worklog/2026-09-25-feat-011-plan-draft.md",
+    "docs/worklog/2026-09-25-feat-011-plan-acceptance.md"
+  ],
+  "handoff": "docs/worklog/2026-09-25-feat-011-plan-acceptance.md",
+  "notes": "2026-09-25 叶安指示“入库”，仅接受方案 v1.0；S0–S3 均未运行，未锁定预登记、未生成新 OOF、未宣称新增益。真实效果运行仍被 EVAL-001/EVAL-003/FEAT-009 所需实际复核阻塞。FEAT-009 受控 Y1 输入与主跑只读；FEAT-010 B0/B1 可并行，若改变正式输入须另建版本。此提交在独立检出完成，本机原有其他未提交改动不纳入。"
+}
