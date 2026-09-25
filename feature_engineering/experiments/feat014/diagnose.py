@@ -141,6 +141,32 @@ def render(batch_dir: Path, data: dict) -> None:
     fig.savefig(batch_dir / "C1_top100_change.png", dpi=160)
     plt.close(fig)
 
+    fusion = data.get("fusion_comparison", {})
+    if fusion:
+        names = list(fusion)
+        colors = ["#cf8128" if fusion[name]["is_fusion"] else "#376b8c" for name in names]
+        fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
+        centers = [fusion[name]["delta_auc_vs_f3"]["point"] for name in names]
+        lows = [fusion[name]["delta_auc_vs_f3"]["ci95"][0] for name in names]
+        highs = [fusion[name]["delta_auc_vs_f3"]["ci95"][1] for name in names]
+        for i, color in enumerate(colors):
+            point = centers[i]
+            axes[0].errorbar(point, i, xerr=[[point-lows[i]], [highs[i]-point]], fmt="o", color=color, capsize=3)
+        axes[0].axvline(0, color="#333", lw=.8)
+        axes[0].set_yticks(np.arange(len(names)), names)
+        axes[0].set_xlabel("Δ AUC vs fixed F3 EBM-A")
+        axes[0].set_title("Pooled OOF AUC")
+        axes[1].barh(names, [fusion[name]["recall_at_100"] for name in names], color=colors)
+        axes[1].set_xlabel("Recall@100")
+        axes[1].set_title("Top 100 positive capture")
+        axes[2].barh(names, [fusion[name]["brier"] for name in names], color=colors)
+        axes[2].set_xlabel("Brier (lower is better)")
+        axes[2].set_title("Probability error")
+        fig.suptitle("FEAT-014 E2 | registered fusion members and outputs", y=1.02)
+        fig.tight_layout()
+        fig.savefig(batch_dir / "C2_fusion_comparison.png", dpi=160, bbox_inches="tight")
+        plt.close(fig)
+
 
 def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
     lock, frame, _, _, _, y, folds, p_rf, p_f3 = e.load_run_inputs(run_dir)
@@ -197,6 +223,23 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
     for i, left in enumerate(names):
         for right in names[i + 1:]:
             pairwise_auc[f"{left}_minus_{right}"] = e.compute_pair(y, probs[left], probs[right])
+    fusion_comparison = {}
+    for item in plan["versions"]:
+        if item["family"] != "fusion":
+            continue
+        for member in item["params"]["members"]:
+            reference = f"{member['batch']}/{member['version']}"
+            if reference in fusion_comparison:
+                continue
+            p, _ = resolve_oof(run_dir, batch_name, reference, frame)
+            result = json.loads((run_dir / "batches" / member["batch"] / member["version"] / "result.json").read_text(encoding="utf-8"))
+            fusion_comparison[reference] = {
+                **metric_row(y, p, ids, p_rf, p_f3, result["fit_seconds"]),
+                "family": result["family"], "is_fusion": False,
+            }
+        fusion_comparison[f"{batch_name}/{item['version']}"] = {
+            **metrics[item["version"]], "is_fusion": True,
+        }
     direct_comparisons = {}
     for item in plan["versions"]:
         name = item["version"]
@@ -226,6 +269,7 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
         "top100_vs_f3": changes,
         "pair_complementarity": pair,
         "pairwise_auc": pairwise_auc,
+        "fusion_comparison": fusion_comparison,
         "direct_comparisons": direct_comparisons,
         "interpretation_boundary": "Repeated development OOF reuse is exploratory. Paired bootstrap intervals do not remove adaptive selection bias.",
         "oof_sha256": {name: e.sha(batch_dir / name / "oof.csv") for name in probs},

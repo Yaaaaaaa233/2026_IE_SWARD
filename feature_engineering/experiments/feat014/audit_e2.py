@@ -149,6 +149,31 @@ def audit(run_dir: Path, batch: str, focus: list[str]) -> dict:
             if (not np.isclose(expected_auc["point"], actual_auc.get("point", np.nan), atol=1e-12, rtol=0)
                     or not np.allclose(expected_auc["ci95"], actual_auc.get("ci95", [np.nan, np.nan]), atol=1e-12, rtol=0)):
                 errors.append(f"direct comparison AUC mismatch: {name}/{reference}")
+    expected_fusion_refs = {}
+    for item in plan["versions"]:
+        if item["family"] != "fusion":
+            continue
+        for member in item["params"]["members"]:
+            reference = f"{member['batch']}/{member['version']}"
+            if reference not in expected_fusion_refs:
+                p, _ = resolve_oof(run_dir, batch, reference, frame)
+                expected_fusion_refs[reference] = p
+        expected_fusion_refs[f"{batch}/{item['version']}"] = preds[item["version"]]
+    saved_fusion = doc.get("fusion_comparison", {})
+    if set(saved_fusion) != set(expected_fusion_refs):
+        errors.append("fusion member/output comparison set mismatch")
+    for reference, p in expected_fusion_refs.items():
+        row = saved_fusion.get(reference, {})
+        expected_auc = float(roc_auc_score(y, p))
+        expected_recall = float(y[list(rank(y, p, ids))].sum() / y.sum())
+        expected_brier = float(brier_score_loss(y, p))
+        expected_delta = e.compute_pair(y, p, p_f3)
+        for key, value in (("auc", expected_auc), ("recall_at_100", expected_recall), ("brier", expected_brier)):
+            if not np.isclose(row.get(key, np.nan), value, atol=1e-12, rtol=0): errors.append(f"fusion comparison metric mismatch: {reference}/{key}")
+        saved_delta = row.get("delta_auc_vs_f3", {})
+        if (not np.isclose(saved_delta.get("point", np.nan), expected_delta["point"], atol=1e-12, rtol=0)
+                or not np.allclose(saved_delta.get("ci95", [np.nan, np.nan]), expected_delta["ci95"], atol=1e-12, rtol=0)):
+            errors.append(f"fusion comparison paired interval mismatch: {reference}")
     focus_predictions, focus_selected, focus_paths = {}, {}, {}
     if len(focus) != 2:
         errors.append("focus must contain exactly two OOF references")
