@@ -32,6 +32,7 @@
     "task2/teacher_distillation/model.py",
     "task2/teacher_distillation/run.py",
     "task2/teacher_distillation/distillation-charter-v1.md",
+    "task2/teacher_distillation/D0-stage-report-20260925.md",
     "tests/test_task2_teacher_distillation.py"
   ],
   "handoff": "docs/worklog/2026-09-25-t2-d0-teacher-distillation.md",
