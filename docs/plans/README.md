@@ -15,6 +15,7 @@
 - [FEAT-011 既有 F3 特征的小规模建模适配方案](feat-011-small-attribution-model-adaptation-plan.md)（v1.0，[ADR-0010](../decisions/ADR-0010-feat-011-small-attribution-model-adaptation.md) 仅接受方案）：S0 只读审计和机器检查已完成，人工来源／图表复核待完成；S1–S3 未运行，真实 OOF 仍待前置复核门。
 - [FEAT-012 新版 F3 特征与算法多轮迭代优化](feat-012-iterative-feature-model-optimization.md)：叶安线任务内开发期探索；按用户授权直接启动，不等待 EVAL-001 全项目统一复核；上限 19 个版本，结果不改变公共评价基座。
 - [FEAT-013 FEAT-012 后续 EBM 稳定性与融合小迭代](feat-013-ebm-stability-and-fusion-followup.md)：补做三种子、EBM 平滑与固定权重融合对照；上限 17 版，结果仍为开发期探索。
+- [FEAT-014 叶安线特征与模型持续迭代探索](feat-014-adaptive-feature-model-exploration.md)：按 2026-09-26 用户指示启动；E0 输入／历史 OOF 审计与滚动批次管线建设中，结果仅在受控 `outputs/feat-014/`。
 - [FEAT-009 叶安线已有特征建模优化方案](feat-009-feature-modeling-proposal.md)（旧协议设计存档）：旧 S0 复核只保留历史身份，不能放行新版 S1。
 - [评价指标与基线对照方案 v1.3](评价指标与基线对照方案（MOE与MOP）.md)：公共规则按 0923 答疑及团队记录计次裁定校正；v1.3 已登记 FEAT-009 新协议技术锚点，但全项目正式评价基座仍待责任人复核。
 

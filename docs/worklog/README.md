@@ -23,3 +23,4 @@
 - [2026-09-25 FEAT-011 S1 合成样张复核交接](2026-09-25-feat-011-s1-visual-review.md)
 - [2026-09-25 FEAT-012 多轮优化探索交接](2026-09-25-feat-012-iterative-optimization.md)
 - [2026-09-25 FEAT-013 EBM 稳定性与融合后续](2026-09-25-feat-013-ebm-followup.md)
+- [2026-09-26 FEAT-014 执行与第一阶段交接](2026-09-26-feat-014-execution.md)
