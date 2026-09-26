@@ -1,0 +1,80 @@
+{
+ "rule_version": "task2-final-rules-v1",
+ "date_finalized": "2026-09-30",
+ "owner": "王健祺 (T2R-009)",
+ "status": "final (R1 扣分规则设定收口)",
+ "teacher": {
+  "model_version": "sprint-g10-final",
+  "role": "输入与参照（L1只报告不选型）"
+ },
+ "pipeline": [
+  {
+   "step": 1,
+   "name": "V3预训练打底（零标签）",
+   "params": {
+    "rates": "20类每千公里频率（事件行计数，未并段——登记偏差）",
+    "knots": "训练折内条件分位 k50/k75/k95（仅统计出现该行为的车，≥5辆）",
+    "proportion": "分段线性 (0,0)-(k50,.5)-(k75,.75)-(k95,1.0)，超k95满档",
+    "budget": "每组10分，按该车该组活跃类均摊",
+    "group_agg": "最大项+0.25×其余均值",
+    "S": "100−五组扣分和"
+   }
+  },
+  {
+   "step": 2,
+   "name": "发布层收缩",
+   "params": {
+    "reliability": "km/(km+100)",
+    "shrink_to": "训练折中位分"
+   }
+  },
+  {
+   "step": 3,
+   "name": "S2严重度权重（教师Top-50反推）",
+   "params": {
+    "K_top": 50,
+    "excess": "log1p率 Top均值−其余均值，负截零归一",
+    "scope": "折内"
+   }
+  },
+  {
+   "step": 4,
+   "name": "双预警区锐化",
+   "params": {
+    "zone": "教师百分位>0.6 且 V3风险分位>0.5（折内分位）",
+    "per_fold_n": "~31辆",
+    "extra": "Σ 行为折内百分位×w20，帽≤4分",
+    "space": "分数域(0-100)"
+   }
+  },
+  {
+   "step": 5,
+   "name": "输出",
+   "params": {
+    "zero_exposure": "回中位",
+    "final": "S=100−(V3扣分+锐化附加)再收缩"
+   }
+  }
+ ],
+ "eval": {
+  "L2_auc": 0.8158,
+  "L2_ap": 0.2985,
+  "pair_accounting": {
+   "repaired": 540,
+   "damaged": 55
+  },
+  "quintile_mono": "q2>q3倒挂未过严格门（尾部噪声证据，R4采纳容差口径前为已知边界）",
+  "L1_spearman_vs_teacher": 0.552,
+  "teacher_direct_auc": 0.8652,
+  "fidelity": "94.4%"
+ },
+ "provenance": {
+  "base": "娄澜 V3(Acont-P) 忠实移植（T2R-010/011）",
+  "post_train": "王健祺 S2 反推归因（T2R-009）",
+  "authorized_by": "组长王健祺 2026-09-30 指令终版化入库"
+ },
+ "deviations": [
+  "率按事件行计数未并段（娄澜为60/120/600秒段计数）",
+  "同类型窗合并近似未启用（终版行计数）"
+ ]
+}

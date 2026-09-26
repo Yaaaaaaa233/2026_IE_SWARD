@@ -90,6 +90,10 @@
     "models/sprint_champion_v2/model_score.csv": {
       "sha256": "341ec1d55165ac9c682a712f55c61dff279c606bb3a322408d816f2cc22f7ea0",
       "reason": "MODEL-008 champion teacher probabilities for task 2, authorized by team lead Wang Jianqi (2026-09-25 upload; 2026-09-26 leak-corrected g8v6; 2026-09-27 replaced by sprint-g10-final after 30-iteration round, 3-seed mean OOF, see docs/worklog/2026-09-26-model-008-erratum-adaptation.md). 500 rows, gpsno/prob/rank_pct/calib_flag/model_version only."
+    },
+    "task2/final_rules_v1/final_scores.csv": {
+      "sha256": "431296a17346e340472498bed195c1a1d1a61e278af91bc862eae1f570a80204",
+      "reason": "Task-2 final deduction rule scores (task2-final-rules-v1), authorized by team lead Wang Jianqi 2026-09-30 finalization instruction. 500 rows, gpsno/S_final/risk_pct/evidence_flag/rule_version only, no labels. Rule mechanism in task2/final_rules_v1/README.md + rule_config.json."
     }
   },
   "max_file_bytes": 8000000
