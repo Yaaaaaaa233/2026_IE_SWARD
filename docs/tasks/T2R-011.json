@@ -1,0 +1,34 @@
+{
+ "id": "T2R-011",
+ "title": "R1 方案族发布选型定型与动态证据登记（V3 主骨架 + V2 增强挑战者；独立路线，方法与定性结论；数字留受控台账）",
+ "status": "review",
+ "owner": "娄澜",
+ "actor": "ZCode agent",
+ "reviewer": null,
+ "reviewed_at": null,
+ "branch": "work/T2R-011-scheme-selection-dynamics",
+ "base_commit": "d46711c",
+ "write_scope": [
+  "docs/tasks/T2R-011.json",
+  "docs/worklog/2026-09-30-t2-r1-scheme-selection-and-dynamics.md"
+ ],
+ "dependencies": [
+  "T2R-010",
+  "T2R-004",
+  "T2R-005"
+ ],
+ "acceptance": [
+  "发布选型结论（定性）登记：V3（Acont-P 百分位档）为主骨架、V2（维度收缩）为增强挑战者，附 V2 启用前置两项检验条件；落选理由逐族登记",
+  "选型过程与结论完全不依赖任务一任何概率、排名或模型输出；任务一融合明确划为后续独立课题",
+  "动态区分度曲线方法登记（60 逐日截点回放、规则冻结、滚动证据窗+前瞻标签），含 V2 逐日曲线补测与发布层复算校准说明",
+  "前置预警双结论登记：趋势下滑假设如实否定（负结果），水平锁定成立（持续盯防名单机制）",
+  "方案族谱（9 原方案+11 变体）机制概览与迭代补丁谱系入册，全部方案只增不删",
+  "全部真实数字与逐车结果仅存本机受控台账，公开仓库不含真实数据统计与车辆标识",
+  "治理检查与仓库全量单测通过"
+ ],
+ "evidence": [
+  "docs/worklog/2026-09-30-t2-r1-scheme-selection-and-dynamics.md"
+ ],
+ "handoff": "docs/worklog/2026-09-30-t2-r1-scheme-selection-and-dynamics.md",
+ "notes": "独立路线续 T2R-010。交付手册（评委版/司机版双口径 V1.1）、规则表机读版与动态证据产物均在本机受控目录，路径已在 worklog 登记；与 T2R-008/009 双线对照的统一 R4 比较仍待团队组织。"
+}
