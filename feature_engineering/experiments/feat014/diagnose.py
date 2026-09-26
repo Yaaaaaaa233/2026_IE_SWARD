@@ -89,14 +89,17 @@ def render(batch_dir: Path, data: dict) -> None:
     plt.close(fig)
 
     fig, ax = plt.subplots(figsize=(8, 5))
+    fusion_only = all(data["metrics"][name]["family"] == "fusion" for name in names)
     for name in names:
         row = data["metrics"][name]
         point = row["delta_auc_vs_f3"]["point"]
-        ax.scatter(row["fit_seconds"] / 60, point, s=50)
-        ax.annotate(name, (row["fit_seconds"] / 60, point), xytext=(4, 3), textcoords="offset points", fontsize=8)
+        seconds = row.get("component_fit_seconds", row["fit_seconds"]) if fusion_only else row["fit_seconds"]
+        x_value = seconds / 60
+        ax.scatter(x_value, point, s=50)
+        ax.annotate(name, (x_value, point), xytext=(4, 3), textcoords="offset points", fontsize=8)
     ax.axhline(0, color="#333", lw=1)
     ax.axhline(.01, color="#9c5730", ls="--", lw=1)
-    ax.set_xlabel("Five-fold fit time (minutes)")
+    ax.set_xlabel("Five-fold fit time (minutes)" if not fusion_only else "Five-fold fit time of fusion members (minutes)")
     ax.set_ylabel("Δ pooled OOF AUC vs fixed F3 EBM-A")
     ax.set_title(f"FEAT-014 {batch_dir.name} | effect and fit cost")
     ax.grid(alpha=.2)
@@ -193,6 +196,13 @@ def diagnose(run_dir: Path, batch_name: str, focus: list[str]) -> dict:
             "family": result["family"], "view": result["view"],
             "feature_count": result["feature_count"],
         }
+        if result["family"] == "fusion":
+            component_seconds = 0.0
+            for member in result["members"]:
+                member_result = json.loads((run_dir / "batches" / member["batch"] / member["version"] / "result.json").read_text(encoding="utf-8"))
+                component_seconds += float(member_result["fit_seconds"])
+            metrics[name]["component_fit_seconds"] = component_seconds
+            metrics[name]["combination_seconds"] = float(result["fit_seconds"])
     reference_top = top_k(y, p_f3, ids)
     changes = {n: top100_change(y, top[n], reference_top) for n in probs}
     if len(focus) != 2:

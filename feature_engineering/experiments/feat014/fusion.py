@@ -86,6 +86,10 @@ def run_batch(run_dir: Path, batch_name: str) -> dict[str, Any]:
                 "oof_sha256": result["oof_sha256"],
                 "folds_sha256": hashlib.sha256("\n".join(map(str, frame.fold.astype(int))).encode()).hexdigest(),
             })
+        actual_member_seeds = sorted({int(r["seed"]) for r in member_results})
+        expected_member_seeds = sorted(map(int, plan.get("member_seeds", [plan.get("seed", actual_member_seeds[0])])))
+        if actual_member_seeds != expected_member_seeds:
+            raise ValueError(f"fusion member seed set differs from plan: {actual_member_seeds} != {expected_member_seeds}")
         started = time.monotonic()
         prediction = logit_mean(members, params["weights"], params.get("logit_clip", 1e-6))
         elapsed = time.monotonic() - started
@@ -112,7 +116,8 @@ def run_batch(run_dir: Path, batch_name: str) -> dict[str, Any]:
             "family": "fusion", "view": "fixed_logit_oof_combination",
             "feature_count": len(columns), "column_names": columns,
             "columns_sha256": hashlib.sha256("\n".join(columns).encode()).hexdigest(),
-            "params": params, "seed": 42, "fit_seconds": elapsed,
+            "params": params, "seed": plan.get("seed", actual_member_seeds[0] if len(actual_member_seeds) == 1 else None),
+            "member_seeds": actual_member_seeds, "fit_seconds": elapsed,
             "metrics": metrics, "fold_audit": fold_audit,
             "members": member_records, "oof_sha256": e.sha(oof_path),
             "implementation_sha256": e.sha(Path(__file__).resolve()),

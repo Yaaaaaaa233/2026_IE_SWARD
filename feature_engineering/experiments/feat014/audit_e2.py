@@ -174,6 +174,15 @@ def audit(run_dir: Path, batch: str, focus: list[str]) -> dict:
         if (not np.isclose(saved_delta.get("point", np.nan), expected_delta["point"], atol=1e-12, rtol=0)
                 or not np.allclose(saved_delta.get("ci95", [np.nan, np.nan]), expected_delta["ci95"], atol=1e-12, rtol=0)):
             errors.append(f"fusion comparison paired interval mismatch: {reference}")
+    for item in plan["versions"]:
+        if item["family"] != "fusion":
+            continue
+        expected_seconds = 0.0
+        for member in item["params"]["members"]:
+            member_result = json.loads((run_dir / "batches" / member["batch"] / member["version"] / "result.json").read_text(encoding="utf-8"))
+            expected_seconds += float(member_result["fit_seconds"])
+        actual_seconds = doc.get("metrics", {}).get(item["version"], {}).get("component_fit_seconds", np.nan)
+        if not np.isclose(actual_seconds, expected_seconds, atol=1e-12, rtol=0): errors.append(f"fusion member fit cost mismatch: {item['version']}")
     focus_predictions, focus_selected, focus_paths = {}, {}, {}
     if len(focus) != 2:
         errors.append("focus must contain exactly two OOF references")
