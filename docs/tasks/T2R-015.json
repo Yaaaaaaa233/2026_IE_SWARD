@@ -1,0 +1,37 @@
+{
+  "id": "T2R-015",
+  "title": "任务二冻结结果章节试写与评分运营UI演示",
+  "status": "review",
+  "owner": "周航正",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/T2-results-ui-demo",
+  "base_commit": "d2278b9",
+  "write_scope": [
+    "reports/local/task2/delivery_demo/",
+    "docs/report/task2/drafts/",
+    "docs/tasks/T2R-015.json",
+    "docs/worklog/2026-09-28-t2-results-ui-demo.md"
+  ],
+  "dependencies": [
+    "T2R-009",
+    "T2R-013",
+    "T2R-014"
+  ],
+  "acceptance": [
+    "结果章节使用task2-final-rules-v1冻结指标，不把内部代理效果写成官方成绩",
+    "UI用冻结500车总分生成脱敏排名和车队统计",
+    "雷达与趋势在冻结维度和动态台账缺失时显著标为结构演示值",
+    "UI覆盖评分维度、分数变化、排行和重点关注观察改善优秀四类运营名单",
+    "提供教师可读性检查表和正式维度动态数据替换接口",
+    "不上传Overleaf，不修改final_rules_v1或final_rules_v1_dyn"
+  ],
+  "evidence": [
+    "docs/report/task2/drafts/results-and-operations-readable.md",
+    "docs/report/task2/drafts/overleaf/sec10_operations_proposed.tex",
+    "docs/report/task2/drafts/teacher-readability-checklist.md"
+  ],
+  "handoff": "docs/worklog/2026-09-28-t2-results-ui-demo.md",
+  "notes": "UI与脱敏截图位于Git忽略的reports/local/task2目录，等待人工判断后再决定发布。总分、排名和统计来自冻结v1；五维和趋势是显著标注的结构演示，正式台账到位后替换。"
+}
