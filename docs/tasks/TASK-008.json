@@ -45,8 +45,9 @@
     "models/task1_final/extend_cleaned_history.py",
     "models/task1_final/build_g8_score_features.py",
     "tests/test_task1_final_cleaned_history.py",
-    "tests/test_task1_final_score_features.py"
+    "tests/test_task1_final_score_features.py",
+    "docs/worklog/2026-09-27-task1-overall-assessment.md"
   ],
-  "handoff": "docs/worklog/2026-09-27-task1-transfer-audit.md",
-  "notes": "叶安 2026-09-27 指示停止刷分。王健祺受控交付包已核验，g8v6-corrected 为本地技术终选、g10 为备选。按官方 [6/1,8/1) 历史窗，用旧隔离事件和 v1 传感明细生成终选模型输入投影；旧窗口末日车辆日对照通过，仅公里数末位舍入可差至 0.001 km。四成员 61 天特征、冻结配置全量拟合、正式未来概率及官方三列 CSV 已在受控目录生成，第二次拟合风险排序一致；受控交付包已建立。完整 v4 跨源标注未由本任务重发布，官方 AUC 未知。技术完成置 review，真实人工复核与赛事上传未发生。"
+  "handoff": "docs/worklog/2026-09-27-task1-overall-assessment.md",
+  "notes": "叶安 2026-09-27 指示停止刷分。王健祺受控交付包已核验，g8v6-corrected 为本地技术终选、g10 为备选。按官方 [6/1,8/1) 历史窗，用旧隔离事件和 v1 传感明细生成终选模型输入投影；旧窗口末日车辆日对照通过，仅公里数末位舍入可差至 0.001 km。四成员 61 天特征、冻结配置全量拟合、正式未来概率及三列 CSV 已在受控目录生成，第二次拟合风险排序一致；受控交付包已建立。总评估独立核验包内文件和官方提交字段，并记录 20 天训练到 61 天推理的累计特征分布迁移及 m4 分群键代理可见性边界。完整 v4 跨源标注未由本任务重发布，官方 AUC 未知；任务一说明 PDF 与任务二同步材料仍待整套提交收口。技术完成置 review，真实人工复核与赛事上传未发生。"
 }
