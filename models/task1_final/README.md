@@ -1,5 +1,26 @@
 # 任务一正式提交适配器
 
+## 最终算法冻结
+
+[ADR-0011](../../docs/decisions/ADR-0011-task1-g8-final-freeze.md) 将王健祺 `g8v6-corrected` 定为任务一终版。冻结的是四成员特征定义、`run_g8v6_fullfit.py` 的三种子与权重、代理训练窗口、8 月 1 日推理窗口和三列提交格式；后续不得因代理分数继续改特征、模型或权重。旧 `models/sprint_champion_v2/` 的泄漏谱系及 g10 均不是终版入口。
+
+本目录的 `frozen_recipe/` 保存 g8 的原始特征计算逻辑：仅移除私人盘符、真实成绩与无关探索评估栈，数据路径由 `build_g8_score_features.py` 注入。归档后的 g1、g2、g3、m4 四张 61 天推理表已在同一受控输入及扫描结果下与正式交付包逐文件字节一致；轨迹和 IMU 原始分片扫描没有重新执行。正式产物仍以受控 `交付_L3-模型_任务一正式预测g8v6-61d_20260927_叶安` 为准，包内 `完整性清单.json` 覆盖原脚本快照、特征、模型和 `正文/03_fullfit/submission/forecast_result.csv`。公开 Git 不保存任何真实特征表、标签、模型或提交 CSV。
+
+用 Python 3.12.13 和 [模型依赖锁](requirements.txt) 建立运行环境。新设备须另行取得受控上游数据、代理标签／折分、冻结 20 天训练特征与固定车辆清单，并核验各包指纹。特征入口示例：
+
+```sh
+python models/task1_final/build_g8_score_features.py \
+  --phase all --protocol-dir <受控代理协议目录> \
+  --train-g1 <受控20天g1训练表.csv> \
+  --events <受控61天events_model.csv> --vehicle-day <受控61天vehicle_day.csv> \
+  --cleaning-manifest <受控61天清洗manifest.json> \
+  --trajectory-dir <受控trajectory_clean目录> --imu-dir <受控imu_clean目录> \
+  --target-vehicles <受控target_vehicles.csv> \
+  --output-dir outputs/task1-final/<新特征run-id>
+```
+
+这个入口默认使用本仓库 `frozen_recipe/`；`--recipe-root` 仅用于审计指定版本，`--package-root` 兼容旧交付包并可推导 `--train-g1`，终版复现应显式传入训练表。正式包的原脚本快照保持只读；公开化后的脚本字节哈希不同，因此新建的 `score_manifest.json` 与原包不要求逐字节相同，四张模型输入表才是同构检查对象。`--phase trajectory`、`imu`、`members` 可按顺序运行长扫描。
+
 ## 61 天历史输入补齐
 
 `extend_cleaned_history.py` 读取旧 v4 事件／车辆日表、旧规则隔离的 7 月 31 日事件，以及 v1 保留但标为旧窗外的轨迹／IMU 明细。它先用同一程序重建 7 月 30 日车辆日表，要求除公里数最后一位浮点舍入最多相差 0.001 km 外逐字段一致，然后才追加 7 月 31 日。事件侧只输出终选 g8 特征脚本实际读取的五列；因此产物标为**模型输入投影**，不宣称是数据线完整 v4 的跨源标注重发布。原有数据包只读，新文件和逐源指纹均存入受控输出目录。

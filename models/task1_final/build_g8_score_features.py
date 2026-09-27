@@ -1,7 +1,7 @@
 """Build the frozen g8 member feature tables for the official 61-day history.
 
-Loads the transferred, hash-audited feature recipes without modifying them.
-All path overrides and resulting data remain in the controlled output directory.
+Loads the frozen feature recipes committed with the final model. All source
+paths and resulting data remain in controlled directories.
 """
 
 from __future__ import annotations
@@ -100,7 +100,15 @@ def build(args: argparse.Namespace) -> None:
     if cleaner["output_sha256"].get(args.vehicle_day.name) != sha256(args.vehicle_day):
         raise ValueError("vehicle-day input differs from cleaning manifest")
 
-    script_root = args.package_root / "01_scripts"
+    package_root = getattr(args, "package_root", None)
+    script_root = getattr(args, "recipe_root", None)
+    if script_root is None:
+        script_root = package_root / "01_scripts" if package_root else Path(__file__).resolve().parent / "frozen_recipe"
+    train_g1 = getattr(args, "train_g1", None)
+    if train_g1 is None and package_root is not None:
+        train_g1 = package_root / "04_models" / "中间特征表" / "20天窗" / "g1v1_features.csv"
+    if train_g1 is None or not train_g1.is_file():
+        raise FileNotFoundError("--train-g1 must identify the controlled frozen training g1 table")
     common = script_root / "_common"
     feature_dir = script_root / "特征构建"
     protocol = args.protocol_dir
@@ -108,7 +116,6 @@ def build(args: argparse.Namespace) -> None:
     ids = set(labels.sample_id.str.split("_").str[0])
     if len(labels) != 500 or len(ids) != 500:
         raise ValueError("frozen protocol must contain exactly 500 vehicles")
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "models" / "solution_b"))
     sys.path.insert(0, str(common))
     eval_stack = load_module(common / "eval_stack.py", "eval_stack")
     eval_stack.PROTOCOL_DIR = str(protocol)
@@ -141,7 +148,7 @@ def build(args: argparse.Namespace) -> None:
     g1_table, _ = g1.build(w_start=START, w_end=END)
     g1_table, restored_transitions = restore_training_transitions(
         g1_table, args.events,
-        args.package_root / "04_models" / "中间特征表" / "20天窗" / "g1v1_features.csv",
+        train_g1,
     )
     g1_path = args.output_dir / "g1.csv"
     g1_table.to_csv(g1_path, index=False, lineterminator="\n")
@@ -183,6 +190,7 @@ def build(args: argparse.Namespace) -> None:
         },
         "cleaning_manifest_sha256": sha256(args.cleaning_manifest),
         "restored_training_transition_columns": restored_transitions,
+        "training_g1_sha256": sha256(train_g1),
         "recipe_sha256": {
             path.name: sha256(path) for path in [
                 common / "scan_trajectory.py", common / "scan_imu.py",
@@ -200,8 +208,11 @@ def build(args: argparse.Namespace) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--phase", choices=("all", "trajectory", "imu", "members"), default="all")
+    parser.add_argument("--recipe-root", type=Path, help="frozen feature recipe; defaults to this repository")
+    parser.add_argument("--train-g1", type=Path, help="controlled frozen 20-day g1 training table")
+    parser.add_argument("--package-root", type=Path, help="legacy transferred package; prefer --train-g1")
     for name in (
-        "package_root", "protocol_dir", "events", "vehicle_day", "cleaning_manifest",
+        "protocol_dir", "events", "vehicle_day", "cleaning_manifest",
         "trajectory_dir", "imu_dir", "target_vehicles", "output_dir",
     ):
         parser.add_argument("--" + name.replace("_", "-"), required=True, type=Path)

@@ -10,6 +10,7 @@
 - [ADR-0008：叶安线按新版赛题口径重启特征与模型适配路线](ADR-0008-feat-009-protocol-v2-route.md)（Accepted，2026-09-24；仅接受当时方案，后续执行见 FEAT-009）
 - [ADR-0009：叶安线最终历史窗口适配与观测量依赖检验方案入库](ADR-0009-feat-010-final-window-and-observation-audit.md)（Accepted，2026-09-24；仅方案，执行未开始）
 - [ADR-0010：叶安线既有特征的小规模建模适配方案入库](ADR-0010-feat-011-small-attribution-model-adaptation.md)（Accepted，2026-09-25；仅方案，S0–S3 未运行）
+- [ADR-0011：任务一算法正式冻结为王健祺 g8v6-corrected](ADR-0011-task1-g8-final-freeze.md)（Accepted，2026-09-27；终版代码与受控产物分离）
 
 重大决策按编号新增：背景、提议、备选、影响、状态、真实决策人、日期、证据和迁移方式。状态为 `Proposed / Accepted / Superseded / Rejected`。
 

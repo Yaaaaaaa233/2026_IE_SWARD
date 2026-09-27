@@ -30,3 +30,4 @@
 - [2026-09-27 任务一算法线总评估与输出口径交接](2026-09-27-task1-overall-assessment.md)
 - [2026-09-27 任务一终选标准重加权交接](2026-09-27-task1-selection-reweight.md)
 - [2026-09-27 任务一最终算法版本确认与提交 CSV 核验](2026-09-27-task1-final-model-confirmation.md)
+- [2026-09-27 任务一 g8v6-corrected 正式冻结与代码归档](2026-09-27-task1-g8-final-freeze.md)

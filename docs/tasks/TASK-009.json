@@ -1,0 +1,39 @@
+{
+  "id": "TASK-009",
+  "title": "任务一 g8v6-corrected 算法终版冻结与代码归档",
+  "status": "review",
+  "owner": "叶安",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/task1-g8-freeze",
+  "base_commit": "67c63bf",
+  "write_scope": [
+    "docs/tasks/TASK-009.json",
+    "docs/tasks/README.md",
+    "docs/decisions/ADR-0011-task1-g8-final-freeze.md",
+    "docs/decisions/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "docs/worklog/2026-09-27-task1-g8-final-freeze.md",
+    "docs/worklog/README.md",
+    "models/task1_final/",
+    "outputs/task1-final/"
+  ],
+  "dependencies": ["TASK-008", "EVAL-003", "MODEL-008"],
+  "acceptance": [
+    "登记叶安对 g8v6-corrected 的终版决策、固定配方、重开条件和已知边界，不把代理成绩当官方成绩",
+    "将终版特征计算脚本去私人路径后入 Git，明确受控输入、依赖版本和跨设备复现入口",
+    "复核原正式交付包完整性清单，重建四张推理特征表并与原包逐文件对照；不改写原包和现有提交 CSV",
+    "公开 Git 只上传代码与无真实数据的说明，受控模型和预测保留本地；推送前通过治理检查、单测和暂存检查"
+  ],
+  "evidence": [
+    "docs/decisions/ADR-0011-task1-g8-final-freeze.md",
+    "models/task1_final/README.md",
+    "models/task1_final/frozen_recipe/_common/eval_stack.py",
+    "models/task1_final/frozen_recipe/特征构建/build_member4_clean.py",
+    "models/task1_final/requirements.txt",
+    "docs/worklog/2026-09-27-task1-g8-final-freeze.md"
+  ],
+  "handoff": "docs/worklog/2026-09-27-task1-g8-final-freeze.md",
+  "notes": "叶安已明确接受算法终选，故 ADR-0011 状态为 Accepted；本任务实施与受控产物人工复核未获独立签收，保持 review。受控证据编号 G8-FREEZE-20260927。正式本地 CSV 位于既有只读 L3 交付包；官方未来标签、AUC 和赛事系统上传状态未知。"
+}

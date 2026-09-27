@@ -1,0 +1,8 @@
+# Frozen task-one g8v6-corrected full-fit runtime (see controlled provenance).
+# Use Python 3.12.13. CI unit tests use the repository-level requirements.txt.
+interpret==0.7.8
+numpy==2.4.6
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.18.1
+joblib==1.6.0
