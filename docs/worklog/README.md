@@ -25,3 +25,4 @@
 - [2026-09-25 FEAT-013 EBM 稳定性与融合后续](2026-09-25-feat-013-ebm-followup.md)
 - [2026-09-26 FEAT-014 执行与第一阶段交接](2026-09-26-feat-014-execution.md)
 - [2026-09-26 FEAT-014 E3 收口与交接](2026-09-26-feat-014-e3-handoff.md)
+- [2026-09-27 任务一终选与正式交付首轮交接](2026-09-27-task1-final-selection-delivery.md)

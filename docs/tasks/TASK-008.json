@@ -1,0 +1,38 @@
+{
+  "id": "TASK-008",
+  "title": "任务一跨线终选与官方历史窗口交付",
+  "status": "active",
+  "owner": "叶安",
+  "actor": "Codex",
+  "reviewer": null,
+  "reviewed_at": null,
+  "branch": "work/task1-final-selection-delivery",
+  "base_commit": "bf69c72dcc99e21b998af5b063bfd4a6acccb7e7",
+  "write_scope": [
+    "docs/tasks/TASK-008.json",
+    "docs/tasks/README.md",
+    "docs/reviews/task1-final-selection.md",
+    "docs/worklog/2026-09-27-task1-final-selection-delivery.md",
+    "docs/worklog/README.md",
+    "docs/DEVELOPMENT_STATUS.md",
+    "models/task1_final/",
+    "tests/test_task1_final*.py",
+    "outputs/task1-final/"
+  ],
+  "dependencies": ["EVAL-003", "FEAT-010", "FEAT-014", "MODEL-007", "MODEL-008"],
+  "acceptance": [
+    "停止新增候选与调参；用同一新版协议审阅叶安、王健祺及既有基线的效果证据、时间可见性、选择偏差、模型复杂度与复现状态，记录单一终选及回退依据",
+    "跨线逐车 OOF 缺失时明确降级证据等级，不用不同来源的裸 AUC 宣称统计胜负；历史泄漏版本一律排除",
+    "最终流程从标签严格晚于特征的代理样本拟合已冻结配置，读取预测截点前可用的完整历史输入，对固定 500 辆车输出真实未来窗口风险概率；不得把开发期 OOF 当作正式预测",
+    "最终 CSV 验证 gpsno 集合、唯一性、列序、概率域、UTF-8 无 BOM 与 LF；受控保存模型、配置、输入与输出指纹、运行日志和可回退产物",
+    "真实数据、OOF、分数、图和提交 CSV 仅在受控输出；代码、无真实值模板、公开结论与交接按治理纪律提交；技术完成后置 review，人工复核前不标 accepted"
+  ],
+  "evidence": [
+    "docs/reviews/task1-final-selection.md",
+    "models/task1_final/prepare_submission.py",
+    "tests/test_task1_final_submission.py",
+    "docs/worklog/2026-09-27-task1-final-selection-delivery.md"
+  ],
+  "handoff": "docs/worklog/2026-09-27-task1-final-selection-delivery.md",
+  "notes": "叶安 2026-09-27 指示停止刷分。跨线审查暂以 g8v6-corrected 为首选待核候选，g10-final 为备选；两版完整受控构建脚本、逐车 OOF 和模型均不在当前 Mac，叶安已获受控文件清单。输出合同适配器和合成负例已实现；真实跨线逐车对账、61 天构建、重训与未来推理未运行，任务继续 active。"
+}

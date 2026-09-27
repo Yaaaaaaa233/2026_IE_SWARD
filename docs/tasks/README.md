@@ -9,6 +9,7 @@
 - [GOV-001：治理框架初始化](GOV-001.json)
 - [TASK-005：数据清洗版本与规则总说明（v0–v4）入库，docx 转 Markdown](TASK-005.json)
 - [TASK-006：任务一算法说明文档 LaTeX 框架入库（数据清洗章节完稿，其余章节为待填模板）](TASK-006.json)
+- [TASK-008：任务一跨线终选与官方历史窗口交付](TASK-008.json)
 - [GOV-002：总体执行路线图 v0.2 与执行纪律落地](GOV-002.json)
 - [GOV-003：协作模式切换——取消强制 PR，改为协调者定期监督（ADR-0003）](GOV-003.json)
 - [GOV-004：数据交付规范（硬盘接口）与脚本归属（DATA_DELIVERY）](GOV-004.json)
