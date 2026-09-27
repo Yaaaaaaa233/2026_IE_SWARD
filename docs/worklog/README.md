@@ -29,3 +29,4 @@
 - [2026-09-27 任务一受控交付包核验与 g8 模型端适配](2026-09-27-task1-transfer-audit.md)
 - [2026-09-27 任务一算法线总评估与输出口径交接](2026-09-27-task1-overall-assessment.md)
 - [2026-09-27 任务一终选标准重加权交接](2026-09-27-task1-selection-reweight.md)
+- [2026-09-27 任务一最终算法版本确认与提交 CSV 核验](2026-09-27-task1-final-model-confirmation.md)

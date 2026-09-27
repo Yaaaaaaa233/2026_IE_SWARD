@@ -47,8 +47,9 @@
     "tests/test_task1_final_cleaned_history.py",
     "tests/test_task1_final_score_features.py",
     "docs/worklog/2026-09-27-task1-overall-assessment.md",
-    "docs/worklog/2026-09-27-task1-selection-reweight.md"
+    "docs/worklog/2026-09-27-task1-selection-reweight.md",
+    "docs/worklog/2026-09-27-task1-final-model-confirmation.md"
   ],
-  "handoff": "docs/worklog/2026-09-27-task1-selection-reweight.md",
-  "notes": "叶安 2026-09-27 指示停止刷分，并要求终选重加权：不计交付链完成度，先看稳定性与特征贡献。王健祺受控包已核验，g8v6-corrected 现为有条件暂定首选，g10 为真实竞争备选；固定成员4特征×模型消融结果只留受控目录，不能证明未来统计胜负。按官方 [6/1,8/1) 历史窗，用旧隔离事件和 v1 传感明细生成终选模型输入投影；旧窗口末日车辆日对照通过，仅公里数末位舍入可差至 0.001 km。四成员 61 天特征、冻结配置全量拟合、正式未来概率及三列 CSV 已在受控目录生成，第二次拟合风险排序一致。总评估核验原目标清单和格式，记录 20 天训练到 61 天推理的累计特征迁移及 m4 分群键代理可见性边界。完整 v4 跨源标注未重发，官方 AUC 未知；任务一说明 PDF 与任务二材料待收口。技术完成置 review，真实人工复核与赛事上传未发生。"
+  "handoff": "docs/worklog/2026-09-27-task1-final-model-confirmation.md",
+  "notes": "叶安 2026-09-27 要求终选不计交付链完成度、优先审查稳定性与特征贡献，并最终明确选定王健祺 g8v6-corrected。g10 保留作竞争对照；固定成员4特征×模型消融只留受控目录，不能证明未来统计胜负。按官方 [6/1,8/1) 历史窗，用旧隔离事件和 v1 传感明细生成终选模型输入投影；旧窗口末日车辆日对照通过，仅公里数末位舍入可差至 0.001 km。四成员 61 天特征、冻结配置全量拟合、正式未来概率及三列 CSV 已在受控目录生成。按叶安确认的版本复核现有 CSV：500 车集合、列序、二元标记、有限概率、UTF-8 无 BOM、LF 及回执哈希通过。该文件为 2026-08-01 正式未来推理，不是代理 OOF。完整 v4 跨源标注未重发，官方 AUC 未知；任务二材料及算法说明 PDF 待收口，赛事尚未上传。任务保持 review，不冒充全任务接受。"
 }
