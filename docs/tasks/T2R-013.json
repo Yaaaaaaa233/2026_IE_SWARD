@@ -1,11 +1,11 @@
 {
  "id": "T2R-013",
  "title": "final-rules-v1 动态应用层：滚动重放 + 动态政策 v1（伴生目录；不改 v1 分值参数；数字留受控台账）",
- "status": "review",
+ "status": "accepted",
  "owner": "娄澜",
  "actor": "ZCode agent",
- "reviewer": null,
- "reviewed_at": null,
+ "reviewer": "王健祺",
+ "reviewed_at": "2026-09-30",
  "branch": "work/T2R-013-final-v1-dynamics",
  "base_commit": "31c7d81",
  "write_scope": [
@@ -29,8 +29,10 @@
   "公开仓库不含逐车逐日分数与真实指标数值；治理检查与全量单测通过"
  ],
  "evidence": [
-  "docs/worklog/2026-09-30-t2r-013-final-v1-dynamics.md"
+  "docs/worklog/2026-09-30-t2r-013-final-v1-dynamics.md",
+  "task2/final_rules_v1_dyn/README.md",
+  "task2/final_rules_v1_dyn/dynamics_policy_v1.json"
  ],
  "handoff": "docs/worklog/2026-09-30-t2r-013-final-v1-dynamics.md",
- "notes": "伴生于组长王健祺收口的 task2-final-rules-v1（T2R-009）。逐日分表、动态曲线与全部实施记录存本机受控 final_v1_dyn/。任何分值级修改仍须走 task2-final-rules-v2 + R4。"
+ "notes": "伴生于组长王健祺收口的 task2-final-rules-v1（T2R-009）。逐日分表、动态曲线与全部实施记录存本机受控 final_v1_dyn/。任何分值级修改仍须走 task2-final-rules-v2 + R4。 2026-09-30 组长王健祺裁定正式冻结：final-rules-v1 动态应用层（滚动重放+动态政策v1）为 R2 最终交付形态；v1 分值参数与动态政策参数同时冻结，后续改动开 v2 走 R4。"
 }
