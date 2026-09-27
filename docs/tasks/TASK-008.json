@@ -1,7 +1,7 @@
 {
   "id": "TASK-008",
   "title": "任务一跨线终选与官方历史窗口交付",
-  "status": "active",
+  "status": "review",
   "owner": "叶安",
   "actor": "Codex",
   "reviewer": null,
@@ -20,7 +20,13 @@
     "tests/test_task1_final*.py",
     "outputs/task1-final/"
   ],
-  "dependencies": ["EVAL-003", "FEAT-010", "FEAT-014", "MODEL-007", "MODEL-008"],
+  "dependencies": [
+    "EVAL-003",
+    "FEAT-010",
+    "FEAT-014",
+    "MODEL-007",
+    "MODEL-008"
+  ],
   "acceptance": [
     "停止新增候选与调参；用同一新版协议审阅叶安、王健祺及既有基线的效果证据、时间可见性、选择偏差、模型复杂度与复现状态，记录单一终选及回退依据",
     "跨线逐车 OOF 缺失时明确降级证据等级，不用不同来源的裸 AUC 宣称统计胜负；历史泄漏版本一律排除",
@@ -35,8 +41,12 @@
     "tests/test_task1_final_submission.py",
     "tests/test_task1_final_fullfit.py",
     "docs/worklog/2026-09-27-task1-final-selection-delivery.md",
-    "docs/worklog/2026-09-27-task1-transfer-audit.md"
+    "docs/worklog/2026-09-27-task1-transfer-audit.md",
+    "models/task1_final/extend_cleaned_history.py",
+    "models/task1_final/build_g8_score_features.py",
+    "tests/test_task1_final_cleaned_history.py",
+    "tests/test_task1_final_score_features.py"
   ],
   "handoff": "docs/worklog/2026-09-27-task1-transfer-audit.md",
-  "notes": "叶安 2026-09-27 指示停止刷分。王健祺受控交付包已收；同车 OOF、标签折分及哈希已核对，g8 固定配方在本机 OOF 重放主指标一致；暂选 g8v6-corrected，g10-final 备选。模型全量拟合入口及合成负例已实现，但交付包和本机旧清洗源均漏 7/31，正式 61 天特征和未来推理未运行，任务继续 active。"
+  "notes": "叶安 2026-09-27 指示停止刷分。王健祺受控交付包已核验，g8v6-corrected 为本地技术终选、g10 为备选。按官方 [6/1,8/1) 历史窗，用旧隔离事件和 v1 传感明细生成终选模型输入投影；旧窗口末日车辆日对照通过，仅公里数末位舍入可差至 0.001 km。四成员 61 天特征、冻结配置全量拟合、正式未来概率及官方三列 CSV 已在受控目录生成，第二次拟合风险排序一致；受控交付包已建立。完整 v4 跨源标注未由本任务重发布，官方 AUC 未知。技术完成置 review，真实人工复核与赛事上传未发生。"
 }
