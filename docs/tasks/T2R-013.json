@@ -1,0 +1,36 @@
+{
+ "id": "T2R-013",
+ "title": "final-rules-v1 动态应用层：滚动重放 + 动态政策 v1（伴生目录；不改 v1 分值参数；数字留受控台账）",
+ "status": "review",
+ "owner": "娄澜",
+ "actor": "ZCode agent",
+ "reviewer": null,
+ "reviewed_at": null,
+ "branch": "work/T2R-013-final-v1-dynamics",
+ "base_commit": "31c7d81",
+ "write_scope": [
+  "docs/tasks/T2R-013.json",
+  "docs/worklog/2026-09-30-t2r-013-final-v1-dynamics.md",
+  "task2/final_rules_v1_dyn/README.md",
+  "task2/final_rules_v1_dyn/dynamics_policy_v1.json",
+  "task2/final_rules_v1_dyn/replay.py"
+ ],
+ "dependencies": [
+  "T2R-009",
+  "T2R-011",
+  "T2R-012"
+ ],
+ "acceptance": [
+  "伴生目录 task2/final_rules_v1_dyn 入库，不触碰 final_rules_v1 任何参数，不依赖 task2/operations",
+  "第一层滚动重放登记：v1 五步忠实实现、锚定漂移语义（主截点与定版分逐位一致、L2 零损）、60 逐日截点、忠实性秩相关 0.95 档并登记实现差异",
+  "第二层动态政策 v1 登记：D1 滞回门（出区 0.45/回区 0.55，附加分当日清零，单向门弃用及理由）；D3 旋钮学习协议与中性交付；D4 里程窗五折否决；D6 百分起扣结构性消除重放压缩",
+  "验收协议登记：主截点零损、逐日带最低值不低于第一层基线、前瞻标签口径全曲线远离随机线（数字留受控台账）",
+  "呈现层成品（四边界卡/锐化话术/反事实模板/双档名单与干预单）成文并指向受控手册 V2.1",
+  "公开仓库不含逐车逐日分数与真实指标数值；治理检查与全量单测通过"
+ ],
+ "evidence": [
+  "docs/worklog/2026-09-30-t2r-013-final-v1-dynamics.md"
+ ],
+ "handoff": "docs/worklog/2026-09-30-t2r-013-final-v1-dynamics.md",
+ "notes": "伴生于组长王健祺收口的 task2-final-rules-v1（T2R-009）。逐日分表、动态曲线与全部实施记录存本机受控 final_v1_dyn/。任何分值级修改仍须走 task2-final-rules-v2 + R4。"
+}

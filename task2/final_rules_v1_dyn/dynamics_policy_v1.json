@@ -1,0 +1,50 @@
+{
+ "policy_version": "final-v1-dyn-policy-v1",
+ "date": "2026-09-30",
+ "owner": "娄澜 (T2R-013)",
+ "base_rule": "task2-final-rules-v1 (frozen; no parameter of the base rule is modified here)",
+ "teacher": {"model_version": "sprint-g10-final", "role": "input_and_reference_only"},
+ "layers": {
+  "L1_rolling_replay": {
+   "window_days": 20,
+   "rate_caliber": "event-row counts per 1000km (inherited from v1)",
+   "anchor_semantics": "S_dyn(c) = S_final + (replay(c) - replay(main_cutoff))",
+   "main_cutoff": "2026-06-21",
+   "property": "exact match to final_scores at main cutoff (zero L2 loss)"
+  },
+  "L2_dynamic_policy": {
+   "D1_dual_warning_zone_door": {
+    "entry": "teacher_pctl>0.6 AND v3_risk_pctl>=0.5 (v1 definition, fold-frozen references)",
+    "exit_threshold": 0.45,
+    "reentry_threshold": 0.55,
+    "armed_from": "publication cutoff",
+    "extra_points": "v1 sharpening value (cap 4), cleared on the day of exit",
+    "rejected_alternative": "one-way door (no re-entry): measurably hurts discrimination; registered"
+   },
+   "D3_time_knobs": {
+    "night_coefficient": {"shipped": 1.0, "learned_candidates": [1.15, 1.3], "fleet_effect": "neutral (second-order); reserved as per-driver fairness term"},
+    "half_life_exposure_days": {"shipped": "infinite (no decay)", "candidates": [7, 20, "inf"]},
+    "persistence": {"shipped": "off", "candidates": ["off", "step0.5_cap2.0"]},
+    "selection_protocol": "candidate grid scored on TRAIN folds at main cutoff (labels within train folds only), top-5 then ranked by mean BAND AUC of the anchored daily curve on train vehicles; shipped value = most conservative when fleet curve gain is absent"
+   },
+   "D4_km_window": {"status": "rejected", "evidence": "all five folds selected the calendar window", "candidates_km": [4000]},
+   "D6_daily_restart": {"status": "inherent", "semantics": "each day scored fresh from 100; no static-final carryover; replay-compression eliminated by construction"}
+  }
+ },
+ "acceptance": {
+  "L2_main_cutoff_vs_final_scores": "zero loss (bit-identical via anchor)",
+  "dynamic_curve": "prospective labels (incident within [c, c+40d)); full-series and band metrics in controlled ledger",
+  "band_min_rule": "L2 layer band minimum must not fall below the L1 rolling-replay baseline",
+  "results_location": "controlled ledger final_v1_dyn/ (phaseA / phaseB / phaseAB records)"
+ },
+ "known_boundaries": [
+  "row-count caliber inherited from v1 (no 60/120/600s merging); weaker rolling stability than segment caliber -> v2-a candidate",
+  "knob learning involves multiple comparisons; fleet-level effect neutral; most conservative values shipped",
+  "teacher replacement requires full rerun"
+ ],
+ "provenance": {
+  "base": "王健祺 task2-final-rules-v1 (T2R-009 closing)",
+  "dyn_layer": "娄澜 T2R-013; companion directory does not modify any v1 parameter",
+  "presentation_artifacts": "fine-tuning handbook V2.1 chapter 7 (controlled)"
+ }
+}
