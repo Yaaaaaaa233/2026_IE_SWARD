@@ -13,6 +13,7 @@
     "docs/tasks/README.md",
     "docs/reviews/task1-final-selection.md",
     "docs/worklog/2026-09-27-task1-final-selection-delivery.md",
+    "docs/worklog/2026-09-27-task1-transfer-audit.md",
     "docs/worklog/README.md",
     "docs/DEVELOPMENT_STATUS.md",
     "models/task1_final/",
@@ -30,9 +31,12 @@
   "evidence": [
     "docs/reviews/task1-final-selection.md",
     "models/task1_final/prepare_submission.py",
+    "models/task1_final/run_g8v6_fullfit.py",
     "tests/test_task1_final_submission.py",
-    "docs/worklog/2026-09-27-task1-final-selection-delivery.md"
+    "tests/test_task1_final_fullfit.py",
+    "docs/worklog/2026-09-27-task1-final-selection-delivery.md",
+    "docs/worklog/2026-09-27-task1-transfer-audit.md"
   ],
-  "handoff": "docs/worklog/2026-09-27-task1-final-selection-delivery.md",
-  "notes": "叶安 2026-09-27 指示停止刷分。跨线审查暂以 g8v6-corrected 为首选待核候选，g10-final 为备选；两版完整受控构建脚本、逐车 OOF 和模型均不在当前 Mac，叶安已获受控文件清单。输出合同适配器和合成负例已实现；真实跨线逐车对账、61 天构建、重训与未来推理未运行，任务继续 active。"
+  "handoff": "docs/worklog/2026-09-27-task1-transfer-audit.md",
+  "notes": "叶安 2026-09-27 指示停止刷分。王健祺受控交付包已收；同车 OOF、标签折分及哈希已核对，g8 固定配方在本机 OOF 重放主指标一致；暂选 g8v6-corrected，g10-final 备选。模型全量拟合入口及合成负例已实现，但交付包和本机旧清洗源均漏 7/31，正式 61 天特征和未来推理未运行，任务继续 active。"
 }

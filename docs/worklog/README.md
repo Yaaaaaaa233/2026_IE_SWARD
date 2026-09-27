@@ -26,3 +26,4 @@
 - [2026-09-26 FEAT-014 执行与第一阶段交接](2026-09-26-feat-014-execution.md)
 - [2026-09-26 FEAT-014 E3 收口与交接](2026-09-26-feat-014-e3-handoff.md)
 - [2026-09-27 任务一终选与正式交付首轮交接](2026-09-27-task1-final-selection-delivery.md)
+- [2026-09-27 任务一受控交付包核验与 g8 模型端适配](2026-09-27-task1-transfer-audit.md)

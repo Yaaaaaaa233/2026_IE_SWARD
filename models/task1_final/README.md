@@ -1,5 +1,26 @@
 # 任务一正式提交适配器
 
+## 冻结 g8v6 全量拟合
+
+`run_g8v6_fullfit.py` 实现交付包中 `run_g8v6_corrected.py` 的固定四成员、三种子、固定权重全量拟合与预测部分，不做新选型。训练输入为同一冻结标签的 20 天特征表，推理输入须为真正截至 `2026-08-01` 的 61 天特征表。四组特征各 500 行，按 `gpsno` 对齐；训练有而推理缺失的列会拒绝，推理新增列仅记账不入模型。运行结果含模型 bundle、列清单、真实未来概率、来源 manifest，以及由下方适配器校验并生成的 `submission/forecast_result.csv`，均写入受控输出目录。
+
+为避免误把 60 天窗当 61 天窗，必须随推理特征提供 `score_manifest.json`：`role=future_features`、`as_of=2026-08-01`、`feature_start=2026-06-01`、`feature_end_exclusive=2026-08-01`、四个成员表的 SHA-256，及 `source_coverage` 中 `events_clean`／`vehicle_day`／`trajectory`／`imu` 四源末次观测日期。事件和车辆日源必须覆盖 7 月 31 日。manifest 是可审计声明，仍须核验实际源数据及构建日志。
+
+```sh
+python3 models/task1_final/run_g8v6_fullfit.py \
+  --labels <受控代理标签/labels.csv> --vehicles <受控500车清单> \
+  --train-g1 <20天g1.csv> --score-g1 <61天g1.csv> \
+  --train-g2 <20天g2.csv> --score-g2 <61天g2.csv> \
+  --train-g3 <20天g3.csv> --score-g3 <61天g3.csv> \
+  --train-m4 <20天成员4.csv> --score-m4 <61天成员4.csv> \
+  --score-manifest <受控score_manifest.json> \
+  --output-dir outputs/task1-final/<新run-id>
+```
+
+运行时需 Python 3.12、`interpret`、NumPy、pandas、scikit-learn、SciPy、joblib；交付包 `03_manifests/dependencies.txt` 的版本仅为其原设备锁定，本机环境差异须留在受控运行记录。若 61 天特征仍缺 7 月 31 日、列无法对齐或训练逻辑不能复现交付包 OOF，本入口不会被视为正式交付完成。
+
+## 官方 CSV 打包
+
 `prepare_submission.py` 只把**已经训练完成的模型对 2026-08-01 之后的真实推理概率**封装成官方提交文件，不训练模型，也不接受开发期 OOF。运行前先由所选模型线生成：
 
 - `vehicles.csv`：一列 `gpsno`，赛事固定 500 车，一车一行；
