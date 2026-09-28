@@ -10,7 +10,9 @@
   "base_commit": "d2278b9",
   "write_scope": [
     "reports/local/task2/delivery_demo/",
+    "task2/results/",
     "docs/report/task2/drafts/",
+    "docs/report/task2/three-cutoff-results-20260928.md",
     "docs/tasks/T2R-015.json",
     "docs/worklog/2026-09-28-t2-results-ui-demo.md"
   ],
@@ -22,16 +24,17 @@
   "acceptance": [
     "结果章节使用task2-final-rules-v1冻结指标，不把内部代理效果写成官方成绩",
     "UI用冻结500车总分生成脱敏排名和车队统计",
-    "雷达与趋势在冻结维度和动态台账缺失时显著标为结构演示值",
+    "雷达在真实维度分缺失时显著标为结构演示值；趋势使用受控台账的真实三个20天截点",
     "UI覆盖评分维度、分数变化、排行和重点关注观察改善优秀四类运营名单",
     "提供教师可读性检查表和正式维度动态数据替换接口",
-    "不上传Overleaf，不修改final_rules_v1或final_rules_v1_dyn"
+    "按用户后续指令更新Overleaf结果表述，不修改final_rules_v1或final_rules_v1_dyn的冻结参数"
   ],
   "evidence": [
     "docs/report/task2/drafts/results-and-operations-readable.md",
     "docs/report/task2/drafts/overleaf/sec10_operations_proposed.tex",
-    "docs/report/task2/drafts/teacher-readability-checklist.md"
+    "docs/report/task2/drafts/teacher-readability-checklist.md",
+    "docs/report/task2/three-cutoff-results-20260928.md"
   ],
   "handoff": "docs/worklog/2026-09-28-t2-results-ui-demo.md",
-  "notes": "UI与脱敏截图位于Git忽略的reports/local/task2目录，等待人工判断后再决定发布。总分、排名和统计来自冻结v1；五维和趋势是显著标注的结构演示，正式台账到位后替换。"
+  "notes": "受控三截点CSV与内置真实数据的完整UI不入公开Git。冻结v1的6/21主截点与动态重放完全一致；7/11、7/31为真实20天窗口分数。五维雷达和逐车扣分原因仍是结构演示。Git仅上传复算代码与汇总说明。"
 }
